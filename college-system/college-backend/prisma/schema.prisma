@@ -1,0 +1,728 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// College Management System — Prisma Schema
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  TEACHER
+  PARENT
+  STUDENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum StudentStatus {
+  ACTIVE
+  SUSPENDED
+  GRADUATED
+  WITHDRAWN
+}
+
+enum EmploymentType {
+  PERMANENT
+  CONTRACT
+  VISITING
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+}
+
+enum SlotType {
+  THEORY
+  PRACTICAL
+  BREAK
+}
+
+enum SubjectType {
+  THEORY
+  PRACTICAL
+  BOTH
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  LEAVE
+}
+
+enum StaffAttendanceStatus {
+  PRESENT
+  ABSENT
+  ON_LEAVE
+  HALF_DAY
+  HOLIDAY
+}
+
+enum FeeStatus {
+  PENDING
+  PARTIAL
+  PAID
+  WAIVED
+  OVERDUE
+}
+
+enum ExamStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum LeaveType {
+  SICK
+  CASUAL
+  ANNUAL
+  EMERGENCY
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum AnnouncementAudience {
+  ALL
+  STUDENTS
+  PARENTS
+  TEACHERS
+  SECTION
+}
+
+enum Relationship {
+  FATHER
+  MOTHER
+  GUARDIAN
+}
+
+// ─── MODELS ──────────────────────────────────────────────────────────────────
+
+// 1. User — core authentication record for every login
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  staffProfile           StaffProfile?
+  studentProfile         StudentProfile?
+  parentProfile          ParentProfile?
+  markedAttendances      StudentAttendance[] @relation("AttendanceMarkedBy")
+  markedStaffAttendances StaffAttendance[]   @relation("StaffAttendanceMarkedBy")
+  approvedLeaves         StaffLeave[]        @relation("LeaveApprovedBy")
+  announcements          Announcement[]
+  sentMessages           ChatMessage[]
+  notifications          Notification[]
+  auditLogs              AuditLog[]
+  gradedResults          ExamResult[]        @relation("ResultGradedBy")
+  supervisedExams        Exam[]              @relation("ExamSupervisor")
+
+  @@map("users")
+}
+
+// 2. Campus — Boys or Girls campus
+model Campus {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  address   String?
+  phone     String?
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  programs         Program[]
+  staffAssignments StaffCampusAssignment[]
+  studentProfiles  StudentProfile[]
+  timetableConfigs TimetablePeriodsConfig[]
+  staffAttendances StaffAttendance[]
+  feeStructures    FeeStructure[]
+  examTypes        ExamType[]
+  announcements    Announcement[]
+
+  @@map("campuses")
+}
+
+// 3. Program — FSc Pre-Medical, ICS, ICom, etc.
+model Program {
+  id            String   @id @default(uuid())
+  name          String
+  code          String
+  campusId      String   @map("campus_id")
+  durationYears Int      @default(2) @map("duration_years")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  campus        Campus       @relation(fields: [campusId], references: [id])
+  grades        Grade[]
+  feeStructures FeeStructure[]
+
+  @@unique([code, campusId])
+  @@map("programs")
+}
+
+// 4. Grade — Part 1, Part 2 for each program
+model Grade {
+  id           String   @id @default(uuid())
+  name         String
+  programId    String   @map("program_id")
+  displayOrder Int      @default(1) @map("display_order")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  program          Program                  @relation(fields: [programId], references: [id])
+  sections         Section[]
+  timetableConfigs TimetablePeriodsConfig[]
+  feeStructures    FeeStructure[]
+
+  @@map("grades")
+}
+
+// 5. Section — Section A, Section B per grade
+model Section {
+  id         String   @id @default(uuid())
+  name       String
+  gradeId    String   @map("grade_id")
+  roomNumber String?  @map("room_number")
+  capacity   Int      @default(40)
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  grade                  Grade                    @relation(fields: [gradeId], references: [id])
+  students               StudentProfile[]
+  sectionSubjectTeachers SectionSubjectTeacher[]
+  timetableSlots         TimetableSlot[]
+  studentAttendances     StudentAttendance[]
+  monthlyAttendances     MonthlyAttendanceSummary[]
+  exams                  Exam[]
+  announcements          Announcement[]
+
+  @@map("sections")
+}
+
+// 6. StaffProfile — teachers, admins, all college staff
+model StaffProfile {
+  id             String         @id @default(uuid())
+  userId         String         @unique @map("user_id")
+  staffCode      String         @unique @map("staff_code")
+  firstName      String         @map("first_name")
+  lastName       String         @map("last_name")
+  gender         Gender
+  phone          String?        @unique
+  cnic           String?        @unique
+  address        String?
+  joiningDate    DateTime?      @map("joining_date")
+  employmentType EmploymentType @default(PERMANENT) @map("employment_type")
+  designation    String?
+  photoUrl       String?        @map("photo_url")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  user                 User                    @relation(fields: [userId], references: [id])
+  campusAssignments    StaffCampusAssignment[]
+  sectionSubjectTeach  SectionSubjectTeacher[]
+  timetableSlots       TimetableSlot[]
+  leaves               StaffLeave[]
+  staffAttendances     StaffAttendance[]
+  supervisedExams      Exam[]                  @relation("ExamSupervisorStaff")
+
+  @@map("staff_profiles")
+}
+
+// 7. StaffCampusAssignment — which campus(es) a staff member serves
+model StaffCampusAssignment {
+  id         String    @id @default(uuid())
+  staffId    String    @map("staff_id")
+  campusId   String    @map("campus_id")
+  isPrimary  Boolean   @default(true) @map("is_primary")
+  assignedAt DateTime  @default(now()) @map("assigned_at")
+  removedAt  DateTime? @map("removed_at")
+
+  staff  StaffProfile @relation(fields: [staffId], references: [id])
+  campus Campus       @relation(fields: [campusId], references: [id])
+
+  @@unique([staffId, campusId])
+  @@map("staff_campus_assignments")
+}
+
+// 8. StudentProfile — full student record
+model StudentProfile {
+  id             String        @id @default(uuid())
+  userId         String        @unique @map("user_id")
+  rollNumber     String        @unique @map("roll_number")
+  firstName      String        @map("first_name")
+  lastName       String        @map("last_name")
+  gender         Gender
+  dob            DateTime?
+  phone          String?
+  address        String?
+  guardianPhone  String?       @map("guardian_phone")
+  sectionId      String        @map("section_id")
+  campusId       String        @map("campus_id")
+  enrollmentDate DateTime      @default(now()) @map("enrollment_date")
+  status         StudentStatus @default(ACTIVE)
+  photoUrl       String?       @map("photo_url")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  user               User                       @relation(fields: [userId], references: [id])
+  section            Section                    @relation(fields: [sectionId], references: [id])
+  campus             Campus                     @relation(fields: [campusId], references: [id])
+  parentLinks        StudentParentLink[]
+  attendances        StudentAttendance[]
+  monthlyAttendances MonthlyAttendanceSummary[]
+  feeRecords         FeeRecord[]
+  examResults        ExamResult[]
+  boardExamRecords   BoardExamRecord[]
+
+  @@map("student_profiles")
+}
+
+// 9. ParentProfile — parent / guardian info
+model ParentProfile {
+  id         String   @id @default(uuid())
+  userId     String   @unique @map("user_id")
+  firstName  String   @map("first_name")
+  lastName   String   @map("last_name")
+  phone      String?  @unique
+  cnic       String?  @unique
+  occupation String?
+  address    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user         User                @relation(fields: [userId], references: [id])
+  studentLinks StudentParentLink[]
+
+  @@map("parent_profiles")
+}
+
+// 10. StudentParentLink — joins students to parents/guardians
+model StudentParentLink {
+  id           String       @id @default(uuid())
+  studentId    String       @map("student_id")
+  parentId     String       @map("parent_id")
+  relationship Relationship
+  isPrimary    Boolean      @default(false) @map("is_primary")
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  student StudentProfile @relation(fields: [studentId], references: [id])
+  parent  ParentProfile  @relation(fields: [parentId], references: [id])
+
+  @@unique([studentId, parentId])
+  @@map("student_parent_links")
+}
+
+// 11. Subject — Physics, Chemistry, Maths, etc.
+model Subject {
+  id          String      @id @default(uuid())
+  name        String
+  code        String      @unique
+  type        SubjectType @default(THEORY)
+  creditHours Int         @default(3) @map("credit_hours")
+  isActive    Boolean     @default(true) @map("is_active")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  sectionSubjectTeachers SectionSubjectTeacher[]
+  timetableSlots         TimetableSlot[]
+  studentAttendances     StudentAttendance[]
+  exams                  Exam[]
+  boardExamRecords       BoardExamRecord[]
+
+  @@map("subjects")
+}
+
+// 12. SectionSubjectTeacher — which teacher teaches which subject in which section
+model SectionSubjectTeacher {
+  id           String   @id @default(uuid())
+  sectionId    String   @map("section_id")
+  subjectId    String   @map("subject_id")
+  staffId      String   @map("staff_id")
+  academicYear String   @map("academic_year")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  section Section      @relation(fields: [sectionId], references: [id])
+  subject Subject      @relation(fields: [subjectId], references: [id])
+  staff   StaffProfile @relation(fields: [staffId], references: [id])
+
+  @@unique([sectionId, subjectId, academicYear])
+  @@map("section_subject_teachers")
+}
+
+// 13. TimetablePeriodsConfig — how many periods per day for each grade/campus
+model TimetablePeriodsConfig {
+  id                 String   @id @default(uuid())
+  campusId           String   @map("campus_id")
+  gradeId            String   @map("grade_id")
+  totalPeriods       Int      @default(8) @map("total_periods")
+  periodDurationMins Int      @default(45) @map("period_duration_mins")
+  breakAfterPeriod   Int      @default(4) @map("break_after_period")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  campus Campus @relation(fields: [campusId], references: [id])
+  grade  Grade  @relation(fields: [gradeId], references: [id])
+
+  @@unique([campusId, gradeId])
+  @@map("timetable_periods_config")
+}
+
+// 14. TimetableSlot — individual period entry in the schedule
+model TimetableSlot {
+  id           String    @id @default(uuid())
+  sectionId    String    @map("section_id")
+  subjectId    String?   @map("subject_id")
+  staffId      String?   @map("staff_id")
+  dayOfWeek    DayOfWeek @map("day_of_week")
+  slotNumber   Int       @map("slot_number")
+  slotType     SlotType  @default(THEORY) @map("slot_type")
+  startTime    String    @map("start_time")
+  endTime      String    @map("end_time")
+  academicYear String    @map("academic_year")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  section Section       @relation(fields: [sectionId], references: [id])
+  subject Subject?      @relation(fields: [subjectId], references: [id])
+  staff   StaffProfile? @relation(fields: [staffId], references: [id])
+
+  @@unique([sectionId, dayOfWeek, slotNumber, academicYear])
+  @@map("timetable_slots")
+}
+
+// 15. StudentAttendance — daily attendance per student per subject
+model StudentAttendance {
+  id         String           @id @default(uuid())
+  studentId  String           @map("student_id")
+  subjectId  String           @map("subject_id")
+  sectionId  String           @map("section_id")
+  date       DateTime         @db.Date
+  status     AttendanceStatus @default(PRESENT)
+  markedById String           @map("marked_by_id")
+  remarks    String?
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+  subject   Subject        @relation(fields: [subjectId], references: [id])
+  section   Section        @relation(fields: [sectionId], references: [id])
+  markedBy  User           @relation("AttendanceMarkedBy", fields: [markedById], references: [id])
+
+  @@unique([studentId, subjectId, date])
+  @@map("student_attendances")
+}
+
+// 16. MonthlyAttendanceSummary — computed monthly rollup per student
+model MonthlyAttendanceSummary {
+  id          String   @id @default(uuid())
+  studentId   String   @map("student_id")
+  sectionId   String   @map("section_id")
+  month       Int
+  year        Int
+  totalDays   Int      @default(0) @map("total_days")
+  presentDays Int      @default(0) @map("present_days")
+  absentDays  Int      @default(0) @map("absent_days")
+  lateDays    Int      @default(0) @map("late_days")
+  leaveDays   Int      @default(0) @map("leave_days")
+  percentage  Float    @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  student StudentProfile @relation(fields: [studentId], references: [id])
+  section Section        @relation(fields: [sectionId], references: [id])
+
+  @@unique([studentId, month, year])
+  @@map("monthly_attendance_summaries")
+}
+
+// 17. StaffLeave — leave application by staff
+model StaffLeave {
+  id           String      @id @default(uuid())
+  staffId      String      @map("staff_id")
+  leaveType    LeaveType   @map("leave_type")
+  startDate    DateTime    @map("start_date")
+  endDate      DateTime    @map("end_date")
+  totalDays    Int         @map("total_days")
+  reason       String?
+  status       LeaveStatus @default(PENDING)
+  approvedById String?     @map("approved_by_id")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  staff      StaffProfile @relation(fields: [staffId], references: [id])
+  approvedBy User?        @relation("LeaveApprovedBy", fields: [approvedById], references: [id])
+
+  @@map("staff_leaves")
+}
+
+// 18. StaffAttendance — daily check-in/out for staff
+model StaffAttendance {
+  id         String                @id @default(uuid())
+  staffId    String                @map("staff_id")
+  campusId   String                @map("campus_id")
+  date       DateTime              @db.Date
+  status     StaffAttendanceStatus @default(PRESENT)
+  checkIn    DateTime?             @map("check_in")
+  checkOut   DateTime?             @map("check_out")
+  remarks    String?
+  markedById String?               @map("marked_by_id")
+  createdAt  DateTime              @default(now()) @map("created_at")
+
+  staff     StaffProfile @relation(fields: [staffId], references: [id])
+  campus    Campus       @relation(fields: [campusId], references: [id])
+  markedBy  User?        @relation("StaffAttendanceMarkedBy", fields: [markedById], references: [id])
+
+  @@unique([staffId, date])
+  @@map("staff_attendances")
+}
+
+// 19. FeeStructure — fee plan for a program+grade combination
+model FeeStructure {
+  id            String   @id @default(uuid())
+  programId     String   @map("program_id")
+  gradeId       String   @map("grade_id")
+  campusId      String   @map("campus_id")
+  academicYear  String   @map("academic_year")
+  admissionFee  Float    @default(0) @map("admission_fee")
+  tuitionFee    Float    @default(0) @map("tuition_fee")
+  examFee       Float    @default(0) @map("exam_fee")
+  miscFee       Float    @default(0) @map("misc_fee")
+  lateFeePerDay Float    @default(0) @map("late_fee_per_day")
+  totalFee      Float    @default(0) @map("total_fee")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  program    Program     @relation(fields: [programId], references: [id])
+  grade      Grade       @relation(fields: [gradeId], references: [id])
+  campus     Campus      @relation(fields: [campusId], references: [id])
+  feeRecords FeeRecord[]
+
+  @@unique([programId, gradeId, academicYear])
+  @@map("fee_structures")
+}
+
+// 20. FeeRecord — per-student per-term fee ledger entry
+model FeeRecord {
+  id             String    @id @default(uuid())
+  studentId      String    @map("student_id")
+  feeStructureId String    @map("fee_structure_id")
+  academicYear   String    @map("academic_year")
+  dueDate        DateTime  @map("due_date")
+  amountDue      Float     @map("amount_due")
+  amountPaid     Float     @default(0) @map("amount_paid")
+  discount       Float     @default(0)
+  status         FeeStatus @default(PENDING)
+  paidAt         DateTime? @map("paid_at")
+  receiptNumber  String?   @unique @map("receipt_number")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  student      StudentProfile @relation(fields: [studentId], references: [id])
+  feeStructure FeeStructure   @relation(fields: [feeStructureId], references: [id])
+
+  @@map("fee_records")
+}
+
+// 21. ExamType — Mid-Term, Final, Unit Test, etc.
+model ExamType {
+  id        String   @id @default(uuid())
+  name      String
+  campusId  String   @map("campus_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  campus Campus @relation(fields: [campusId], references: [id])
+  exams  Exam[]
+
+  @@unique([name, campusId])
+  @@map("exam_types")
+}
+
+// 22. Exam — scheduled exam for a section+subject
+model Exam {
+  id                String     @id @default(uuid())
+  examTypeId        String     @map("exam_type_id")
+  sectionId         String     @map("section_id")
+  subjectId         String     @map("subject_id")
+  date              DateTime   @db.Date
+  startTime         String     @map("start_time")
+  durationMins      Int        @default(180) @map("duration_mins")
+  totalMarks        Int        @default(100) @map("total_marks")
+  venue             String?
+  status            ExamStatus @default(SCHEDULED)
+  supervisorId      String?    @map("supervisor_id")
+  supervisorStaffId String?    @map("supervisor_staff_id")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
+  examType        ExamType      @relation(fields: [examTypeId], references: [id])
+  section         Section       @relation(fields: [sectionId], references: [id])
+  subject         Subject       @relation(fields: [subjectId], references: [id])
+  supervisor      User?         @relation("ExamSupervisor", fields: [supervisorId], references: [id])
+  supervisorStaff StaffProfile? @relation("ExamSupervisorStaff", fields: [supervisorStaffId], references: [id])
+  results         ExamResult[]
+
+  @@map("exams")
+}
+
+// 23. ExamResult — marks obtained by a student in an exam
+model ExamResult {
+  id            String   @id @default(uuid())
+  examId        String   @map("exam_id")
+  studentId     String   @map("student_id")
+  obtainedMarks Float?   @map("obtained_marks")
+  isAbsent      Boolean  @default(false) @map("is_absent")
+  remarks       String?
+  gradedById    String?  @map("graded_by_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  exam     Exam           @relation(fields: [examId], references: [id])
+  student  StudentProfile @relation(fields: [studentId], references: [id])
+  gradedBy User?          @relation("ResultGradedBy", fields: [gradedById], references: [id])
+
+  @@unique([examId, studentId])
+  @@map("exam_results")
+}
+
+// 24. BoardExamRecord — external board exam results
+model BoardExamRecord {
+  id            String   @id @default(uuid())
+  studentId     String   @map("student_id")
+  subjectId     String   @map("subject_id")
+  academicYear  String   @map("academic_year")
+  rollNumber    String   @map("roll_number")
+  obtainedMarks Int      @map("obtained_marks")
+  totalMarks    Int      @map("total_marks")
+  grade         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  student StudentProfile @relation(fields: [studentId], references: [id])
+  subject Subject        @relation(fields: [subjectId], references: [id])
+
+  @@unique([studentId, subjectId, academicYear])
+  @@map("board_exam_records")
+}
+
+// 25. Announcement — notices for students, parents, teachers, or all
+model Announcement {
+  id          String               @id @default(uuid())
+  title       String
+  content     String
+  audience    AnnouncementAudience @default(ALL)
+  campusId    String?              @map("campus_id")
+  sectionId   String?              @map("section_id")
+  authorId    String               @map("author_id")
+  publishedAt DateTime?            @map("published_at")
+  expiresAt   DateTime?            @map("expires_at")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+
+  campus  Campus?  @relation(fields: [campusId], references: [id])
+  section Section? @relation(fields: [sectionId], references: [id])
+  author  User     @relation(fields: [authorId], references: [id])
+
+  @@map("announcements")
+}
+
+// 26. ChatConversation — direct message thread between two users
+model ChatConversation {
+  id               String   @id @default(uuid())
+  participantOneId String   @map("participant_one_id")
+  participantTwoId String   @map("participant_two_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  messages ChatMessage[]
+
+  @@unique([participantOneId, participantTwoId])
+  @@map("chat_conversations")
+}
+
+// 27. ChatMessage — individual messages in a conversation
+model ChatMessage {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  senderId       String   @map("sender_id")
+  content        String
+  isRead         Boolean  @default(false) @map("is_read")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation ChatConversation @relation(fields: [conversationId], references: [id])
+  sender       User             @relation(fields: [senderId], references: [id])
+
+  @@map("chat_messages")
+}
+
+// 28. Notification — in-app push notifications per user
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String
+  body      String
+  type      String
+  isRead    Boolean  @default(false) @map("is_read")
+  data      Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+// 29. AuditLog — track all create/update/delete actions
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  action    String
+  tableName String   @map("table_name")
+  recordId  String?  @map("record_id")
+  oldData   Json?    @map("old_data")
+  newData   Json?    @map("new_data")
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// 30. AppVersion — mobile app version management
+model AppVersion {
+  id           String   @id @default(uuid())
+  platform     String
+  version      String
+  buildNumber  Int      @map("build_number")
+  releaseNotes String?  @map("release_notes")
+  isForced     Boolean  @default(false) @map("is_forced")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@unique([platform, version])
+  @@map("app_versions")
+}
