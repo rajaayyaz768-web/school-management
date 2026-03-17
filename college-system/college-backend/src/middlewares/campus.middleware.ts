@@ -1,62 +1,62 @@
 import { Request, Response, NextFunction } from "express";
-import prisma from "../config/database";
-import { sendForbidden, sendNotFound } from "../utils/response";
+import { sendError } from "../utils/response";
 
 /**
- * Attaches campusId to req from query/params and verifies the requesting
- * user has been assigned to that campus (for ADMIN / TEACHER).
- * SUPER_ADMIN bypasses the check and can access any campus.
+ * Extracts and sets `req.campusId` based on the authenticated user.
+ * 
+ * - If `req.user` doesn't exist, returns 401 Unauthorized.
+ * - Extracts `user.campusId` and sets it to `req.campusId`.
+ * - SUPER_ADMIN and PARENT roles will typically have a `null` campusId (seeing all/irrelevant specific).
+ * 
+ * Use this on routes where tracking a user context to a specific campus is useful but not strictly mandatory, 
+ * or where a `null` campus indicates global administrative access.
+ * 
+ * Must be used AFTER `authenticate` middleware.
  */
-export const campusMiddleware = async (
+export const campusMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
-  const campusId =
-    (req.params.campusId as string) ||
-    (req.query.campusId as string) ||
-    (req.body?.campusId as string);
-
-  if (!campusId) {
-    next();
+): void => {
+  if (!req.user) {
+    sendError(res, "Unauthorized", 401);
     return;
   }
 
-  // Super admin can access any campus
-  if (req.user?.role === "SUPER_ADMIN") {
-    next();
+  req.campusId = req.user.campusId ?? null;
+  
+  next();
+};
+
+/**
+ * Enforces that the authenticated user explicitly belongs to a specific campus.
+ * 
+ * - If `req.user` doesn't exist, returns 401 Unauthorized.
+ * - If `req.user.campusId` is null, returns 403 Forbidden with message "No campus assigned to this account".
+ * - Otherwise sets `req.campusId` to the specific campus ID.
+ * 
+ * Use this on routes where an action fundamentally requires a specific campus context 
+ * (e.g., retrieving resources that *must* be scoped to a campus without allowing global view).
+ * 
+ * Must be used AFTER `authenticate` middleware.
+ */
+export const requireCampus = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (!req.user) {
+    sendError(res, "Unauthorized", 401);
     return;
   }
 
-  try {
-    const campus = await prisma.campus.findUnique({ where: { id: campusId } });
-    if (!campus || !campus.isActive) {
-      sendNotFound(res, "Campus not found");
-      return;
-    }
+  const campusId = req.user.campusId ?? null;
 
-    if (req.user?.role === "ADMIN" || req.user?.role === "TEACHER") {
-      const staffProfile = await prisma.staffProfile.findFirst({
-        where: { userId: req.user.userId },
-      });
-
-      if (!staffProfile) {
-        sendForbidden(res, "Staff profile not found");
-        return;
-      }
-
-      const assignment = await prisma.staffCampusAssignment.findFirst({
-        where: { staffId: staffProfile.id, campusId, removedAt: null },
-      });
-
-      if (!assignment) {
-        sendForbidden(res, "You are not assigned to this campus");
-        return;
-      }
-    }
-
-    next();
-  } catch {
-    next();
+  if (campusId === null) {
+    sendError(res, "No campus assigned to this account", 403);
+    return;
   }
+
+  req.campusId = campusId;
+  next();
 };

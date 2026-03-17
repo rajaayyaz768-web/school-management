@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AnyZodObject, ZodError } from "zod";
+import { z, ZodSchema } from "zod";
 import { sendValidationError } from "../utils/response";
 
 /**
@@ -8,7 +8,7 @@ import { sendValidationError } from "../utils/response";
  * Usage: router.post('/login', validate(loginSchema), controller)
  */
 export const validate =
-  (schema: AnyZodObject) =>
+  (schema: ZodSchema) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       await schema.parseAsync({
@@ -17,10 +17,10 @@ export const validate =
         query: req.query,
       });
       next();
-    } catch (err) {
-      if (err instanceof ZodError) {
-        const message = err.errors
-          .map((e) => `${e.path.slice(1).join(".")}: ${e.message}`)
+    } catch (err: any) {
+      if (err instanceof z.ZodError) {
+        const message = (err as any).errors
+          .map((e: any) => `${e.path.slice(1).join(".")}: ${e.message}`)
           .join(" | ");
         sendValidationError(res, message);
         return;

@@ -1,0 +1,487 @@
+.page {
+  background-color: #e8ede8;
+  background-image:
+    linear-gradient(rgba(55, 80, 55, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(55, 80, 55, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:global(.dark) .page {
+  background-color: #0c0f0c;
+  background-image:
+    linear-gradient(rgba(140, 170, 140, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(140, 170, 140, 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ==========================================================================
+   AMBIENT BLOBS (Background Layer)
+   ========================================================================== */
+.blob1,
+.blob2,
+.blob3 {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blob1 {
+  bottom: -160px;
+  left: -120px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(4, 40, 40, 0.55) 0%, transparent 60%);
+}
+
+.blob2 {
+  top: -100px;
+  right: -80px;
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.22) 0%, transparent 60%);
+}
+
+.blob3 {
+  top: 30%;
+  left: 20%;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(6, 55, 55, 0.28) 0%, transparent 60%);
+}
+
+:global(.dark) .blob1 {
+  background: radial-gradient(circle, rgba(4, 40, 40, 0.70) 0%, transparent 60%);
+}
+
+:global(.dark) .blob2 {
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.28) 0%, transparent 60%);
+}
+
+:global(.dark) .blob3 {
+  background: radial-gradient(circle, rgba(6, 55, 55, 0.38) 0%, transparent 60%);
+}
+
+/* ==========================================================================
+   GLASS SHELL (Outer Container)
+   ========================================================================== */
+.glassShell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 860px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.40);
+  box-shadow:
+    0 8px 48px rgba(15, 68, 68, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  overflow: hidden;
+  margin: 24px;
+}
+
+@media (min-width: 768px) {
+  .glassShell {
+    flex-direction: row;
+  }
+}
+
+:global(.dark) .glassShell {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 8px 48px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   LEFT BRAND CARD (Glass layer 1)
+   ========================================================================== */
+.brandCard {
+  display: none;
+  position: relative;
+  width: 50%;
+  padding: 40px;
+  flex-direction: column;
+  background: rgba(3, 28, 28, 0.72);
+  backdrop-filter: blur(36px) saturate(2.2);
+  -webkit-backdrop-filter: blur(36px) saturate(2.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.11);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: none;
+  border-radius: 0 24px 24px 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset -1px 0 0 rgba(255, 255, 255, 0.06),
+    6px 0 60px rgba(0, 0, 0, 0.22);
+  z-index: 1;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .brandCard {
+    display: flex;
+  }
+}
+
+:global(.dark) .brandCard {
+  background: rgba(2, 18, 18, 0.78);
+  backdrop-filter: blur(36px) saturate(2.4);
+  -webkit-backdrop-filter: blur(36px) saturate(2.4);
+}
+
+/* Internal Grid Overlay */
+.brandCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.040) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.040) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Gold Glow overlay */
+.brandCard::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  right: -80px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.20) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.brandContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.logoMark {
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
+  background: rgba(212, 168, 67, 0.14);
+  border: 1px solid rgba(212, 168, 67, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.brandTitle {
+  font-family: var(--font-playfair);
+  font-size: 26px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.93);
+  line-height: 1.22;
+  margin-bottom: 6px;
+}
+
+.brandBadge {
+  display: block;
+  font-family: var(--font-dm-sans);
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.32);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+}
+
+.brandDesc {
+  font-family: var(--font-dm-sans);
+  font-size: 13.5px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.52);
+  line-height: 1.78;
+  margin-bottom: 34px;
+  max-width: 340px;
+}
+
+.divider {
+  width: 36px;
+  height: 1.5px;
+  background: rgba(212, 168, 67, 0.42);
+  margin-bottom: 26px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-family: var(--font-dm-sans);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.featDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #D4A843;
+  flex-shrink: 0;
+  box-shadow: 0 0 7px rgba(212, 168, 67, 0.55);
+}
+
+.statTile {
+  background: rgba(255, 255, 255, 0.055);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 11px;
+  padding: 13px 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  display: flex;
+  flex-direction: column;
+}
+
+:global(.dark) .statTile {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ==========================================================================
+   RIGHT LOGIN CARD (Glass layer 2)
+   ========================================================================== */
+.loginCard {
+  width: 100%;
+  background: rgba(232, 245, 232, 0.30);
+  backdrop-filter: blur(32px) saturate(1.8);
+  -webkit-backdrop-filter: blur(32px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-top: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 20px;
+  box-shadow:
+    0 12px 48px rgba(3, 28, 28, 0.14),
+    0 2px 8px rgba(3, 28, 28, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+    inset 1px 0 0 rgba(255, 255, 255, 0.30),
+    inset -1px 0 0 rgba(255, 255, 255, 0.15);
+  padding: 44px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 768px) {
+  .loginCard {
+    width: 50%;
+    border-radius: 0;
+    /* Inherits from shell overflow when in flex row */
+  }
+}
+
+:global(.dark) .loginCard {
+  background: rgba(10, 40, 40, 0.35);
+  backdrop-filter: blur(32px) saturate(2.0);
+  -webkit-backdrop-filter: blur(32px) saturate(2.0);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* ==========================================================================
+   LOGIN FORM ELEMENTS
+   ========================================================================== */
+.loginHead {
+  font-family: var(--font-playfair);
+  font-size: 22px;
+  font-weight: 600;
+  color: #051414;
+  margin-bottom: 4px;
+}
+
+:global(.dark) .loginHead {
+  color: rgba(220, 240, 220, 0.92);
+}
+
+.loginSub {
+  font-family: var(--font-dm-sans);
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(5, 20, 20, 0.46);
+  margin-bottom: 28px;
+}
+
+:global(.dark) .loginSub {
+  color: rgba(200, 230, 200, 0.45);
+}
+
+.fieldLabel {
+  display: block;
+  font-family: var(--font-dm-sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(5, 20, 20, 0.50);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+:global(.dark) .fieldLabel {
+  color: rgba(200, 230, 200, 0.48);
+}
+
+.fieldInput {
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-family: var(--font-dm-sans);
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(5, 20, 20, 0.11);
+  border-top: 1px solid rgba(5, 20, 20, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 2px 4px rgba(5, 20, 20, 0.04);
+  color: #051414;
+  transition: all 180ms ease;
+  outline: none;
+}
+
+.fieldInput::placeholder {
+  color: rgba(5, 20, 20, 0.26);
+}
+
+:global(.dark) .fieldInput {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: rgba(220, 240, 220, 0.90);
+  border-top: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+:global(.dark) .fieldInput::placeholder {
+  color: rgba(200, 230, 200, 0.28);
+}
+
+.fieldInput:focus {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(5, 20, 20, 0.32);
+  box-shadow:
+    0 0 0 3px rgba(3, 28, 28, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+:global(.dark) .fieldInput:focus {
+  background: rgba(255, 255, 255, 0.11);
+  border: 1px solid rgba(212, 168, 67, 0.42);
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.10);
+}
+
+.fieldInputError {
+  border: 1px solid rgba(239, 68, 68, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08) !important;
+}
+
+.forgotLink {
+  font-family: var(--font-dm-sans);
+  font-size: 11px;
+  color: #C49830;
+  cursor: pointer;
+}
+
+:global(.dark) .forgotLink {
+  color: #D4A843;
+}
+
+.btnSignin {
+  height: 44px;
+  border-radius: 11px;
+  width: 100%;
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all 180ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background: rgba(3, 24, 24, 0.78);
+  backdrop-filter: blur(16px) saturate(1.8);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.20);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 4px 20px rgba(3, 24, 24, 0.25);
+  color: rgba(255, 255, 255, 0.90);
+  margin-top: 20px;
+}
+
+.btnSignin:hover:not(:disabled) {
+  background: rgba(2, 16, 16, 0.88);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 8px 28px rgba(3, 24, 24, 0.30);
+}
+
+.btnSignin:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btnSignin:disabled {
+  opacity: 0.85;
+}
+
+:global(.dark) .btnSignin {
+  background: rgba(212, 168, 67, 0.78);
+  border: 1px solid rgba(212, 168, 67, 0.40);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    0 4px 20px rgba(212, 168, 67, 0.22);
+  color: #051414;
+}
+
+:global(.dark) .btnSignin:hover:not(:disabled) {
+  background: rgba(212, 168, 67, 0.90);
+  box-shadow: 0 8px 28px rgba(212, 168, 67, 0.28);
+}
+
+.footerNote {
+  font-family: var(--font-dm-sans);
+  font-size: 11px;
+  color: rgba(5, 20, 20, 0.30);
+  text-align: center;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+
+:global(.dark) .footerNote {
+  color: rgba(200, 230, 200, 0.28);
+}

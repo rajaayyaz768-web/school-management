@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { login, refreshToken, logout, getMe } from "./auth.controller";
-import { authMiddleware } from "../../middlewares/auth.middleware";
+import { authenticate } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { authLimiter } from "../../middlewares/rateLimit.middleware";
 import { loginSchema } from "./auth.validation";
@@ -14,9 +14,9 @@ router.post("/login", authLimiter, validate(loginSchema), login);
 router.post("/refresh-token", refreshToken);
 
 // POST /api/v1/auth/logout  (protected)
-router.post("/logout", authMiddleware, logout);
+router.post("/logout", authenticate, logout);
 
 // GET /api/v1/auth/me  (protected)
-router.get("/me", authMiddleware, getMe);
+router.get("/me", authenticate, getMe);
 
 export default router;

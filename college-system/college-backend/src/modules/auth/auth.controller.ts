@@ -45,6 +45,6 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     sendUnauthorized(res);
     return;
   }
-  const data = await meService(req.user.userId);
+  const data = await meService(req.user.id);
   sendSuccess(res, "User fetched", data);
 };

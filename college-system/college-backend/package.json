@@ -10,6 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "ts-node prisma/seed.ts",
+    "db:seed": "ts-node --require tsconfig-paths/register prisma/seed.ts",
     "prisma:studio": "prisma studio"
   },
   "keywords": [],
@@ -43,9 +44,10 @@
     "nodemon": "^3.1.14",
     "prisma": "^6.19.2",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts"
   }
 }
