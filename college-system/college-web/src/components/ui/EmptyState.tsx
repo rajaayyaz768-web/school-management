@@ -7,10 +7,7 @@ import Button from './Button'
 
 /**
  * EmptyState component for empty data displays
- * @param icon - Icon element or emoji
- * @param title - Title text
- * @param description - Description text
- * @param action - Action button config
+ * Enhanced icon container with teal tint and refined spacing
  */
 export interface EmptyStateProps {
   icon?: ReactNode
@@ -32,17 +29,17 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className={cn('py-16 text-center', className)}>
-      <div className="w-16 h-16 rounded-full bg-[var(--bg-secondary)] border border-[var(--border)] flex items-center justify-center mx-auto text-3xl">
-        {icon || <Inbox className="w-8 h-8 text-[var(--text-muted)]" />}
+      <div className="w-16 h-16 rounded-full bg-[var(--primary)]/8 border border-[var(--border)] flex items-center justify-center mx-auto">
+        {icon || <Inbox className="w-7 h-7 text-[var(--primary)]/60" />}
       </div>
-      <h3 className="font-display text-lg text-[var(--text)] mt-4">{title}</h3>
+      <h3 className="font-display text-lg font-semibold text-[var(--text)] mt-5">{title}</h3>
       {description && (
-        <p className="font-body text-sm text-[var(--text-muted)] mt-2 max-w-sm mx-auto">
+        <p className="font-body text-sm text-[var(--text-muted)] mt-2 max-w-sm mx-auto leading-relaxed">
           {description}
         </p>
       )}
       {action && (
-        <Button variant="gold" onClick={action.onClick} className="mt-6">
+        <Button variant="primary" onClick={action.onClick} className="mt-6">
           {action.label}
         </Button>
       )}

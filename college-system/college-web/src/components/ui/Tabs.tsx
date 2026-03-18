@@ -1,9 +1,5 @@
 /**
- * Tabs Component
- * 
- * Provides a highly customizable tabbed interface following the design system.
- * Used for navigating between different views within the same page context
- * (e.g., Student Profile tabs, Settings tabs).
+ * Tabs Component — Refined segment control with animated sliding indicator
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -42,7 +38,7 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
 
   return (
     <div className={cn('relative w-full border-b border-[var(--border)]', className)}>
-      <div className="flex custom-scrollbar overflow-x-auto" role="tablist">
+      <div className="flex overflow-x-auto" role="tablist">
         {tabs.map((tab, index) => {
           const isActive = tab.id === activeTab;
 
@@ -58,24 +54,30 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
               id={`tab-${tab.id}`}
               onClick={() => onChange(tab.id)}
               className={cn(
-                'relative flex items-center justify-center gap-2 px-4 py-3 text-sm font-body font-medium transition-colors whitespace-nowrap outline-none',
-                isActive 
-                  ? 'text-[var(--primary)] font-semibold' 
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]'
+                'relative flex items-center justify-center gap-2 px-5 py-3 text-sm font-body font-medium',
+                'transition-colors duration-[180ms] whitespace-nowrap outline-none',
+                'hover:text-[var(--text)]',
+                isActive
+                  ? 'text-[var(--primary)] font-semibold'
+                  : 'text-[var(--text-muted)]',
+                'focus-visible:ring-2 focus-visible:ring-[var(--primary)]/20 focus-visible:ring-inset'
               )}
             >
               {tab.icon && (
-                <span className={cn('shrink-0', isActive ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]')}>
+                <span className={cn(
+                  'shrink-0 transition-colors duration-[180ms]',
+                  isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
+                )}>
                   {tab.icon}
                 </span>
               )}
-              
+
               <span>{tab.label}</span>
 
               {tab.count !== undefined && (
                 <span
                   className={cn(
-                    'ml-1.5 inline-flex items-center justify-center text-xs font-semibold leading-none',
+                    'ml-1 inline-flex items-center justify-center text-[10px] font-semibold leading-none',
                     tab.countVariant === 'alert'
                       ? 'bg-[var(--danger)] text-white px-1.5 py-0.5 rounded-full min-w-[1.25rem]'
                       : 'text-[var(--text-muted)]'
@@ -90,8 +92,8 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
       </div>
 
       {/* Animated Bottom Border Indicator */}
-      <div 
-        className="absolute bottom-0 h-0.5 bg-[var(--primary)] transition-all duration-300 ease-out"
+      <div
+        className="absolute bottom-0 h-[2px] bg-[var(--primary)] rounded-full transition-all duration-[280ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{
           left: `${indicatorStyle.left}px`,
           width: `${indicatorStyle.width}px`,
@@ -118,7 +120,7 @@ export function TabPanel({ tabId, activeTab, children, className }: TabPanelProp
       role="tabpanel"
       id={`panel-${tabId}`}
       aria-labelledby={`tab-${tabId}`}
-      className={cn('pt-6 animate-in fade-in duration-150', className)}
+      className={cn('pt-6 animate-fade-in', className)}
     >
       {children}
     </div>

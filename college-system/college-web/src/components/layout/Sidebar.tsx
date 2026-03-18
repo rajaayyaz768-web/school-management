@@ -25,6 +25,7 @@ import {
   Building2,
   BarChart3,
   FileText,
+  Paintbrush,
 } from "lucide-react";
 
 interface NavItem {
@@ -95,13 +96,17 @@ export default function Sidebar() {
 
   if (!user) return null;
 
-  const navItems = NAV_ITEMS[user.role] || [];
+  const baseNavItems = NAV_ITEMS[user.role] || [];
+  const navItems = process.env.NODE_ENV === "development"
+    ? [...baseNavItems, { label: "Design System", href: "/showcase", icon: Paintbrush }]
+    : baseNavItems;
+
   const roleName = ROLE_LABEL_MAP[user.role];
 
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col transition-all duration-300",
+        "relative z-40 flex h-screen shrink-0 flex-col transition-all duration-300",
         "bg-[var(--primary)] text-white shadow-[var(--shadow-lg)]",
         collapsed ? "w-16" : "w-60"
       )}

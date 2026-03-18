@@ -6,20 +6,15 @@ import Skeleton from './Skeleton'
 import EmptyState from './EmptyState'
 
 /**
- * Table component with loading and empty states
- * @param columns - Column definitions
- * @param data - Data rows
- * @param loading - Show loading skeleton
- * @param onRowClick - Row click handler
- * @param emptyMessage - Message when no data
- * @param striped - Alternate row backgrounds
- * @param caption - Table caption
+ * Table component with loading/empty states
+ * Data-dense elegance: sticky header, row hover tint, selected accent, alternating rows
  */
 export interface TableColumn<T> {
   key: string
   header: string
   render?: (row: T, index: number) => ReactNode
   className?: string
+  sortable?: boolean
 }
 
 export interface TableProps<T> {
@@ -30,6 +25,7 @@ export interface TableProps<T> {
   emptyMessage?: string
   striped?: boolean
   caption?: string
+  selectedRows?: number[]
   className?: string
 }
 
@@ -39,8 +35,9 @@ export function Table<T extends Record<string, unknown>>({
   loading = false,
   onRowClick,
   emptyMessage = 'No data available',
-  striped = false,
+  striped = true,
   caption,
+  selectedRows = [],
   className,
 }: TableProps<T>) {
   if (loading) {
@@ -51,7 +48,7 @@ export function Table<T extends Record<string, unknown>>({
     return (
       <div
         className={cn(
-          'bg-[var(--surface)] rounded-card border border-[var(--border)]',
+          'bg-[var(--surface)] rounded-[var(--radius-lg)] border border-[var(--border)]',
           className
         )}
       >
@@ -66,7 +63,7 @@ export function Table<T extends Record<string, unknown>>({
   return (
     <div
       className={cn(
-        'bg-[var(--surface)] rounded-card border border-[var(--border)] overflow-hidden',
+        'bg-[var(--surface)] rounded-[var(--radius-lg)] border border-[var(--border)] overflow-hidden shadow-[var(--shadow-sm)]',
         className
       )}
     >
@@ -80,48 +77,61 @@ export function Table<T extends Record<string, unknown>>({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-teal-700 dark:bg-charcoal-700">
+            <tr className="bg-[var(--primary-dark)] sticky top-0 z-10">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   className={cn(
-                    'text-gold-300 font-body text-xs uppercase tracking-wider font-semibold',
-                    'py-4 px-6 text-left',
+                    'text-[var(--gold-light)] font-body text-[11px] uppercase tracking-[0.06em] font-semibold',
+                    'py-3.5 px-6 text-left',
+                    'border-b border-white/10',
+                    col.sortable && 'cursor-pointer select-none hover:text-[var(--gold)]',
                     col.className
                   )}
                 >
-                  {col.header}
+                  <span className="flex items-center gap-1.5">
+                    {col.header}
+                  </span>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {data.map((row, index) => (
-              <tr
-                key={index}
-                onClick={() => onRowClick?.(row, index)}
-                className={cn(
-                  'border-b border-[var(--border)] last:border-b-0',
-                  'transition-colors',
-                  onRowClick && 'cursor-pointer hover:bg-[var(--bg-secondary)]',
-                  striped && index % 2 === 1 && 'bg-[var(--surface-alt)]'
-                )}
-              >
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className={cn(
-                      'font-body text-sm text-[var(--text)] py-3 px-6',
-                      col.className
-                    )}
-                  >
-                    {col.render
-                      ? col.render(row, index)
-                      : (row[col.key] as ReactNode)}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {data.map((row, index) => {
+              const isSelected = selectedRows.includes(index)
+
+              return (
+                <tr
+                  key={index}
+                  onClick={() => onRowClick?.(row, index)}
+                  className={cn(
+                    'border-b border-[var(--border)]/50 last:border-b-0',
+                    'transition-colors duration-[120ms]',
+                    onRowClick && 'cursor-pointer',
+                    // Hover
+                    'hover:bg-[var(--surface-hover)]',
+                    // Striped
+                    striped && index % 2 === 1 && 'bg-[var(--surface-alt)]/50',
+                    // Selected
+                    isSelected && 'bg-[var(--primary)]/5 border-l-[3px] border-l-[var(--primary)]',
+                  )}
+                >
+                  {columns.map((col) => (
+                    <td
+                      key={col.key}
+                      className={cn(
+                        'font-body text-sm text-[var(--text)] py-3 px-6',
+                        col.className
+                      )}
+                    >
+                      {col.render
+                        ? col.render(row, index)
+                        : (row[col.key] as ReactNode)}
+                    </td>
+                  ))}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

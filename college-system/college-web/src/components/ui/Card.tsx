@@ -5,13 +5,7 @@ import { cn } from '@/lib/utils'
 
 /**
  * Card component for content containers
- * @param title - Card header title
- * @param subtitle - Card header subtitle
- * @param glass - Enable glassmorphism effect (use on dark backgrounds)
- * @param bordered - Add gold left border accent
- * @param hoverable - Enable hover elevation effect
- * @param headerAction - Element to render in header right side
- * @param padding - Padding size: none, sm, md, lg
+ * Layered surfaces with glass, hoverable lift, and refined borders
  */
 export interface CardProps {
   title?: string
@@ -46,23 +40,31 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-card relative',
+        'rounded-[var(--radius-lg)] relative',
+        'transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)]',
         glass
           ? 'glass'
           : 'bg-[var(--surface)] border border-[var(--border)] shadow-[var(--shadow-sm)]',
-        bordered && 'border-l-4 border-l-gold-400',
-        hoverable &&
-          'hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] transition-all duration-200 cursor-pointer',
+        bordered && 'border-l-[3px] border-l-[var(--gold)]',
+        hoverable && [
+          'hover:-translate-y-[2px] hover:shadow-[var(--shadow-md)]',
+          'hover:border-[var(--border-strong)]',
+          'cursor-pointer',
+        ],
         paddingStyles[padding],
         className
       )}
     >
       {(title || subtitle || headerAction) && (
-        <div className={cn('mb-4', padding === 'none' && 'px-6 pt-6')}>
+        <div className={cn(
+          'mb-4',
+          padding === 'none' && 'px-6 pt-6',
+          (title || subtitle) && 'border-b border-[var(--border)]/50 pb-4'
+        )}>
           <div className="flex items-start justify-between">
             <div>
               {title && (
-                <h3 className="font-display font-semibold text-[var(--text)] text-lg">
+                <h3 className="font-display font-semibold text-[var(--text)] text-lg leading-tight">
                   {title}
                 </h3>
               )}
@@ -72,7 +74,7 @@ export function Card({
                 </p>
               )}
             </div>
-            {headerAction && <div>{headerAction}</div>}
+            {headerAction && <div className="shrink-0 ml-4">{headerAction}</div>}
           </div>
         </div>
       )}
