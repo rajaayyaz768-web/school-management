@@ -27,6 +27,7 @@ enum Gender {
 }
 
 enum StudentStatus {
+  UNASSIGNED
   ACTIVE
   SUSPENDED
   GRADUATED
@@ -277,7 +278,7 @@ model StaffCampusAssignment {
 model StudentProfile {
   id             String        @id @default(uuid())
   userId         String        @unique @map("user_id")
-  rollNumber     String        @unique @map("roll_number")
+  rollNumber     String?       @unique @map("roll_number")
   firstName      String        @map("first_name")
   lastName       String        @map("last_name")
   gender         Gender
@@ -285,16 +286,17 @@ model StudentProfile {
   phone          String?
   address        String?
   guardianPhone  String?       @map("guardian_phone")
-  sectionId      String        @map("section_id")
+  sectionId      String?       @map("section_id")
   campusId       String        @map("campus_id")
   enrollmentDate DateTime      @default(now()) @map("enrollment_date")
   status         StudentStatus @default(ACTIVE)
   photoUrl       String?       @map("photo_url")
+  rankingMarks   Float?        @map("ranking_marks")
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
   user               User                       @relation(fields: [userId], references: [id])
-  section            Section                    @relation(fields: [sectionId], references: [id])
+  section            Section?                   @relation(fields: [sectionId], references: [id])
   campus             Campus                     @relation(fields: [campusId], references: [id])
   parentLinks        StudentParentLink[]
   attendances        StudentAttendance[]

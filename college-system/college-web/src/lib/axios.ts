@@ -7,6 +7,7 @@ const api = axios.create({
   baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
   timeout: 15000,
+  withCredentials: true,
 });
 
 let isRefreshing = false;
@@ -61,26 +62,17 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const { refreshToken, logout, setTokens } = useAuthStore.getState();
-
-      if (!refreshToken) {
-        logout();
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-        return Promise.reject(error);
-      }
+      const { logout, setTokens } = useAuthStore.getState();
 
       try {
         const { data } = await axios.post<{ data: { accessToken: string; refreshToken?: string } }>(
           `${API_BASE}/auth/refresh-token`,
-          { refreshToken },
-          { headers: { "Content-Type": "application/json" }, timeout: 15000 }
+          {},
+          { headers: { "Content-Type": "application/json" }, timeout: 15000, withCredentials: true }
         );
 
         const newAccessToken = data.data.accessToken;
-        // The backend might return a new refresh token or just an access token, use either
-        const newRefreshToken = data.data.refreshToken || refreshToken;
+        const newRefreshToken = data.data.refreshToken || null;
 
         setTokens(newAccessToken, newRefreshToken);
         processQueue(null);

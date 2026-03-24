@@ -27,13 +27,13 @@ export const authenticate = async (
       return;
     }
 
-    if (!decoded || !decoded.id) {
+    if (!decoded || !decoded.userId) {
       sendError(res, "Invalid or expired access token", 401);
       return;
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
+      where: { id: decoded.userId },
       select: {
         id: true,
         email: true,

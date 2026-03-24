@@ -1,1 +1,5 @@
-export default function Page() { return <div>Page Page</div>; }
+import { StaffPage } from '@/features/staff/components/StaffPage';
+
+export default function Page() {
+  return <StaffPage />;
+}
