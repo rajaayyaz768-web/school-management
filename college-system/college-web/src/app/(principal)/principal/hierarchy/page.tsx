@@ -30,7 +30,7 @@ import { ProgramList, ExtractedGrade } from '@/features/hierarchy/components/Pro
 import { SectionStudentList } from '@/features/hierarchy/components/SectionStudentList';
 
 // Helper type merging Grade into Program directly matching API returns organically
-interface ProgramWithNestedGrades extends Program {
+interface ProgramWithNestedGrades extends Omit<Program, 'grades'> {
   grades?: ExtractedGrade[]; 
 }
 
