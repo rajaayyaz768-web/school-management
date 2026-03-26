@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { FalconEagleLogo } from "@/components/landing/FalconEagleLogo";
 import { usePathname } from "next/navigation";
 import { useCurrentUser, UserRole } from "@/store/authStore";
 import { cn } from "@/lib/utils";
@@ -131,18 +132,14 @@ export default function Sidebar() {
     >
       {/* Top Section / Logo Area */}
       <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-4">
-        <div
-          className={cn(
-            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--gold)]"
-          )}
-        >
-          <GraduationCap className="h-5 w-5 text-[var(--primary)]" />
+        <div className="shrink-0">
+          <FalconEagleLogo size={collapsed ? 36 : 48} />
         </div>
         {!collapsed && (
           <span
             className="ml-3 truncate font-bold text-lg font-[var(--font-display)]"
           >
-            College Portal
+            Falcon School
           </span>
         )}
       </div>

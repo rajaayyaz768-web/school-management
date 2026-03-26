@@ -4,14 +4,14 @@ export interface CreateSubjectDto {
   name: string;
   code: string;
   type: SubjectType;
-  credit_hours: number;
+  creditHours: number;
 }
 
 export interface UpdateSubjectDto {
   name?: string;
   code?: string;
   type?: SubjectType;
-  credit_hours?: number;
+  creditHours?: number;
 }
 
 export interface SubjectResponse {

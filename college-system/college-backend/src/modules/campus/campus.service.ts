@@ -2,11 +2,12 @@ import prisma from "../../config/database";
 import { CreateCampusDto, UpdateCampusDto } from "./campus.types";
 
 const mapToResponse = (campus: any): any => {
-  const { code, phone, ...rest } = campus;
+  const { code, phone, isActive, ...rest } = campus;
   return {
     ...rest,
     campus_code: code,
     contact_number: phone,
+    is_active: isActive,
   };
 };
 
@@ -87,7 +88,7 @@ export const toggleCampusStatus = async (id: string) => {
   const campus = await prisma.campus.update({
     where: { id },
     data: {
-      is_active: !existing.is_active,
+      isActive: !existing.isActive,
     },
   });
   

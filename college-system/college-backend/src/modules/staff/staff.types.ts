@@ -1,30 +1,32 @@
 import { EmploymentType, Role } from "@prisma/client";
 
 export interface CreateStaffDto {
-  fullName: string;
+  firstName: string;
+  lastName?: string;
   email: string;
   primaryCampusId: string;
-  employeeId: string;
+  staffCode: string;
   designation?: string;
-  specialization?: string;
   cnic?: string;
   phone?: string;
-  dateOfJoining?: string;
+  joiningDate?: string;
+  gender?: string;
   employmentType: EmploymentType;
-  profilePhotoUrl?: string;
+  photoUrl?: string;
 }
 
 export interface UpdateStaffDto {
-  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   primaryCampusId?: string;
-  employeeId?: string;
+  staffCode?: string;
   designation?: string;
-  specialization?: string;
   cnic?: string;
   phone?: string;
-  dateOfJoining?: string;
+  joiningDate?: string;
+  gender?: string;
   employmentType?: EmploymentType;
-  profilePhotoUrl?: string;
+  photoUrl?: string;
   email?: string;
 }
 

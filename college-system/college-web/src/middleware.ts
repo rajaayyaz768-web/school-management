@@ -22,7 +22,8 @@ export function middleware(request: NextRequest) {
     if (isAuthenticated) {
       return NextResponse.redirect(new URL(ROLE_DASHBOARD[userRole] || "/login", request.url));
     }
-    return NextResponse.redirect(new URL("/login", request.url));
+    // Allow unauthenticated users to see the landing page
+    return NextResponse.next();
   }
 
   // 2. Login path behavior
@@ -72,7 +73,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (static files)
+     * - public images (.png, .svg, etc)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

@@ -2,14 +2,14 @@ export interface CreateProgramDto {
   campus_id: string;
   name: string;
   code: string;
-  total_years?: number;
+  durationYears?: number;
 }
 
 export interface UpdateProgramDto {
   campus_id?: string;
   name?: string;
   code?: string;
-  total_years?: number;
+  durationYears?: number;
 }
 
 export interface ProgramResponse {

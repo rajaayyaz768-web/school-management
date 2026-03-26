@@ -38,8 +38,8 @@ export const useUpdateProgram = () => {
       queryClient.invalidateQueries({ queryKey: ['programs'] });
       success('Program updated successfully');
     },
-    onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to update program';
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || (err instanceof Error ? err.message : 'Failed to update program');
       error(msg);
     }
   });

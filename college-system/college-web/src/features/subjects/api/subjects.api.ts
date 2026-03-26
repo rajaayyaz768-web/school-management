@@ -23,7 +23,7 @@ export const createSubject = async (data: CreateSubjectInput): Promise<Subject> 
     name: data.name,
     code: data.code,
     type: data.type,
-    credit_hours: data.creditHours, // Mapped to expected backend validation schema
+    creditHours: data.creditHours,
   };
   const response = await axios.post('/subjects', payload);
   return response.data.data;
@@ -34,7 +34,7 @@ export const updateSubject = async (id: string, data: UpdateSubjectInput): Promi
   if (data.name !== undefined) payload.name = data.name;
   if (data.code !== undefined) payload.code = data.code;
   if (data.type !== undefined) payload.type = data.type;
-  if (data.creditHours !== undefined) payload.credit_hours = data.creditHours;
+  if (data.creditHours !== undefined) payload.creditHours = data.creditHours;
 
   const response = await axios.put(`/subjects/${id}`, payload);
   return response.data.data;

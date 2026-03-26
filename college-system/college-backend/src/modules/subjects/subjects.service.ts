@@ -41,7 +41,7 @@ export const createSubject = async (data: CreateSubjectDto) => {
       name: data.name,
       code: data.code,
       type: data.type,
-      creditHours: data.credit_hours,
+      creditHours: data.creditHours,
     },
   });
 };
@@ -74,7 +74,7 @@ export const updateSubject = async (id: string, data: UpdateSubjectDto) => {
   if (data.name !== undefined) updateData.name = data.name;
   if (data.code !== undefined) updateData.code = data.code;
   if (data.type !== undefined) updateData.type = data.type;
-  if (data.credit_hours !== undefined) updateData.creditHours = data.credit_hours;
+  if (data.creditHours !== undefined) updateData.creditHours = data.creditHours;
 
   return await prisma.subject.update({
     where: { id },

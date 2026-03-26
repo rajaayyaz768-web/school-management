@@ -90,13 +90,12 @@ export const createStaff = async (data: CreateStaffDto) => {
     const campus = await tx.campus.findUnique({ where: { id: data.primaryCampusId } });
     if (!campus) throw Object.assign(new Error("Campus not found"), { statusCode: 404 });
 
-    const duplicateEmployee = await tx.staffProfile.findUnique({ where: { staffCode: data.employeeId } });
-    if (duplicateEmployee) throw Object.assign(new Error("Employee ID already exists"), { statusCode: 409 });
+    const duplicateEmployee = await tx.staffProfile.findUnique({ where: { staffCode: data.staffCode } });
+    if (duplicateEmployee) throw Object.assign(new Error("Staff code already exists"), { statusCode: 409 });
 
     const duplicateEmail = await tx.user.findUnique({ where: { email: data.email } });
     if (duplicateEmail) throw Object.assign(new Error("Email already registered"), { statusCode: 409 });
 
-    const { firstName, lastName } = extractNames(data.fullName);
     const tempPassword = crypto.randomBytes(4).toString("hex").toUpperCase();
     const passwordHash = await bcrypt.hash(tempPassword, 10);
 
@@ -111,16 +110,16 @@ export const createStaff = async (data: CreateStaffDto) => {
     const staffProfile = await tx.staffProfile.create({
       data: {
         userId: user.id,
-        staffCode: data.employeeId,
-        firstName,
-        lastName,
-        gender: Gender.MALE, // Using default to overcome missing DTO prompt instructions reliably
+        staffCode: data.staffCode,
+        firstName: data.firstName,
+        lastName: data.lastName || "",
+        gender: (data.gender as Gender) || Gender.MALE,
         phone: data.phone || null,
         cnic: data.cnic || null,
-        joiningDate: data.dateOfJoining ? new Date(data.dateOfJoining) : null,
+        joiningDate: data.joiningDate ? new Date(data.joiningDate) : null,
         employmentType: data.employmentType,
         designation: data.designation || null,
-        photoUrl: data.profilePhotoUrl || null,
+        photoUrl: data.photoUrl || null,
         campusAssignments: {
           create: {
             campusId: data.primaryCampusId,
@@ -168,19 +167,15 @@ export const updateStaff = async (id: string, data: UpdateStaffDto) => {
 
     const updateData: any = {};
 
-    if (data.fullName) {
-      const { firstName, lastName } = extractNames(data.fullName);
-      updateData.firstName = firstName;
-      updateData.lastName = lastName;
-    }
-
-    if (data.employeeId !== undefined) updateData.staffCode = data.employeeId;
+    if (data.firstName) updateData.firstName = data.firstName;
+    if (data.lastName !== undefined) updateData.lastName = data.lastName;
+    if (data.staffCode !== undefined) updateData.staffCode = data.staffCode;
     if (data.cnic !== undefined) updateData.cnic = data.cnic;
     if (data.phone !== undefined) updateData.phone = data.phone;
-    if (data.dateOfJoining !== undefined) updateData.joiningDate = data.dateOfJoining ? new Date(data.dateOfJoining) : null;
+    if (data.joiningDate !== undefined) updateData.joiningDate = data.joiningDate ? new Date(data.joiningDate) : null;
     if (data.employmentType !== undefined) updateData.employmentType = data.employmentType;
     if (data.designation !== undefined) updateData.designation = data.designation;
-    if (data.profilePhotoUrl !== undefined) updateData.photoUrl = data.profilePhotoUrl;
+    if (data.photoUrl !== undefined) updateData.photoUrl = data.photoUrl;
 
     if (data.primaryCampusId) {
       const campus = await tx.campus.findUnique({ where: { id: data.primaryCampusId } });

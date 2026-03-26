@@ -1,0 +1,13 @@
+<svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Academic Shield Backing in Midnight Blue (#0D2240) -->
+  <path d="M100 10 L180 40 V100 C180 150 100 190 100 190 C100 190 20 150 20 100 V40 L100 10 Z" fill="#0D2240"/>
+  
+  <!-- Geometric Eagle Wings & Body in Falcon Gold (#C5A059) -->
+  <path d="M50 70 L90 50 L100 80 L140 40 L160 90 L120 100 L160 130 L100 120 L70 160 L80 110 Z" fill="#C5A059"/>
+  
+  <!-- Sleek Eagle Head & Beak overlay in White/Cream (#F8F9FA) -->
+  <path d="M80 80 C100 50 130 60 145 80 L165 85 L135 105 C120 100 100 110 90 120 Z" fill="#F8F9FA"/>
+  
+  <!-- Eye detail -->
+  <circle cx="115" cy="75" r="4" fill="#0D2240"/>
+</svg>

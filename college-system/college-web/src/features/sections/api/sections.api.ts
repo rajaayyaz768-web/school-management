@@ -18,12 +18,11 @@ export const fetchSectionStudentCount = async (id: string): Promise<{ section_id
 };
 
 export const createSection = async (data: CreateSectionInput): Promise<Section> => {
-  // Mapping frontend gradeId to backend grade_id recursively based on payload requirements
   const payload = {
-    grade_id: data.gradeId,
+    gradeId: data.gradeId,
     name: data.name,
-    room_number: data.roomNumber,
-    max_students: data.capacity,
+    roomNumber: data.roomNumber,
+    capacity: data.capacity,
   };
   const response = await axios.post('/sections', payload);
   return response.data.data;
@@ -31,10 +30,10 @@ export const createSection = async (data: CreateSectionInput): Promise<Section> 
 
 export const updateSection = async (id: string, data: UpdateSectionInput): Promise<Section> => {
   const payload: Record<string, unknown> = {};
-  if (data.gradeId !== undefined) payload.grade_id = data.gradeId;
+  if (data.gradeId !== undefined) payload.gradeId = data.gradeId;
   if (data.name !== undefined) payload.name = data.name;
-  if (data.roomNumber !== undefined) payload.room_number = data.roomNumber;
-  if (data.capacity !== undefined) payload.max_students = data.capacity;
+  if (data.roomNumber !== undefined) payload.roomNumber = data.roomNumber;
+  if (data.capacity !== undefined) payload.capacity = data.capacity;
 
   const response = await axios.put(`/sections/${id}`, payload);
   return response.data.data;

@@ -60,7 +60,7 @@ export function DatePicker({
         <input
           id={id}
           type="date"
-          value={value}
+          value={value ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}

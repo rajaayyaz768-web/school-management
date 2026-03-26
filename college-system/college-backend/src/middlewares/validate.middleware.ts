@@ -19,10 +19,11 @@ export const validate =
       next();
     } catch (err: any) {
       if (err instanceof z.ZodError) {
-        const message = (err as any).errors
-          .map((e: any) => `${e.path.slice(1).join(".")}: ${e.message}`)
+        const issues = err.issues || (err as any).errors || [];
+        const message = issues
+          .map((e: any) => `${(e.path || []).slice(1).join(".")}: ${e.message}`)
           .join(" | ");
-        sendValidationError(res, message);
+        sendValidationError(res, message || err.message);
         return;
       }
       next(err);

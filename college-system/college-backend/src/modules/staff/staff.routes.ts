@@ -58,7 +58,7 @@ router.put(
 router.patch(
   "/:id/toggle",
   authenticate,
-  authorize(Role.SUPER_ADMIN),
+  authorize(Role.SUPER_ADMIN, Role.ADMIN),
   toggleStaffStatus
 );
 

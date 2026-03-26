@@ -4,18 +4,18 @@ import { SubjectType } from "@prisma/client";
 export const createSubjectSchema = z.object({
   body: z.object({
     name: z.string().min(2).max(100),
-    code: z.string().max(10).regex(/^[A-Z0-9]+$/, "Uppercase letters and numbers only"),
+    code: z.string().min(1).max(10),
     type: z.nativeEnum(SubjectType),
-    credit_hours: z.number().min(1).max(10), // Mapping explicitly from creditHours
+    creditHours: z.number().min(1).max(10),
   }),
 });
 
 export const updateSubjectSchema = z.object({
   body: z.object({
     name: z.string().min(2).max(100).optional(),
-    code: z.string().max(10).regex(/^[A-Z0-9]+$/, "Uppercase letters and numbers only").optional(),
+    code: z.string().min(1).max(10).optional(),
     type: z.nativeEnum(SubjectType).optional(),
-    credit_hours: z.number().min(1).max(10).optional(),
+    creditHours: z.number().min(1).max(10).optional(),
   }),
 });
 

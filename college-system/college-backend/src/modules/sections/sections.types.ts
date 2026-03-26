@@ -1,21 +1,15 @@
 export interface CreateSectionDto {
-  grade_id: string;
-  campus_id: string;
+  gradeId: string;
   name: string;
-  room_number?: string;
-  academic_year: string;
-  max_students?: number;
-  class_teacher_id?: string;
+  roomNumber?: string;
+  capacity?: number;
 }
 
 export interface UpdateSectionDto {
-  grade_id?: string;
-  campus_id?: string;
+  gradeId?: string;
   name?: string;
-  room_number?: string;
-  academic_year?: string;
-  max_students?: number;
-  class_teacher_id?: string;
+  roomNumber?: string;
+  capacity?: number;
 }
 
 export interface SectionResponse {
