@@ -42,7 +42,7 @@ const EMPTY_STUDENTS: Student[] = [];
 export default function PrincipalHierarchyPage() {
   // Cascading Selection State Context
   const [selectedCampus, setSelectedCampus] = useState<Campus | null>(null);
-  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+  const [selectedProgram, setSelectedProgram] = useState<ProgramWithNestedGrades | null>(null);
   const [selectedGrade, setSelectedGrade] = useState<ExtractedGrade | null>(null);
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
   
@@ -114,7 +114,7 @@ export default function PrincipalHierarchyPage() {
     setSelectedStudentId(null);
   };
 
-  const handleProgramClick = (program: Program) => {
+  const handleProgramClick = (program: ProgramWithNestedGrades) => {
     setSelectedProgram(program);
     setSelectedGrade(null);
     setSelectedSection(null);
@@ -127,7 +127,7 @@ export default function PrincipalHierarchyPage() {
     setSelectedStudentId(null);
   };
 
-  const handleGradeClick = (program: Program, grade: ExtractedGrade) => {
+  const handleGradeClick = (program: ProgramWithNestedGrades, grade: ExtractedGrade) => {
     setSelectedProgram(program);
     setSelectedGrade(grade);
     setSelectedSection(null);
@@ -157,7 +157,7 @@ export default function PrincipalHierarchyPage() {
 
   // High level statistic interpolations bypassing heavy endpoints via aggregations
   const totalCampusesCount = campuses.length;
-  const totalProgramsCount = campuses.reduce((sum, c) => sum + (c.programs?.length || 0), 0) || 0; // Simple approximation via model arrays
+  const totalProgramsCount = programs.length || 0; // Simple approximation via model arrays
 
   // Level Router Output logic maintaining clear fade-in animation boundaries cleanly 
   const renderCurrentLevel = () => {

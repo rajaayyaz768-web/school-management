@@ -7,7 +7,7 @@ import { Breadcrumb } from '@/components/layout';
 
 interface HierarchyBreadcrumbProps {
   selectedCampus: Campus | null;
-  selectedProgram: Program | null;
+  selectedProgram: Omit<Program, 'grades'> | null;
   selectedGrade: { id: string; name: string } | null;
   selectedSection: Section | null;
   onCampusClick: () => void;

@@ -11,15 +11,15 @@ export interface ExtractedGrade {
 }
 
 // Ensure the incoming API shapes represent the grades gracefully
-interface ProgramWithNestedGrades extends Program {
+interface ProgramWithNestedGrades extends Omit<Program, 'grades'> {
   grades?: ExtractedGrade[]; 
 }
 
 interface ProgramListProps {
   programs: ProgramWithNestedGrades[];
   isLoading: boolean;
-  onProgramClick: (program: Program) => void;
-  onGradeClick: (program: Program, grade: ExtractedGrade) => void;
+  onProgramClick: (program: ProgramWithNestedGrades) => void;
+  onGradeClick: (program: ProgramWithNestedGrades, grade: ExtractedGrade) => void;
 }
 
 export function ProgramList({
@@ -59,8 +59,8 @@ export function ProgramList({
                <div className="p-2.5 bg-[var(--warning-tint)] rounded-lg text-[var(--warning)]">
                  <GraduationCap className="w-5 h-5" />
                </div>
-               <Badge variant={program.isActive ? 'success' : 'danger'}>
-                 {program.isActive ? 'Active' : 'Inactive'}
+               <Badge variant={program.is_active ? 'success' : 'danger'}>
+                 {program.is_active ? 'Active' : 'Inactive'}
                </Badge>
              </div>
              

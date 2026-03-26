@@ -13,7 +13,7 @@ export interface StaffProfileDrawerProps {
 }
 
 export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffProfileDrawerProps) {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState('overview');
   const { data: staff, isLoading, isError, refetch } = useStaffById(isOpen ? staffId : null);
 
   const getEmploymentBadge = (type?: string) => {
@@ -34,13 +34,13 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
       {isLoading ? (
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <Skeleton variant="circular" className="w-16 h-16" />
+            <Skeleton variant="circle" className="w-16 h-16" />
             <div className="space-y-2 flex-1">
               <Skeleton variant="text" className="w-1/2" />
               <Skeleton variant="text" className="w-1/3" />
             </div>
           </div>
-          <Skeleton variant="rectangular" className="h-[200px]" />
+          <Skeleton variant="card" className="h-[200px]" />
         </div>
       ) : isError ? (
         <ErrorState action={{ label: 'Retry', onClick: () => refetch() }} />
@@ -48,7 +48,7 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center gap-4 mb-6">
-            <Avatar src={staff.photoUrl || undefined} fallback={staff.firstName.charAt(0)} size="lg" />
+            <Avatar name={`${staff.firstName} ${staff.lastName}`} src={staff.photoUrl || undefined} size="lg" />
             <div>
               <h2 className="text-xl font-bold text-[var(--text)]">
                 {staff.firstName} {staff.lastName}
@@ -61,13 +61,13 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
           </div>
 
           <Tabs 
-            tabs={[{ label: 'Overview' }, { label: 'Account' }]} 
+            tabs={[{ id: 'overview', label: 'Overview' }, { id: 'account', label: 'Account' }]} 
             activeTab={activeTab} 
             onChange={setActiveTab} 
           />
 
           <div className="flex-1 mt-6 overflow-y-auto pr-2 pb-6 space-y-4">
-            <TabPanel active={activeTab === 0}>
+            <TabPanel tabId="overview" activeTab={activeTab}>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Designation</label>
@@ -106,7 +106,7 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
               </div>
             </TabPanel>
 
-            <TabPanel active={activeTab === 1}>
+            <TabPanel tabId="account" activeTab={activeTab}>
               <div className="space-y-4 bg-[var(--surface-container-low)] p-4 rounded-lg">
                 <div>
                   <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Login Email</label>

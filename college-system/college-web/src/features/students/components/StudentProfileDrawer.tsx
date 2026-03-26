@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Student } from '../types/students.types';
 import { useStudentById } from '../hooks/useStudents';
 import {
@@ -27,6 +28,7 @@ export function StudentProfileDrawer({
   onEdit,
 }: StudentProfileDrawerProps) {
   const { data: student, isLoading, error } = useStudentById(studentId);
+  const [activeTab, setActiveTab] = useState('personal');
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -60,7 +62,7 @@ export function StudentProfileDrawer({
       return (
         <ErrorState 
           title="Could not load profile" 
-          message="There was a problem retrieving student details." 
+          description="There was a problem retrieving student details." 
         />
       );
     }
@@ -77,7 +79,7 @@ export function StudentProfileDrawer({
         <div className="flex items-start gap-4 mb-6 pb-6 border-b border-[var(--border)]">
           <Avatar
             src={student.photoUrl || undefined}
-            fallback={`${student.firstName[0]}${student.lastName[0]}`}
+            name={`${student.firstName} ${student.lastName}`}
             size="xl"
           />
           <div className="flex-1 min-w-0">
@@ -99,8 +101,8 @@ export function StudentProfileDrawer({
 
         {/* Tabs Section */}
         <div className="flex-1 overflow-y-auto pr-2">
-          <Tabs tabs={personalTabs} defaultActiveId="personal">
-            <TabPanel id="personal" className="space-y-6 py-4">
+          <Tabs tabs={personalTabs} activeTab={activeTab} onChange={setActiveTab} />
+          <TabPanel tabId="personal" activeTab={activeTab} className="space-y-6 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-[var(--text-muted)] font-medium mb-1 uppercase tracking-wider">Gender</p>
@@ -129,9 +131,9 @@ export function StudentProfileDrawer({
                   <p className="text-sm font-medium text-[var(--text)]">{new Date(student.enrollmentDate).toLocaleDateString()}</p>
                 </div>
               </div>
-            </TabPanel>
+          </TabPanel>
 
-            <TabPanel id="academic" className="space-y-6 py-4">
+          <TabPanel tabId="academic" activeTab={activeTab} className="space-y-6 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-[var(--text-muted)] font-medium mb-1 uppercase tracking-wider">Campus</p>
@@ -154,9 +156,9 @@ export function StudentProfileDrawer({
                   <p className="text-sm font-medium text-[var(--text)]">{student.rollNumber || 'N/A'}</p>
                 </div>
               </div>
-            </TabPanel>
+          </TabPanel>
 
-            <TabPanel id="account" className="space-y-6 py-4">
+          <TabPanel tabId="account" activeTab={activeTab} className="space-y-6 py-4">
               <div className="p-4 bg-[var(--surface-container-low)] rounded-xl border border-[var(--border)]">
                 <div className="flex items-center justify-between">
                   <div>
@@ -168,8 +170,7 @@ export function StudentProfileDrawer({
                   </Badge>
                 </div>
               </div>
-            </TabPanel>
-          </Tabs>
+          </TabPanel>
         </div>
 
         {/* Footer Actions */}

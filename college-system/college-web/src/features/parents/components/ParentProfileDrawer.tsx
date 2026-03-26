@@ -36,6 +36,7 @@ export function ParentProfileDrawer({
   const unlinkMutation = useUnlinkStudent();
 
   const [studentToUnlink, setStudentToUnlink] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('details');
 
   const handleConfirmUnlink = () => {
     if (parentId && studentToUnlink) {
@@ -69,7 +70,7 @@ export function ParentProfileDrawer({
       return (
         <ErrorState 
           title="Could not load profile" 
-          message="There was a problem retrieving parent details." 
+          description="There was a problem retrieving parent details." 
         />
       );
     }
@@ -84,7 +85,7 @@ export function ParentProfileDrawer({
         {/* Header Section */}
         <div className="flex items-start gap-4 mb-6 pb-6 border-b border-[var(--border)]">
           <Avatar
-            fallback={`${parent.firstName[0]}${parent.lastName[0]}`}
+            name={`${parent.firstName} ${parent.lastName}`}
             size="xl"
           />
           <div className="flex-1 min-w-0">
@@ -104,8 +105,8 @@ export function ParentProfileDrawer({
 
         {/* Tabs Section */}
         <div className="flex-1 overflow-y-auto pr-2">
-          <Tabs tabs={tabs} defaultActiveId="details">
-            <TabPanel id="details" className="space-y-6 py-4">
+          <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+          <TabPanel tabId="details" activeTab={activeTab} className="space-y-6 py-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-[var(--text-muted)] font-medium mb-1 uppercase tracking-wider">Email Address</p>
@@ -134,9 +135,9 @@ export function ParentProfileDrawer({
                   <p className="text-sm font-medium text-[var(--text)] leading-relaxed">{parent.address || 'N/A'}</p>
                 </div>
               </div>
-            </TabPanel>
+          </TabPanel>
 
-            <TabPanel id="students" className="space-y-4 py-4">
+          <TabPanel tabId="students" activeTab={activeTab} className="space-y-4 py-4">
               {parent.studentLinks.length === 0 ? (
                 <EmptyState
                   title="No students linked yet"
@@ -170,8 +171,7 @@ export function ParentProfileDrawer({
                   ))}
                 </div>
               )}
-            </TabPanel>
-          </Tabs>
+          </TabPanel>
         </div>
 
         {/* Footer Actions */}
@@ -206,12 +206,11 @@ export function ParentProfileDrawer({
       <ConfirmDialog
         isOpen={!!studentToUnlink}
         title="Unlink Student"
-        description="Are you sure you want to remove this student link from the parent profile? You can always link them again later."
+        message="Are you sure you want to remove this student link from the parent profile? You can always link them again later."
         confirmText="Unlink"
-        cancelText="Cancel"
         onConfirm={handleConfirmUnlink}
-        onCancel={() => setStudentToUnlink(null)}
-        isDestructive
+        onClose={() => setStudentToUnlink(null)}
+        variant="danger"
       />
     </>
   );

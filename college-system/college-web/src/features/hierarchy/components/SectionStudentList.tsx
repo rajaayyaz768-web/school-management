@@ -68,8 +68,8 @@ export function SectionStudentList({
                           <span>Cap: {section.capacity}</span>
                        </div>
                      </div>
-                     <Badge variant={isActive ? 'primary' : 'neutral'}>
-                       {section.studentCount || 0} enrolled
+                     <Badge variant={isActive ? 'success' : 'neutral'}>
+                       {section.capacity} capacity
                      </Badge>
                    </div>
                 </Card>

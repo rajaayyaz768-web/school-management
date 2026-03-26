@@ -5,7 +5,7 @@ import {
   ConfirmAssignmentInput,
   AssignmentResult,
   SectionInfo,
-} from './section-assignment.types';
+} from '../types/section-assignment.types';
 
 export const fetchAssignmentData = async (gradeId: string): Promise<AssignmentData> => {
   const response = await axios.get<{ success: boolean; data: AssignmentData }>(

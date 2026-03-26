@@ -17,8 +17,8 @@ export function CampusOverviewCard({ campus, onClick }: CampusOverviewCardProps)
           <div className="p-3 bg-[var(--primary-tint)] rounded-xl text-[var(--primary)]">
             <Building2 className="w-6 h-6" />
           </div>
-          <Badge variant={campus.isActive ? 'success' : 'danger'}>
-            {campus.isActive ? 'Active' : 'Inactive'}
+          <Badge variant={campus.is_active ? 'success' : 'danger'}>
+            {campus.is_active ? 'Active' : 'Inactive'}
           </Badge>
         </div>
         
@@ -27,7 +27,7 @@ export function CampusOverviewCard({ campus, onClick }: CampusOverviewCardProps)
         </h3>
         
         <div className="flex gap-2 mb-6">
-          <Badge variant="neutral">{campus.code}</Badge>
+          <Badge variant="neutral">{campus.campus_code}</Badge>
         </div>
         
         <div className="text-sm font-semibold text-[var(--primary)] flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity mt-auto">
