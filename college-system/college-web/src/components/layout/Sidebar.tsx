@@ -36,6 +36,7 @@ import {
   Layers,
   CreditCard,
   BarChart2,
+  UserCheck,
 } from "lucide-react";
 
 interface NavItem {
@@ -68,7 +69,8 @@ const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { label: "Staff", href: "/admin/staff", icon: Users },
     { label: "Parents", href: "/admin/parents", icon: Heart },
     { label: "Section Assignment", href: "/admin/section-assignment", icon: Shuffle },
-    { label: "Attendance", href: "/admin/attendance/staff", icon: CalendarCheck },
+    { label: "Staff Attendance", href: "/admin/attendance/staff", icon: CalendarCheck },
+    { label: "Student Attendance", href: "/admin/attendance/students", icon: UserCheck },
     { label: "Timetable", href: "/admin/timetable", icon: Clock },
     { label: "Fees", href: "/admin/fees", icon: CreditCard },
     { label: "Exams", href: "/admin/exams", icon: FileText },
