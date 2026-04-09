@@ -116,8 +116,8 @@ export default function FeesPage() {
     <div className="flex flex-col h-[calc(100vh-4rem)] p-8">
       <PageHeader
         title="Fee Management"
-        description="Configure fee structures, manage collections, and track defaulters"
-        action={
+        subtitle="Configure fee structures, manage collections, and track defaulters"
+        actions={
           activeTab === 'structures' ? (
             <Button
               onClick={() => {
