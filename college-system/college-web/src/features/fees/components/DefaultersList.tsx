@@ -57,7 +57,7 @@ export function DefaultersList({ defaulters, isLoading }: Props) {
         <StatCard
           title="Total Outstanding Balance"
           value={`PKR ${totalUnpaidBalance.toLocaleString()}`}
-          trend={{ value: defaulters?.length || 0, label: 'students in default', isPositive: false }}
+          trend={{ value: `${defaulters?.length || 0} students`, direction: 'down' }}
         />
       </div>
       

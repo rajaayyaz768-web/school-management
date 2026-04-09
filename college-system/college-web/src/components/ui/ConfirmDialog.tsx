@@ -24,6 +24,7 @@ export interface ConfirmDialogProps {
   confirmText?: string
   variant?: 'danger' | 'warning'
   loading?: boolean
+  children?: React.ReactNode
 }
 
 export function ConfirmDialog({
@@ -35,6 +36,7 @@ export function ConfirmDialog({
   confirmText = 'Confirm',
   variant = 'danger',
   loading = false,
+  children,
 }: ConfirmDialogProps) {
   const isDanger = variant === 'danger'
 
@@ -62,6 +64,8 @@ export function ConfirmDialog({
         <p className="font-body text-sm text-[var(--text-muted)] mb-6">
           {message}
         </p>
+
+        {children && <div className="mb-6 text-left">{children}</div>}
 
         <div className="flex gap-3 justify-center">
           <Button variant="secondary" onClick={onClose} disabled={loading}>

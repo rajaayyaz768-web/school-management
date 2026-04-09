@@ -185,7 +185,7 @@ export function FeeStructureForm({ structure, onSuccess, onCancel }: Props) {
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" isLoading={isLoading}>
+        <Button type="submit" loading={isLoading}>
           {isEditing ? 'Update Structure' : 'Create Structure'}
         </Button>
       </div>

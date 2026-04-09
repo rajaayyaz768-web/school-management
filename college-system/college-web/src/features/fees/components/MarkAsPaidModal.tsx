@@ -110,7 +110,7 @@ export function MarkAsPaidModal({ record, isOpen, onClose }: Props) {
           <Button variant="outline" type="button" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" isLoading={mutation.isPending}>
+          <Button type="submit" loading={mutation.isPending}>
             Confirm Payment
           </Button>
         </div>

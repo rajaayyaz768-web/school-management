@@ -54,7 +54,7 @@ export function AbsenceAlertPanel({ alerts, onDismiss, onClearAll }: Props) {
                     <div>
                       <div className="font-semibold text-[var(--text)]">{alert.staffName}</div>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="default">{alert.staffCode}</Badge>
+                        <Badge variant="neutral">{alert.staffCode}</Badge>
                         {alert.designation && (
                           <span className="text-xs text-[var(--text-muted)]">{alert.designation}</span>
                         )}
@@ -97,7 +97,7 @@ export function AbsenceAlertPanel({ alerts, onDismiss, onClearAll }: Props) {
                               </Badge>
                             ))}
                             {period.freeTeachers.length > 6 && (
-                              <Badge variant="default">+{period.freeTeachers.length - 6} more</Badge>
+                              <Badge variant="neutral">+{period.freeTeachers.length - 6} more</Badge>
                             )}
                           </div>
                         )}

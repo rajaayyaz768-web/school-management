@@ -261,10 +261,10 @@ export default function FeesPage() {
         title="Generate Fee Records"
         message="Please select the section for which you want to generate fee records based on this structure."
         confirmText="Generate Records"
-        confirmVariant="primary"
+        variant="warning"
         onConfirm={confirmGenerateRecords}
-        onCancel={() => setGenerateModalOpen(false)}
-        isLoading={generateMutation.isPending}
+        onClose={() => setGenerateModalOpen(false)}
+        loading={generateMutation.isPending}
       >
         <div className="mt-4">
           <Select
