@@ -1,6 +1,8 @@
 import { Request, Response } from 'express'
 import * as service from './staff-attendance.service'
 import { sendSuccess, sendError } from '../../utils/response'
+import { buildAbsenceAlert } from './staff-attendance.alerter'
+import { io } from '../../config/socket'
 
 export const getStaffForAttendance = async (req: Request, res: Response) => {
   try {
@@ -19,6 +21,25 @@ export const markDailyAttendance = async (req: Request, res: Response) => {
     const body = req.body
     const markedById = (req as any).user.id
     const result = await service.markDailyAttendance(body, markedById)
+
+    // Emit absence alerts for any ABSENT staff
+    try {
+      if (io) {
+        const absentItems = req.body.attendances?.filter(
+          (a: any) => a.status === 'ABSENT'
+        ) ?? []
+        for (const item of absentItems) {
+          const alert = await buildAbsenceAlert(item.staffId, req.body.campusId, req.body.date)
+          if (alert && alert.affectedPeriods.length > 0) {
+            io.emit('teacher:absent', alert)
+          }
+        }
+      }
+    } catch (alertError) {
+      // Alert emission failure should not break attendance marking
+      console.error('Alert emission error:', alertError)
+    }
+
     return sendSuccess(res, result, 'Daily attendance marked', 201)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Something went wrong'

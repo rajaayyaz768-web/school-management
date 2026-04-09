@@ -33,16 +33,60 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
+
+  // LOGGING OUTGOING REQUEST
+  const method = config.method?.toUpperCase() ?? 'UNKNOWN'
+  const url = config.url ?? ''
+  const params = config.params ? ` | Params: ${JSON.stringify(config.params)}` : ''
+  const data = config.data
+    ? (() => {
+        const sanitized = { ...config.data }
+        if (sanitized.password) sanitized.password = '[REDACTED]'
+        if (sanitized.passwordHash) sanitized.passwordHash = '[REDACTED]'
+        return ` | Body: ${JSON.stringify(sanitized)}`
+      })()
+    : ''
+  console.log(`%c[API →] ${method} ${url}${params}${data}`, 'color: #3B82F6; font-weight: bold')
+
   return config;
+}, (error) => {
+  console.error('%c[API REQUEST ERROR]', 'color: #EF4444; font-weight: bold', error)
+  return Promise.reject(error)
 });
 
 // ─── Response interceptor ─────────────────────────────────────────────
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // LOGGING INCOMING RESPONSE
+    const method = response.config.method?.toUpperCase() ?? 'UNKNOWN'
+    const url = response.config.url ?? ''
+    const status = response.status
+    console.log(`%c[API ←] ${status} ${method} ${url}`, 'color: #10B981; font-weight: bold')
+    return response;
+  },
   async (error) => {
+    // LOGGING ERROR
+    const method = error.config?.method?.toUpperCase() ?? 'UNKNOWN'
+    const url = error.config?.url ?? ''
+    const status = error.response?.status ?? 'NETWORK_ERROR'
+    const message = error.response?.data?.message ?? error.message ?? 'Unknown error'
+    const details = error.response?.data?.details ?? null
+
+    console.group(`%c[API ERROR] ${status} ${method} ${url}`, 'color: #EF4444; font-weight: bold')
+    console.error('Message:', message)
+    if (details) console.error('Validation details:', details)
+    if (status === 401) console.warn('→ UNAUTHORIZED: Token expired or invalid')
+    if (status === 403) console.warn('→ FORBIDDEN: Insufficient role permissions')
+    if (status === 404) console.warn('→ NOT FOUND: Check endpoint URL and ID')
+    if (status === 409) console.warn('→ CONFLICT: Duplicate data — check unique fields')
+    if (status === 422) console.warn('→ VALIDATION: Form data rejected — check field names and types')
+    if (status === 500) console.warn('→ SERVER ERROR: Check backend console for details')
+    if (status === 'NETWORK_ERROR') console.warn('→ NETWORK: Cannot reach server — is backend running?')
+    console.groupEnd()
+
     const originalRequest = error.config;
 
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && originalRequest) {
       if (originalRequest._retry) {
         return Promise.reject(error);
       }

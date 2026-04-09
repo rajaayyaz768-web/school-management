@@ -4,6 +4,7 @@ import { comparePassword } from "../../utils/password";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../utils/token";
 import { AppError } from "../../middlewares/error.middleware";
 import { LoginRequest, LoginResponse, MeResponse, RefreshTokenResponse } from "./auth.types";
+import { logger } from "../../utils/logger";
 
 // Helper to build the user's full name from their profile
 const resolveFullName = async (userId: string, role: string): Promise<string> => {
@@ -27,6 +28,7 @@ export const loginService = async (
 
   // Use same message for missing user and wrong password (prevents email enumeration)
   if (!user) {
+    logger.auth.loginFailed(data.email, 'User not found');
     throw new AppError("Invalid email or password", 401);
   }
 
@@ -36,6 +38,7 @@ export const loginService = async (
 
   const passwordMatch = await comparePassword(data.password, user.passwordHash);
   if (!passwordMatch) {
+    logger.auth.loginFailed(data.email, 'Invalid password');
     throw new AppError("Invalid email or password", 401);
   }
 
@@ -44,6 +47,8 @@ export const loginService = async (
   const refreshToken = generateRefreshToken(tokenPayload);
 
   const fullName = await resolveFullName(user.id, user.role);
+
+  logger.auth.loginSuccess(user.email, user.role, user.id);
 
   return {
     refreshToken,

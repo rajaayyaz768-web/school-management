@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import { corsOptions } from "./config/cors";
 import { generalLimiter } from "./middlewares/rateLimit.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import { requestLogger } from "./middlewares/requestLogger.middleware";
 import apiRouter from "./routes/index";
 
 const app: Application = express();
@@ -27,12 +28,15 @@ app.use(cookieParser());
 // ─── 5. Rate limiter ───────────────────────────────────────────────────────────────
 app.use(generalLimiter);
 
-// ─── 6. Health check ───────────────────────────────────────────────────────────────
+// ─── 6. Request logger ─────────────────────────────────────────────────────────────
+app.use(requestLogger);
+
+// ─── 7. Health check ───────────────────────────────────────────────────────────────
 app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// ─── 7. API routes ───────────────────────────────────────────────────────────────
+// ─── 8. API routes ───────────────────────────────────────────────────────────────
 app.use("/api/v1", apiRouter);
 
 // ─── 8. 404 handler ───────────────────────────────────────────────────────────────

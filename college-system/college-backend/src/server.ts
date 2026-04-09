@@ -16,20 +16,17 @@ initSocket(httpServer);
 prisma
   .$connect()
   .then(() => {
-    logger.info("Database connected ✔✓");
+    logger.db.poolConnected();
 
     httpServer.listen(PORT, () => {
-      logger.info(`────────────────────────────────────────────────`);
-      logger.info(`🏫  College Management System API`);
-      logger.info(`   Server running on port ${PORT}`);
-      logger.info(`   Health: http://localhost:${PORT}/health`);
-      logger.info(`   API:    http://localhost:${PORT}/api/v1`);
-      logger.info(`   Env:    ${process.env.NODE_ENV}`);
-      logger.info(`────────────────────────────────────────────────`);
+      logger.server(`Server running on port ${PORT}`);
+      logger.server(`Environment: ${process.env.NODE_ENV ?? 'development'}`);
+      logger.server(`API base URL: http://localhost:${PORT}/api/v1`);
     });
   })
   .catch((err) => {
-    logger.error("Failed to connect to database:", err);
+    logger.db.error("PrismaClient", "$connect", err);
+    logger.error("Failed to connect to database — check DATABASE_URL in .env", err);
     process.exit(1);
   });
 

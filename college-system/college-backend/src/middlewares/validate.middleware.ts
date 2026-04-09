@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { z, ZodSchema } from "zod";
 import { sendValidationError } from "../utils/response";
+import { logger } from "../utils/logger";
 
 /**
  * Wraps a Zod schema and validates req.body, req.params, req.query.
@@ -20,6 +21,7 @@ export const validate =
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         const issues = err.issues || (err as any).errors || [];
+        logger.validation(req.originalUrl, issues);
         const message = issues
           .map((e: any) => `${(e.path || []).slice(1).join(".")}: ${e.message}`)
           .join(" | ");
@@ -29,3 +31,4 @@ export const validate =
       next(err);
     }
   };
+

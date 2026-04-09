@@ -26,10 +26,17 @@ export const errorMiddleware = (
       ? "Internal server error"
       : err.message || "Something went wrong";
 
+  // Log the error with full context
   logger.error(`[${req.method}] ${req.path} — ${err.message}`, {
     stack: err.stack,
     statusCode,
   });
+
+  // Check for Prisma errors and log them with diagnosis
+  const prismaCode = (err as any)?.code;
+  if (prismaCode) {
+    logger.db.error('PrismaError', req.originalUrl, err);
+  }
 
   res.status(statusCode).json({
     success: false,
@@ -37,3 +44,4 @@ export const errorMiddleware = (
     ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
   });
 };
+

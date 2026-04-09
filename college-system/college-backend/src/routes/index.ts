@@ -11,6 +11,8 @@ import { parentsRouter } from "../modules/parents/parents.routes";
 import { sectionAssignmentRouter } from "../modules/section-assignment/section-assignment.routes";
 import { staffAttendanceRouter } from '../modules/staff-attendance/staff-attendance.routes'
 import { studentAttendanceRouter } from '../modules/student-attendance/student-attendance.routes'
+import { timetableRouter } from '../modules/timetable/timetable.routes'
+import { feesRouter } from '../modules/fees/fees.routes'
 
 const router = Router();
 
@@ -31,6 +33,8 @@ router.use("/parents", parentsRouter);
 router.use("/section-assignment", sectionAssignmentRouter);
 router.use('/staff-attendance', staffAttendanceRouter)
 router.use('/student-attendance', studentAttendanceRouter)
+router.use('/timetable', timetableRouter)
+router.use('/fees', feesRouter)
 // ... etc.
 
 export default router;

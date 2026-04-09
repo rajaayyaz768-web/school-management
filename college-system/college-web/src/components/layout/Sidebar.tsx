@@ -15,6 +15,7 @@ import {
   Wallet,
   BookOpen,
   ClipboardList,
+  ClipboardCheck,
   Megaphone,
   Settings,
   ChevronLeft,
@@ -37,6 +38,7 @@ import {
   CreditCard,
   BarChart2,
   UserCheck,
+  Bell,
 } from "lucide-react";
 
 interface NavItem {
@@ -50,6 +52,7 @@ const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
     { label: "Hierarchy Browser", href: "/principal/hierarchy", icon: Network },
     { label: "Live View", href: "/principal/live-view", icon: Radio },
+    { label: "Live Alerts", href: "/principal/alerts", icon: Bell },
     { label: "Students", href: "/principal/students", icon: GraduationCap },
     { label: "Staff", href: "/principal/staff", icon: Users },
     { label: "Campus", href: "/admin/campus", icon: Building2 },
@@ -69,7 +72,7 @@ const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { label: "Staff", href: "/admin/staff", icon: Users },
     { label: "Parents", href: "/admin/parents", icon: Heart },
     { label: "Section Assignment", href: "/admin/section-assignment", icon: Shuffle },
-    { label: "Staff Attendance", href: "/admin/attendance/staff", icon: CalendarCheck },
+    { label: "Staff Attendance", href: "/admin/attendance/staff", icon: ClipboardCheck },
     { label: "Student Attendance", href: "/admin/attendance/students", icon: UserCheck },
     { label: "Timetable", href: "/admin/timetable", icon: Clock },
     { label: "Fees", href: "/admin/fees", icon: CreditCard },
