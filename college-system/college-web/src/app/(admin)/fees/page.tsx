@@ -193,7 +193,7 @@ export default function FeesPage() {
                 <SearchInput
                   placeholder="Search student or roll no..."
                   value={searchQuery ?? ''}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={setSearchQuery}
                 />
               </div>
             </div>
