@@ -19,7 +19,7 @@ export const getAllCampuses = async (req: Request, res: Response) => {
 
 export const getCampusById = async (req: Request, res: Response) => {
   try {
-    const campus = await campusService.getCampusById(req.params.id);
+    const campus = await campusService.getCampusById(req.params.id as string);
     sendSuccess(res, "Campus retrieved successfully", campus);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -40,7 +40,7 @@ export const createCampus = async (req: Request, res: Response) => {
 
 export const updateCampus = async (req: Request, res: Response) => {
   try {
-    const campus = await campusService.updateCampus(req.params.id, req.body);
+    const campus = await campusService.updateCampus(req.params.id as string, req.body);
     sendSuccess(res, "Campus updated successfully", campus);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -50,7 +50,7 @@ export const updateCampus = async (req: Request, res: Response) => {
 
 export const toggleCampusStatus = async (req: Request, res: Response) => {
   try {
-    const campus = await campusService.toggleCampusStatus(req.params.id);
+    const campus = await campusService.toggleCampusStatus(req.params.id as string);
     sendSuccess(res, "Campus status toggled successfully", campus);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

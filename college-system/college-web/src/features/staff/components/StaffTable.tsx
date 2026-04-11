@@ -48,7 +48,7 @@ export function StaffTable({ staffList, isLoading, onView, onEdit, onToggle }: S
     { key: 'designation', header: 'Designation', render: (staff: Staff) => <span className="text-[var(--text)] text-sm">{staff.designation || '—'}</span> },
     { key: 'employment', header: 'Employment', render: (staff: Staff) => <Badge variant={getEmploymentBadge(staff.employmentType) as any}>{staff.employmentType}</Badge> },
     { key: 'campus', header: 'Campus', render: (staff: Staff) => {
-      const campusName = staff.campusAssignments?.[0]?.campus?.name ?? 'Unassigned';
+      const campusName = staff.campus?.name ?? 'Unassigned';
       return <span className="text-[var(--text)] text-sm">{campusName}</span>;
     }},
     { key: 'status', header: 'Status', render: (staff: Staff) => {

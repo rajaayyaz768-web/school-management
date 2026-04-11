@@ -15,7 +15,7 @@ export const getAllParents = async (req: Request, res: Response) => {
 
 export const getParentById = async (req: Request, res: Response) => {
   try {
-    const parent = await parentsService.getParentById(req.params.id);
+    const parent = await parentsService.getParentById(req.params.id as string);
     sendSuccess(res, "Parent retrieved successfully", parent);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -50,7 +50,7 @@ export const createParent = async (req: Request, res: Response) => {
 
 export const updateParent = async (req: Request, res: Response) => {
   try {
-    const parent = await parentsService.updateParent(req.params.id, req.body);
+    const parent = await parentsService.updateParent(req.params.id as string, req.body);
     sendSuccess(res, "Parent updated successfully", parent);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -60,7 +60,7 @@ export const updateParent = async (req: Request, res: Response) => {
 
 export const linkStudent = async (req: Request, res: Response) => {
   try {
-    const parentId = req.params.id;
+    const parentId = req.params.id as string;
     const link = await parentsService.linkStudentToParent(parentId, req.body);
     sendCreated(res, "Student linked to parent successfully", link);
   } catch (error: unknown) {
@@ -71,8 +71,8 @@ export const linkStudent = async (req: Request, res: Response) => {
 
 export const unlinkStudent = async (req: Request, res: Response) => {
   try {
-    const parentId = req.params.id;
-    const studentId = req.params.studentId;
+    const parentId = req.params.id as string;
+    const studentId = req.params.studentId as string;
     const result = await parentsService.unlinkStudentFromParent(parentId, studentId);
     sendSuccess(res, "Student unlinked successfully", result);
   } catch (error: unknown) {

@@ -23,7 +23,7 @@ export const getAllStudents = async (req: Request, res: Response) => {
 
 export const getStudentById = async (req: Request, res: Response) => {
   try {
-    const student = await studentsService.getStudentById(req.params.id);
+    const student = await studentsService.getStudentById(req.params.id as string);
     sendSuccess(res, "Student retrieved successfully", student);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -43,7 +43,7 @@ export const createStudent = async (req: Request, res: Response) => {
 
 export const updateStudent = async (req: Request, res: Response) => {
   try {
-    const student = await studentsService.updateStudent(req.params.id, req.body);
+    const student = await studentsService.updateStudent(req.params.id as string, req.body);
     sendSuccess(res, "Student updated successfully", student);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

@@ -21,9 +21,7 @@ export function StaffForm({ staff, onSuccess, onCancel }: StaffFormProps) {
   const [designation, setDesignation] = useState(staff?.designation || '');
   const [gender, setGender] = useState<Gender>(staff?.gender || 'MALE');
   const [employmentType, setEmploymentType] = useState<EmploymentType>(staff?.employmentType || 'PERMANENT');
-  const [primaryCampusId, setPrimaryCampusId] = useState(
-    staff?.campusAssignments?.[0]?.campus?.id || ''
-  );
+  const [primaryCampusId, setPrimaryCampusId] = useState(staff?.campus?.id || '');
   const [joiningDate, setJoiningDate] = useState(staff?.joiningDate ? staff.joiningDate.split('T')[0] : '');
   const [email, setEmail] = useState(staff?.user?.email || staff?.email || '');
   const [phone, setPhone] = useState(staff?.phone || '');

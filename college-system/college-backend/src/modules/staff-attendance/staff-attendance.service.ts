@@ -1,7 +1,6 @@
-import { PrismaClient, StaffAttendanceStatus } from '@prisma/client'
+import { StaffAttendanceStatus } from '@prisma/client'
+import prisma from '../../config/database'
 import { MarkStaffAttendanceDto, UpdateAttendanceDto, StaffAttendanceResponse, StaffWithAttendance, DailyAttendanceReport } from './staff-attendance.types'
-
-const prisma = new PrismaClient()
 
 function mapToResponse(record: any): StaffAttendanceResponse {
   return {
@@ -128,7 +127,16 @@ export const updateSingleAttendance = async (id: string, data: UpdateAttendanceD
     throw error
   }
 
-  const updated = await prisma.staffAttendance.update({ where: { id }, data: { ...data }, include: staffAttendanceInclude })
+  const updated = await prisma.staffAttendance.update({
+    where: { id },
+    data: {
+      status: data.status,
+      remarks: data.remarks,
+      checkIn: data.checkIn !== undefined ? new Date(data.checkIn) : undefined,
+      checkOut: data.checkOut !== undefined ? new Date(data.checkOut) : undefined,
+    },
+    include: staffAttendanceInclude,
+  })
   return mapToResponse(updated)
 }
 

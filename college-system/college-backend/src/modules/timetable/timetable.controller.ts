@@ -5,7 +5,7 @@ import { sendSuccess, sendError } from '../../utils/response'
 export const upsertPeriodConfig = async (req: Request, res: Response) => {
 	try {
 		const result = await service.upsertPeriodConfig(req.body)
-		return sendSuccess(res, result, 'Period config upserted')
+		return sendSuccess(res, 'Period config upserted', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -17,7 +17,7 @@ export const getPeriodConfig = async (req: Request, res: Response) => {
 	try {
 		const { campusId, gradeId } = req.query as { campusId: string, gradeId: string }
 		const result = await service.getPeriodConfig(campusId, gradeId)
-		return sendSuccess(res, result, 'Period config fetched')
+		return sendSuccess(res, 'Period config fetched', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -28,7 +28,7 @@ export const getPeriodConfig = async (req: Request, res: Response) => {
 export const createSlot = async (req: Request, res: Response) => {
 	try {
 		const result = await service.createSlot(req.body)
-		return sendSuccess(res, result, 'Slot created', 201)
+		return sendSuccess(res, 'Slot created', result, 201)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -39,7 +39,7 @@ export const createSlot = async (req: Request, res: Response) => {
 export const bulkCreateSlots = async (req: Request, res: Response) => {
 	try {
 		const result = await service.bulkCreateSlots(req.body.slots)
-		return sendSuccess(res, result, 'Slots created', 201)
+		return sendSuccess(res, 'Slots created', result, 201)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -49,8 +49,8 @@ export const bulkCreateSlots = async (req: Request, res: Response) => {
 
 export const updateSlot = async (req: Request, res: Response) => {
 	try {
-		const result = await service.updateSlot(req.params.id, req.body)
-		return sendSuccess(res, result, 'Slot updated')
+		const result = await service.updateSlot(req.params.id as string, req.body)
+		return sendSuccess(res, 'Slot updated', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -60,8 +60,8 @@ export const updateSlot = async (req: Request, res: Response) => {
 
 export const deleteSlot = async (req: Request, res: Response) => {
 	try {
-		const result = await service.deleteSlot(req.params.id)
-		return sendSuccess(res, result, 'Slot deleted')
+		await service.deleteSlot(req.params.id as string)
+		return sendSuccess(res, 'Slot deleted')
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -79,7 +79,7 @@ export const checkConflict = async (req: Request, res: Response) => {
 			excludeSectionId?: string
 		}
 		const result = await service.checkConflict(staffId, dayOfWeek, parseInt(slotNumber, 10), academicYear, excludeSectionId)
-		return sendSuccess(res, result, 'Conflict check completed')
+		return sendSuccess(res, 'Conflict check completed', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -89,10 +89,10 @@ export const checkConflict = async (req: Request, res: Response) => {
 
 export const getSectionTimetable = async (req: Request, res: Response) => {
 	try {
-		const { sectionId } = req.params
+		const sectionId = req.params.sectionId as string
 		const { academicYear } = req.query as { academicYear: string }
 		const result = await service.getSectionTimetable(sectionId, academicYear)
-		return sendSuccess(res, result, 'Section timetable fetched')
+		return sendSuccess(res, 'Section timetable fetched', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -102,10 +102,10 @@ export const getSectionTimetable = async (req: Request, res: Response) => {
 
 export const getTeacherTimetable = async (req: Request, res: Response) => {
 	try {
-		const { staffId } = req.params
+		const staffId = req.params.staffId as string
 		const { academicYear } = req.query as { academicYear: string }
 		const result = await service.getTeacherTimetable(staffId, academicYear)
-		return sendSuccess(res, result, 'Teacher timetable fetched')
+		return sendSuccess(res, 'Teacher timetable fetched', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -115,10 +115,10 @@ export const getTeacherTimetable = async (req: Request, res: Response) => {
 
 export const clearSectionTimetable = async (req: Request, res: Response) => {
 	try {
-		const { sectionId } = req.params
+		const sectionId = req.params.sectionId as string
 		const { academicYear } = req.query as { academicYear: string }
 		const result = await service.clearSectionTimetable(sectionId, academicYear)
-		return sendSuccess(res, result, 'Section timetable cleared')
+		return sendSuccess(res, 'Section timetable cleared', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500

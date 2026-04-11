@@ -93,11 +93,9 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
                 </div>
                 <div className="col-span-2">
                   <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Campus Assignment</label>
-                  <div className="mt-2 space-y-2">
-                    {staff.campusAssignments?.length > 0 ? (
-                      staff.campusAssignments.map((ca) => (
-                        <Badge key={ca.id} variant="neutral">{ca.campus?.name}</Badge>
-                      ))
+                  <div className="mt-2">
+                    {staff.campus ? (
+                      <Badge variant="neutral">{staff.campus.name}</Badge>
                     ) : (
                       <span className="text-sm text-[var(--text-muted)]">Unassigned</span>
                     )}

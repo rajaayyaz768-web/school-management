@@ -14,7 +14,7 @@ export const getAllSubjects = async (req: Request, res: Response) => {
 
 export const getSubjectById = async (req: Request, res: Response) => {
   try {
-    const subject = await subjectService.getSubjectById(req.params.id);
+    const subject = await subjectService.getSubjectById(req.params.id as string);
     sendSuccess(res, "Subject retrieved successfully", subject);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -34,7 +34,7 @@ export const createSubject = async (req: Request, res: Response) => {
 
 export const updateSubject = async (req: Request, res: Response) => {
   try {
-    const subject = await subjectService.updateSubject(req.params.id, req.body);
+    const subject = await subjectService.updateSubject(req.params.id as string, req.body);
     sendSuccess(res, "Subject updated successfully", subject);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -44,7 +44,7 @@ export const updateSubject = async (req: Request, res: Response) => {
 
 export const toggleSubjectStatus = async (req: Request, res: Response) => {
   try {
-    const subject = await subjectService.toggleSubjectStatus(req.params.id);
+    const subject = await subjectService.toggleSubjectStatus(req.params.id as string);
     sendSuccess(res, "Subject status toggled successfully", subject);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -97,7 +97,7 @@ export const createAssignment = async (req: Request, res: Response) => {
 
 export const updateAssignment = async (req: Request, res: Response) => {
   try {
-    const assignment = await subjectService.updateAssignment(req.params.id, req.body);
+    const assignment = await subjectService.updateAssignment(req.params.id as string, req.body);
     sendSuccess(res, "Assignment updated successfully", assignment);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -107,7 +107,7 @@ export const updateAssignment = async (req: Request, res: Response) => {
 
 export const deleteAssignment = async (req: Request, res: Response) => {
   try {
-    const result = await subjectService.deleteAssignment(req.params.id);
+    const result = await subjectService.deleteAssignment(req.params.id as string);
     sendSuccess(res, result.message, null);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

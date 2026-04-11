@@ -18,7 +18,7 @@ export const getGradesByProgram = async (req: Request, res: Response) => {
 
 export const getGradeById = async (req: Request, res: Response) => {
   try {
-    const grade = await gradeService.getGradeById(req.params.id);
+    const grade = await gradeService.getGradeById(req.params.id as string);
     sendSuccess(res, "Grade retrieved successfully", grade);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -28,7 +28,7 @@ export const getGradeById = async (req: Request, res: Response) => {
 
 export const updateGrade = async (req: Request, res: Response) => {
   try {
-    const grade = await gradeService.updateGrade(req.params.id, req.body);
+    const grade = await gradeService.updateGrade(req.params.id as string, req.body);
     sendSuccess(res, "Grade updated successfully", grade);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -38,7 +38,7 @@ export const updateGrade = async (req: Request, res: Response) => {
 
 export const toggleGradeStatus = async (req: Request, res: Response) => {
   try {
-    const grade = await gradeService.toggleGradeStatus(req.params.id);
+    const grade = await gradeService.toggleGradeStatus(req.params.id as string);
     sendSuccess(res, "Grade status toggled successfully", grade);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

@@ -23,7 +23,7 @@ export interface Program {
   campus: {
     id: string;
     name: string;
-    campus_code: string;
+    code: string;
   };
   grades: [
     { id: string; name: string; displayOrder: number; is_active: boolean },

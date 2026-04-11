@@ -1,4 +1,5 @@
-import { PrismaClient, DayOfWeek, SlotType } from '@prisma/client'
+import { DayOfWeek, SlotType } from '@prisma/client'
+import prisma from '../../config/database'
 import {
 	PeriodConfigDto,
 	CreateSlotDto,
@@ -9,8 +10,6 @@ import {
 	SectionTimetable,
 	TeacherTimetable
 } from './timetable.types'
-
-const prisma = new PrismaClient()
 
 const slotInclude = {
 	subject: {
@@ -144,7 +143,7 @@ export const bulkCreateSlots = async (slots: CreateSlotDto[]): Promise<Timetable
 export const updateSlot = async (id: string, data: UpdateSlotDto): Promise<TimetableSlotResponse> => {
 	const existing = await prisma.timetableSlot.findUnique({ where: { id }, include: slotInclude })
 	if (!existing) {
-		const error = new Error('Attendance record not found') as any
+		const error = new Error('Timetable slot not found') as any
 		error.status = 404
 		throw error
 	}
@@ -166,7 +165,7 @@ export const updateSlot = async (id: string, data: UpdateSlotDto): Promise<Timet
 export const deleteSlot = async (id: string): Promise<void> => {
 	const existing = await prisma.timetableSlot.findUnique({ where: { id } })
 	if (!existing) {
-		const error = new Error('Attendance record not found') as any
+		const error = new Error('Timetable slot not found') as any
 		error.status = 404
 		throw error
 	}
@@ -209,7 +208,7 @@ export const checkConflict = async (staffId: string, dayOfWeek: DayOfWeek, slotN
 export const getSectionTimetable = async (sectionId: string, academicYear: string): Promise<SectionTimetable> => {
 	const section = await prisma.section.findUnique({ where: { id: sectionId }, select: { id: true, name: true } })
 	if (!section) {
-		const error = new Error('Attendance record not found') as any
+		const error = new Error('Section not found') as any
 		error.status = 404
 		throw error
 	}
@@ -231,7 +230,7 @@ export const getSectionTimetable = async (sectionId: string, academicYear: strin
 export const getTeacherTimetable = async (staffId: string, academicYear: string): Promise<TeacherTimetable> => {
 	const staff = await prisma.staffProfile.findUnique({ where: { id: staffId }, select: { id: true, firstName: true, lastName: true } })
 	if (!staff) {
-		const error = new Error('Attendance record not found') as any
+		const error = new Error('Staff not found') as any
 		error.status = 404
 		throw error
 	}

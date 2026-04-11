@@ -19,7 +19,7 @@ export const getAllPrograms = async (req: Request, res: Response) => {
 
 export const getProgramById = async (req: Request, res: Response) => {
   try {
-    const program = await programService.getProgramById(req.params.id);
+    const program = await programService.getProgramById(req.params.id as string);
     sendSuccess(res, "Program retrieved successfully", program);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -39,7 +39,7 @@ export const createProgram = async (req: Request, res: Response) => {
 
 export const updateProgram = async (req: Request, res: Response) => {
   try {
-    const program = await programService.updateProgram(req.params.id, req.body);
+    const program = await programService.updateProgram(req.params.id as string, req.body);
     sendSuccess(res, "Program updated successfully", program);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -49,7 +49,7 @@ export const updateProgram = async (req: Request, res: Response) => {
 
 export const toggleProgramStatus = async (req: Request, res: Response) => {
   try {
-    const program = await programService.toggleProgramStatus(req.params.id);
+    const program = await programService.toggleProgramStatus(req.params.id as string);
     sendSuccess(res, "Program status toggled successfully", program);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

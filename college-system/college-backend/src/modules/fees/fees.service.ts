@@ -1,4 +1,5 @@
-import { PrismaClient, FeeStatus } from '@prisma/client'
+import { FeeStatus } from '@prisma/client'
+import prisma from '../../config/database'
 import {
   CreateFeeStructureDto,
   UpdateFeeStructureDto,
@@ -8,8 +9,6 @@ import {
   FeeRecordResponse,
   FeeDefaulter
 } from './fees.types'
-
-const prisma = new PrismaClient()
 
 const feeStructureInclude = {
   program: { select: { id: true, name: true, code: true } },

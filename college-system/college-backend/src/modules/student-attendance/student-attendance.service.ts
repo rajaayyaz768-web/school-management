@@ -1,4 +1,5 @@
-import { PrismaClient, AttendanceStatus } from '@prisma/client'
+import { AttendanceStatus } from '@prisma/client'
+import prisma from '../../config/database'
 import {
   MarkStudentAttendanceDto,
   UpdateStudentAttendanceDto,
@@ -7,8 +8,6 @@ import {
   SectionAttendanceReport,
   StudentAttendanceSummary
 } from './student-attendance.types'
-
-const prisma = new PrismaClient()
 
 const studentAttendanceInclude = {
   student: {

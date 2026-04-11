@@ -160,9 +160,9 @@ export const updateStaff = async (id: string, data: UpdateStaffDto) => {
       throw Object.assign(new Error("Staff not found"), { statusCode: 404 });
     }
 
-    if (data.employeeId && data.employeeId !== existing.staffCode) {
-      const duplicate = await tx.staffProfile.findUnique({ where: { staffCode: data.employeeId } });
-      if (duplicate) throw Object.assign(new Error("Employee ID already exists"), { statusCode: 409 });
+    if (data.staffCode && data.staffCode !== existing.staffCode) {
+      const duplicate = await tx.staffProfile.findUnique({ where: { staffCode: data.staffCode } });
+      if (duplicate) throw Object.assign(new Error("Staff code already exists"), { statusCode: 409 });
     }
 
     const updateData: any = {};
