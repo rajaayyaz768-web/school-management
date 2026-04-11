@@ -13,15 +13,22 @@ import { staffAttendanceRouter } from '../modules/staff-attendance/staff-attenda
 import { studentAttendanceRouter } from '../modules/student-attendance/student-attendance.routes'
 import { timetableRouter } from '../modules/timetable/timetable.routes'
 import { feesRouter } from '../modules/fees/fees.routes'
+import { examsRouter } from '../modules/exams/exams.routes'
+import { resultsRouter } from '../modules/results/results.routes'
+import { announcementsRouter } from '../modules/announcements/announcements.routes'
+import { reportsRouter } from '../modules/reports/reports.routes'
+import { principalDashboardRouter } from '../modules/dashboard/principal/principalDashboard.routes'
+import { adminDashboardRouter } from '../modules/dashboard/admin/adminDashboard.routes'
+import { teacherDashboardRouter } from '../modules/dashboard/teacher/teacherDashboard.routes'
+import { parentDashboardRouter } from '../modules/dashboard/parent/parentDashboard.routes'
+import { studentDashboardRouter } from '../modules/dashboard/student/studentDashboard.routes'
 
 const router = Router();
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
 router.use("/auth", authRouter);
 
-// Additional module routes will be mounted here in Steps 5–7:
-// router.use("/students", studentsRouter);
-// router.use("/staff", staffRouter);
+// ─── Core modules ──────────────────────────────────────────────────────────
 router.use("/campus", campusRouter);
 router.use("/programs", programsRouter);
 router.use("/grades", gradesRouter);
@@ -31,10 +38,24 @@ router.use("/staff", staffRouter);
 router.use("/students", studentsRouter);
 router.use("/parents", parentsRouter);
 router.use("/section-assignment", sectionAssignmentRouter);
+
+// ─── Attendance & Timetable ────────────────────────────────────────────────
 router.use('/staff-attendance', staffAttendanceRouter)
 router.use('/student-attendance', studentAttendanceRouter)
 router.use('/timetable', timetableRouter)
+
+// ─── Academic ─────────────────────────────────────────────────────────────
 router.use('/fees', feesRouter)
-// ... etc.
+router.use('/exams', examsRouter)
+router.use('/results', resultsRouter)
+router.use('/announcements', announcementsRouter)
+router.use('/reports', reportsRouter)
+
+// ─── Dashboards ───────────────────────────────────────────────────────────
+router.use('/dashboard/principal', principalDashboardRouter)
+router.use('/dashboard/admin', adminDashboardRouter)
+router.use('/dashboard/teacher', teacherDashboardRouter)
+router.use('/dashboard/parent', parentDashboardRouter)
+router.use('/dashboard/student', studentDashboardRouter)
 
 export default router;

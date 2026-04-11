@@ -49,7 +49,8 @@ export const bulkCreateSlots = async (req: Request, res: Response) => {
 
 export const updateSlot = async (req: Request, res: Response) => {
 	try {
-		const result = await service.updateSlot(req.params.id as string, req.body)
+		const id = req.params.id as string
+		const result = await service.updateSlot(id, req.body)
 		return sendSuccess(res, 'Slot updated', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
@@ -60,8 +61,9 @@ export const updateSlot = async (req: Request, res: Response) => {
 
 export const deleteSlot = async (req: Request, res: Response) => {
 	try {
-		await service.deleteSlot(req.params.id as string)
-		return sendSuccess(res, 'Slot deleted')
+		const id = req.params.id as string
+		const result = await service.deleteSlot(id)
+		return sendSuccess(res, 'Slot deleted', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
 		const status = (error as any).status ?? 500
@@ -90,7 +92,7 @@ export const checkConflict = async (req: Request, res: Response) => {
 export const getSectionTimetable = async (req: Request, res: Response) => {
 	try {
 		const sectionId = req.params.sectionId as string
-		const { academicYear } = req.query as { academicYear: string }
+		const academicYear = req.query.academicYear as string
 		const result = await service.getSectionTimetable(sectionId, academicYear)
 		return sendSuccess(res, 'Section timetable fetched', result)
 	} catch (error: unknown) {
@@ -103,7 +105,7 @@ export const getSectionTimetable = async (req: Request, res: Response) => {
 export const getTeacherTimetable = async (req: Request, res: Response) => {
 	try {
 		const staffId = req.params.staffId as string
-		const { academicYear } = req.query as { academicYear: string }
+		const academicYear = req.query.academicYear as string
 		const result = await service.getTeacherTimetable(staffId, academicYear)
 		return sendSuccess(res, 'Teacher timetable fetched', result)
 	} catch (error: unknown) {
@@ -116,7 +118,7 @@ export const getTeacherTimetable = async (req: Request, res: Response) => {
 export const clearSectionTimetable = async (req: Request, res: Response) => {
 	try {
 		const sectionId = req.params.sectionId as string
-		const { academicYear } = req.query as { academicYear: string }
+		const academicYear = req.query.academicYear as string
 		const result = await service.clearSectionTimetable(sectionId, academicYear)
 		return sendSuccess(res, 'Section timetable cleared', result)
 	} catch (error: unknown) {
