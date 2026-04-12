@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
 import { Megaphone, ArrowRight } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Select, Skeleton } from '@/components/ui'
+import { Skeleton } from '@/components/ui'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { useCampuses } from '@/features/campus/hooks/useCampus'
+import { useCampusStore } from '@/store/campusStore'
 import { usePrincipalDashboard } from '@/features/dashboard/principal/hooks/usePrincipalDashboard'
 import { StatsRow } from '@/features/dashboard/principal/components/StatsRow'
 import { AbsentStaffCard } from '@/features/dashboard/principal/components/AbsentStaffCard'
 import { UpcomingExamsCard } from '@/features/dashboard/principal/components/UpcomingExamsCard'
 import { FeeSummaryCard } from '@/features/dashboard/principal/components/FeeSummaryCard'
+import { CampusSummaryCard } from '@/features/dashboard/principal/components/CampusSummaryCard'
 import { useAbsenceAlerts } from '@/features/absence-alerts/hooks/useAbsenceAlerts'
 import { AbsenceAlertPanel } from '@/features/absence-alerts/components/AbsenceAlertPanel'
 
@@ -23,35 +23,22 @@ const AUDIENCE_META: Record<string, { label: string; variant: 'info' | 'warning'
 }
 
 export default function PrincipalDashboardPage() {
-  const [campusId, setCampusId] = useState('')
+  // Use the global campus store — set by the topbar picker
+  const activeCampusId = useCampusStore((s) => s.activeCampusId)
 
-  const { data: campuses } = useCampuses()
-  const { data, isLoading } = usePrincipalDashboard(campusId || undefined)
+  const { data, isLoading } = usePrincipalDashboard(activeCampusId ?? undefined)
   const { alerts, dismissAlert, clearAlerts } = useAbsenceAlerts()
 
-  const campusOptions = [
-    { value: '', label: 'All Campuses' },
-    ...(campuses ?? []).map((c) => ({ value: c.id, label: c.name })),
-  ]
+  const breakdown = data?.campusBreakdown ?? []
+  const showBreakdown = breakdown.length > 1
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)] p-6 xl:p-8 gap-6">
-      {/* Header with campus selector */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <PageHeader
-          title="Principal Dashboard"
-          subtitle="Live overview of campus operations"
-          breadcrumb={[{ label: 'Home', href: '/principal/dashboard' }, { label: 'Dashboard' }]}
-        />
-        <div className="pt-1">
-          <Select
-            value={campusId}
-            onChange={(e) => setCampusId(e.target.value)}
-            options={campusOptions}
-            label="Campus"
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Principal Dashboard"
+        subtitle="Live overview of campus operations"
+        breadcrumb={[{ label: 'Home', href: '/principal/dashboard' }, { label: 'Dashboard' }]}
+      />
 
       {/* Absence alerts (real-time socket events) */}
       {alerts.length > 0 && (
@@ -62,7 +49,21 @@ export default function PrincipalDashboardPage() {
         />
       )}
 
-      {/* Stats row — 6 metric cards */}
+      {/* Per-campus breakdown cards — shown when viewing all campuses and backend returns >1 */}
+      {showBreakdown && (
+        <div>
+          <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest mb-3">
+            Campus Overview — click a card to drill in
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {breakdown.map((campus) => (
+              <CampusSummaryCard key={campus.campusId} campus={campus} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Aggregate stats row — 6 metric cards */}
       <StatsRow
         stats={
           data?.stats ?? {

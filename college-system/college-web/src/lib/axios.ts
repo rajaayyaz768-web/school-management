@@ -1,5 +1,6 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/store/authStore";
+import { useCampusStore } from "@/store/campusStore";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
 
@@ -29,9 +30,19 @@ const processQueue = (error: any) => {
 
 // ─── Request interceptor ──────────────────────────────────────────────
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const { accessToken } = useAuthStore.getState();
+  const { accessToken, user } = useAuthStore.getState();
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  // Inject campus scope for SUPER_ADMIN (the global campus picker in the topbar).
+  // Only inject when no campusId is already explicitly set by the calling code.
+  // ADMIN: never inject — the backend enforces their campus at the middleware level.
+  if (user?.role === 'SUPER_ADMIN') {
+    const activeCampusId = useCampusStore.getState().activeCampusId
+    if (activeCampusId && config.params?.campusId === undefined) {
+      config.params = { ...config.params, campusId: activeCampusId }
+    }
   }
 
   // LOGGING OUTGOING REQUEST

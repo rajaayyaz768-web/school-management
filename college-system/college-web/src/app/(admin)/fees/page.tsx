@@ -98,7 +98,7 @@ export default function FeesPage() {
     queryKey: ['sections', selectedStructureForGen?.gradeId],
     queryFn: async () => {
       if (!selectedStructureForGen?.gradeId) return [];
-      const res = await axios.get(`/api/v1/sections?grade_id=${selectedStructureForGen.gradeId}`);
+      const res = await axios.get(`/sections?grade_id=${selectedStructureForGen.gradeId}`);
       return res.data.data;
     },
     enabled: !!selectedStructureForGen?.gradeId,

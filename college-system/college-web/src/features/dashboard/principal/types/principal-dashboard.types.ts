@@ -45,6 +45,17 @@ export interface UpcomingExam {
   examTypeName: string
 }
 
+export interface CampusBreakdown {
+  campusId: string
+  campusName: string
+  totalStudents: number
+  totalStaff: number
+  totalSections: number
+  presentStaff: number
+  absentStaffCount: number
+  todayFeeCollection: number
+}
+
 export interface PrincipalDashboardData {
   stats: DashboardStats
   staffAttendanceSummary: StaffAttendanceSummary
@@ -52,4 +63,5 @@ export interface PrincipalDashboardData {
   feeSummary: FeeSummary
   recentAnnouncements: RecentAnnouncement[]
   upcomingExams: UpcomingExam[]
+  campusBreakdown: CampusBreakdown[]
 }

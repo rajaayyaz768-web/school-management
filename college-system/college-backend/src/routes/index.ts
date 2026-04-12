@@ -22,6 +22,7 @@ import { adminDashboardRouter } from '../modules/dashboard/admin/adminDashboard.
 import { teacherDashboardRouter } from '../modules/dashboard/teacher/teacherDashboard.routes'
 import { parentDashboardRouter } from '../modules/dashboard/parent/parentDashboard.routes'
 import { studentDashboardRouter } from '../modules/dashboard/student/studentDashboard.routes'
+import { systemRouter } from '../modules/system/system.routes'
 
 const router = Router();
 
@@ -50,6 +51,9 @@ router.use('/exams', examsRouter)
 router.use('/results', resultsRouter)
 router.use('/announcements', announcementsRouter)
 router.use('/reports', reportsRouter)
+
+// ─── System (backup management) ───────────────────────────────────────────
+router.use('/system', systemRouter)
 
 // ─── Dashboards ───────────────────────────────────────────────────────────
 router.use('/dashboard/principal', principalDashboardRouter)

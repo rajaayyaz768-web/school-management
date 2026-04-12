@@ -20,9 +20,9 @@ const winstonLogger = winston.createLogger({
     new winston.transports.Console(),
     ...(process.env.NODE_ENV === "production"
       ? [
-          new winston.transports.File({ filename: "logs/error.log", level: "error" }),
-          new winston.transports.File({ filename: "logs/combined.log" }),
-        ]
+        new winston.transports.File({ filename: "logs/error.log", level: "error" }),
+        new winston.transports.File({ filename: "logs/combined.log" }),
+      ]
       : []),
   ],
 });
@@ -51,7 +51,10 @@ function formatDuration(ms: number): string {
 
 export const logger = {
   // Backward compat with existing winston calls (logger.info, logger.error, logger.warn, logger.debug)
-  ...winstonLogger,
+  info: winstonLogger.info.bind(winstonLogger),
+  error: winstonLogger.error.bind(winstonLogger),
+  warn: winstonLogger.warn.bind(winstonLogger),
+  debug: winstonLogger.debug.bind(winstonLogger),
 
   // Server startup messages
   server: (message: string) => {

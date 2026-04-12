@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useCurrentUser } from "@/store/authStore";
 import { useLogout } from "@/features/auth/hooks/useAuth";
+import { useCampusStore } from "@/store/campusStore";
+import { useCampuses } from "@/features/campus/hooks/useCampus";
 import { cn } from "@/lib/utils";
-import { MessageSquare, Bell, ChevronDown, User, LogOut } from "lucide-react";
+import { MessageSquare, Bell, ChevronDown, User, LogOut, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -22,10 +24,33 @@ const ROLE_LABEL_MAP: Record<string, string> = {
   STUDENT: "Student",
 };
 
+// ── Campus picker (SUPER_ADMIN only) ─────────────────────────────────────────
+
+function CampusPicker() {
+  const { activeCampusId, setActiveCampusId } = useCampusStore()
+  const { data: campuses } = useCampuses()
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <Building2 className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+      <select
+        value={activeCampusId ?? ''}
+        onChange={(e) => setActiveCampusId(e.target.value || null)}
+        className="text-xs bg-transparent border border-[var(--border)] rounded-md px-2 py-1 text-[var(--text)] focus:outline-none focus:border-[var(--gold)] cursor-pointer hover:border-[var(--gold)]/50 transition-colors"
+      >
+        <option value="">All Campuses</option>
+        {(campuses ?? []).map((c) => (
+          <option key={c.id} value={c.id}>{c.name}</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
 export function TopBar({ title }: TopBarProps) {
   const user = useCurrentUser();
   const { mutate: logout } = useLogout();
-  
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -74,6 +99,25 @@ export function TopBar({ title }: TopBarProps) {
 
       {/* RIGHT SIDE */}
       <div className="flex items-center gap-2">
+        {/* SUPER_ADMIN: global campus picker */}
+        {user.role === 'SUPER_ADMIN' && (
+          <>
+            <CampusPicker />
+            <div className="mx-1 h-6 w-px bg-[var(--border)]" />
+          </>
+        )}
+
+        {/* ADMIN: read-only campus badge */}
+        {user.role === 'ADMIN' && (
+          <>
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--gold)]/10 border border-[var(--gold)]/20">
+              <Building2 className="w-3 h-3 text-[var(--gold)]" />
+              <span className="text-xs font-medium text-[var(--gold)]">My Campus</span>
+            </div>
+            <div className="mx-1 h-6 w-px bg-[var(--border)]" />
+          </>
+        )}
+
         {/* Chat Button */}
         {showChat && (
           <Button

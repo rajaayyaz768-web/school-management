@@ -1,6 +1,53 @@
 import prisma from '../../../config/database'
 import { StaffAttendanceStatus, FeeStatus, ExamStatus } from '@prisma/client'
 
+// ─── Per-campus breakdown helper ──────────────────────────────────────────────
+
+async function getCampusSnapshot(campusId: string, campusName: string) {
+  const { start: todayStart, end: todayEnd } = getTodayRange()
+
+  const [totalStudents, totalStaff, totalSections, todayStaffAttendance, absentStaffCount] =
+    await Promise.all([
+      prisma.studentProfile.count({
+        where: { status: 'ACTIVE', section: { grade: { program: { campusId } } } },
+      }),
+      prisma.staffCampusAssignment.count({ where: { campusId, removedAt: null } }),
+      prisma.section.count({ where: { grade: { program: { campusId } } } }),
+      prisma.staffAttendance.groupBy({
+        by: ['status'],
+        where: { campusId, date: { gte: todayStart, lt: todayEnd } },
+        _count: { status: true },
+      }),
+      prisma.staffAttendance.count({
+        where: {
+          campusId,
+          date: { gte: todayStart, lt: todayEnd },
+          status: StaffAttendanceStatus.ABSENT,
+        },
+      }),
+    ])
+
+  const attendanceMap: Record<string, number> = {}
+  for (const row of todayStaffAttendance) attendanceMap[row.status] = row._count.status
+  const presentStaff = attendanceMap[StaffAttendanceStatus.PRESENT] ?? 0
+
+  const todayFeeCollection = await prisma.feeRecord.aggregate({
+    _sum: { amountPaid: true },
+    where: { paidAt: { gte: todayStart, lt: todayEnd }, feeStructure: { campusId } },
+  })
+
+  return {
+    campusId,
+    campusName,
+    totalStudents,
+    totalStaff,
+    totalSections,
+    presentStaff,
+    absentStaffCount,
+    todayFeeCollection: todayFeeCollection._sum.amountPaid ?? 0,
+  }
+}
+
 function getTodayRange() {
   const now = new Date()
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -16,6 +63,19 @@ function getMonthRange() {
 }
 
 export async function getPrincipalDashboardData(campusId?: string) {
+  // Build per-campus breakdown when no specific campus is selected
+  let campusBreakdown: Awaited<ReturnType<typeof getCampusSnapshot>>[] = []
+  if (!campusId) {
+    const allCampuses = await prisma.campus.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    })
+    campusBreakdown = await Promise.all(
+      allCampuses.map((c) => getCampusSnapshot(c.id, c.name))
+    )
+  }
+
   const { start: todayStart, end: todayEnd } = getTodayRange()
   const { start: monthStart, end: monthEnd } = getMonthRange()
 
@@ -228,5 +288,6 @@ export async function getPrincipalDashboardData(campusId?: string) {
       subjectName: e.subject.name,
       examTypeName: e.examType.name,
     })),
+    campusBreakdown,
   }
 }

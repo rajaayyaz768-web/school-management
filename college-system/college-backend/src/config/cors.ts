@@ -1,9 +1,13 @@
 import { CorsOptions } from "cors";
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:3000",
-  "http://localhost:3001",
-];
+// ALLOWED_ORIGINS is a comma-separated list of allowed origins.
+// Falls back to localhost:3000 for local development.
+const fromEnv = (process.env.ALLOWED_ORIGINS ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const allowedOrigins = fromEnv.length > 0 ? fromEnv : ["http://localhost:3000"];
 
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {

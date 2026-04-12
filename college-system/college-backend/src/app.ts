@@ -12,6 +12,10 @@ import apiRouter from "./routes/index";
 
 const app: Application = express();
 
+// Trust the first proxy (Nginx on VPS) — required for correct req.ip,
+// rate-limiter per-client enforcement, and Secure cookies behind HTTPS.
+app.set("trust proxy", 1);
+
 // ─── 1. Security headers ───────────────────────────────────────────────────────────
 app.use(helmet());
 

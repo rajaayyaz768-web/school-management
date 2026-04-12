@@ -20,7 +20,7 @@ function openAndPrint(html: string) {
 // ─── Attendance ────────────────────────────────────────────────────────────
 
 export async function downloadAttendanceExcel(filters: AttendanceReportFilters): Promise<void> {
-  const res = await api.get('/api/v1/reports/attendance', {
+  const res = await api.get('/reports/attendance', {
     params: { ...filters, format: 'excel' },
     responseType: 'blob',
   })
@@ -28,7 +28,7 @@ export async function downloadAttendanceExcel(filters: AttendanceReportFilters):
 }
 
 export async function printAttendanceReport(filters: AttendanceReportFilters): Promise<void> {
-  const res = await api.get('/api/v1/reports/attendance', {
+  const res = await api.get('/reports/attendance', {
     params: { ...filters, format: 'html' },
   })
   openAndPrint(res.data)
@@ -37,7 +37,7 @@ export async function printAttendanceReport(filters: AttendanceReportFilters): P
 // ─── Fees ──────────────────────────────────────────────────────────────────
 
 export async function downloadFeeExcel(filters: FeeReportFilters): Promise<void> {
-  const res = await api.get('/api/v1/reports/fees', {
+  const res = await api.get('/reports/fees', {
     params: { ...filters, format: 'excel' },
     responseType: 'blob',
   })
@@ -45,7 +45,7 @@ export async function downloadFeeExcel(filters: FeeReportFilters): Promise<void>
 }
 
 export async function printFeeReport(filters: FeeReportFilters): Promise<void> {
-  const res = await api.get('/api/v1/reports/fees', {
+  const res = await api.get('/reports/fees', {
     params: { ...filters, format: 'html' },
   })
   openAndPrint(res.data)
@@ -54,7 +54,7 @@ export async function printFeeReport(filters: FeeReportFilters): Promise<void> {
 // ─── Results ───────────────────────────────────────────────────────────────
 
 export async function downloadResultsExcel(filters: ResultsReportFilters): Promise<void> {
-  const res = await api.get('/api/v1/reports/results', {
+  const res = await api.get('/reports/results', {
     params: { ...filters, format: 'excel' },
     responseType: 'blob',
   })
@@ -62,7 +62,7 @@ export async function downloadResultsExcel(filters: ResultsReportFilters): Promi
 }
 
 export async function printResultsReport(filters: ResultsReportFilters): Promise<void> {
-  const res = await api.get('/api/v1/reports/results', {
+  const res = await api.get('/reports/results', {
     params: { ...filters, format: 'html' },
   })
   openAndPrint(res.data)

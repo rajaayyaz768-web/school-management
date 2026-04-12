@@ -8,11 +8,11 @@ import * as controller from './staff-attendance.controller'
 
 const router = Router()
 
-router.get('/staff-list', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), controller.getStaffForAttendance)
+router.get('/staff-list', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER), controller.getStaffForAttendance)
 router.post('/mark', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), validate(markAttendanceSchema), controller.markDailyAttendance)
 router.put('/:id', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), validate(updateAttendanceSchema), controller.updateSingleAttendance)
-router.get('/daily-report', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), controller.getDailyReport)
+router.get('/daily-report', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER), controller.getDailyReport)
 router.get('/history/:staffId', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER), controller.getStaffAttendanceHistory)
-router.get('/absent-today', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), controller.getAbsentStaffToday)
+router.get('/absent-today', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER), controller.getAbsentStaffToday)
 
 export { router as staffAttendanceRouter }

@@ -16,14 +16,14 @@ const router = Router();
 router.get(
   "/",
   authenticate,
-  authorize(Role.SUPER_ADMIN, Role.ADMIN),
+  authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.TEACHER, Role.PARENT, Role.STUDENT),
   getGradesByProgram
 );
 
 router.get(
   "/:id",
   authenticate,
-  authorize(Role.SUPER_ADMIN, Role.ADMIN),
+  authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.TEACHER, Role.PARENT, Role.STUDENT),
   getGradeById
 );
 

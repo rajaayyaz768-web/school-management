@@ -64,6 +64,31 @@ export const authenticate = async (
       campusId
     };
 
+    // ─── Campus scope enforcement ───────────────────────────────────────────
+    // ADMIN: must have a campus assignment. Lock all queries to their campus
+    // regardless of what the client sends in ?campusId.
+    if (user.role === Role.ADMIN) {
+      if (!campusId) {
+        sendError(res, 'Admin user has no assigned campus. Contact the principal.', 403)
+        return
+      }
+      ;(req.query as Record<string, string>).campusId = campusId
+    } else if (
+      user.role === Role.TEACHER ||
+      user.role === Role.STUDENT ||
+      user.role === Role.PARENT
+    ) {
+      // Defense in depth: if the user has a known campus, lock it.
+      // These roles are already scoped via their own IDs in service queries,
+      // but this prevents accidental leakage if a future endpoint adds campus filtering.
+      if (campusId) (req.query as Record<string, string>).campusId = campusId
+    }
+    // SUPER_ADMIN: leave req.query.campusId untouched.
+    // null = all campuses; a specific id = drill into that campus.
+
+    // Also populate req.campusId for middleware that reads it directly.
+    req.campusId = campusId
+
     next();
   } catch (error) {
     sendError(res, "Unauthorized", 401);
