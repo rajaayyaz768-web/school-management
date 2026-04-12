@@ -238,7 +238,7 @@ export const getTeacherTimetable = async (staffId: string, academicYear: string)
 
 	const slots = await prisma.timetableSlot.findMany({
 		where: { staffId, academicYear },
-		include: slotInclude,
+		include: { ...slotInclude, section: { select: { id: true, name: true } } },
 		orderBy: [{ dayOfWeek: 'asc' }, { slotNumber: 'asc' }]
 	})
 
@@ -246,8 +246,18 @@ export const getTeacherTimetable = async (staffId: string, academicYear: string)
 		staffId: staff.id,
 		staffName: `${staff.firstName} ${staff.lastName}`,
 		academicYear,
-		slots: slots.map(mapSlotToResponse)
+		slots: slots.map((s) => ({ ...mapSlotToResponse(s), sectionName: s.section?.name ?? null }))
 	}
+}
+
+export const getMyTeacherTimetable = async (userId: string, academicYear: string): Promise<TeacherTimetable> => {
+	const staffProfile = await prisma.staffProfile.findUnique({ where: { userId }, select: { id: true, firstName: true, lastName: true } })
+	if (!staffProfile) {
+		const error = new Error('Staff profile not found') as any
+		error.status = 404
+		throw error
+	}
+	return getTeacherTimetable(staffProfile.id, academicYear)
 }
 
 export const clearSectionTimetable = async (sectionId: string, academicYear: string): Promise<{ deleted: number }> => {

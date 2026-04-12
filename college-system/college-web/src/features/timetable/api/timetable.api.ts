@@ -6,32 +6,33 @@ import {
   CreateSlotInput,
   UpdateSlotInput,
   SectionTimetable,
+  TeacherSchedule,
   ConflictCheckResult,
   DayOfWeek
 } from '../types/timetable.types'
 
 export const upsertPeriodConfig = async (data: PeriodConfigInput): Promise<PeriodConfig> => {
-  const res = await axios.post('/api/v1/timetable/period-config', data)
+  const res = await axios.post('/timetable/period-config', data)
   return res.data.data
 }
 
 export const fetchPeriodConfig = async (campusId: string, gradeId: string): Promise<PeriodConfig | null> => {
-  const res = await axios.get('/api/v1/timetable/period-config', { params: { campusId, gradeId } })
+  const res = await axios.get('/timetable/period-config', { params: { campusId, gradeId } })
   return res.data.data ?? null
 }
 
 export const createSlot = async (data: CreateSlotInput): Promise<TimetableSlot> => {
-  const res = await axios.post('/api/v1/timetable/slots', data)
+  const res = await axios.post('/timetable/slots', data)
   return res.data.data
 }
 
 export const updateSlot = async (id: string, data: UpdateSlotInput): Promise<TimetableSlot> => {
-  const res = await axios.put(`/api/v1/timetable/slots/${id}`, data)
+  const res = await axios.put(`/timetable/slots/${id}`, data)
   return res.data.data
 }
 
 export const deleteSlot = async (id: string): Promise<void> => {
-  await axios.delete(`/api/v1/timetable/slots/${id}`)
+  await axios.delete(`/timetable/slots/${id}`)
 }
 
 export const checkConflict = async (
@@ -41,17 +42,22 @@ export const checkConflict = async (
   academicYear: string,
   excludeSectionId?: string
 ): Promise<ConflictCheckResult> => {
-  const res = await axios.get('/api/v1/timetable/conflict-check', {
+  const res = await axios.get('/timetable/conflict-check', {
     params: { staffId, dayOfWeek, slotNumber, academicYear, excludeSectionId }
   })
   return res.data.data
 }
 
 export const fetchSectionTimetable = async (sectionId: string, academicYear: string): Promise<SectionTimetable> => {
-  const res = await axios.get(`/api/v1/timetable/section/${sectionId}`, { params: { academicYear } })
+  const res = await axios.get(`/timetable/section/${sectionId}`, { params: { academicYear } })
   return res.data.data
 }
 
 export const clearSectionTimetable = async (sectionId: string, academicYear: string): Promise<void> => {
-  await axios.delete(`/api/v1/timetable/section/${sectionId}/clear`, { params: { academicYear } })
+  await axios.delete(`/timetable/section/${sectionId}/clear`, { params: { academicYear } })
+}
+
+export const fetchMyTeacherSchedule = async (academicYear: string): Promise<TeacherSchedule> => {
+  const res = await axios.get('/timetable/my-schedule', { params: { academicYear } })
+  return res.data.data
 }

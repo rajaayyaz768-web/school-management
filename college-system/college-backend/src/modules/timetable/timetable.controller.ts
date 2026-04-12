@@ -115,6 +115,19 @@ export const getTeacherTimetable = async (req: Request, res: Response) => {
 	}
 }
 
+export const getMyTeacherTimetable = async (req: Request, res: Response) => {
+	try {
+		const userId = req.user!.id
+		const academicYear = (req.query.academicYear as string) || '2025-2026'
+		const result = await service.getMyTeacherTimetable(userId, academicYear)
+		return sendSuccess(res, 'My timetable fetched', result)
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : 'Something went wrong'
+		const status = (error as any).status ?? 500
+		return sendError(res, message, status)
+	}
+}
+
 export const clearSectionTimetable = async (req: Request, res: Response) => {
 	try {
 		const sectionId = req.params.sectionId as string

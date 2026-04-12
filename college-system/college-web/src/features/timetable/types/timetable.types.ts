@@ -48,6 +48,17 @@ export interface SectionTimetable {
   slots: TimetableSlot[]
 }
 
+export interface TeacherScheduleSlot extends TimetableSlot {
+  sectionName: string | null
+}
+
+export interface TeacherSchedule {
+  staffId: string
+  staffName: string
+  academicYear: string
+  slots: TeacherScheduleSlot[]
+}
+
 export interface ConflictCheckResult {
   hasConflict: boolean
   conflicts: Array<{

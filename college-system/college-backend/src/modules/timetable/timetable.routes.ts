@@ -22,6 +22,7 @@ router.put('/slots/:id', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), 
 router.delete('/slots/:id', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), controller.deleteSlot)
 router.get('/conflict-check', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), controller.checkConflict)
 router.get('/section/:sectionId', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER, Role.STUDENT, Role.PARENT), controller.getSectionTimetable)
+router.get('/my-schedule', authenticate, authorize(Role.TEACHER, Role.ADMIN, Role.SUPER_ADMIN), controller.getMyTeacherTimetable)
 router.get('/teacher/:staffId', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER), controller.getTeacherTimetable)
 router.delete('/section/:sectionId/clear', authenticate, authorize(Role.SUPER_ADMIN), controller.clearSectionTimetable)
 

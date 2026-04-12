@@ -3,6 +3,7 @@ export interface StudentInfo {
   firstName: string
   lastName: string
   rollNumber: string | null
+  sectionId: string | null
   sectionName: string | null
   gradeName: string | null
   programName: string | null

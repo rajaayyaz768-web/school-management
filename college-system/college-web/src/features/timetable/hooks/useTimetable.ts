@@ -7,7 +7,8 @@ import {
   createSlot,
   updateSlot,
   deleteSlot,
-  clearSectionTimetable
+  clearSectionTimetable,
+  fetchMyTeacherSchedule,
 } from '../api/timetable.api'
 import { CreateSlotInput, UpdateSlotInput, PeriodConfigInput } from '../types/timetable.types'
 
@@ -80,6 +81,14 @@ export const useDeleteSlot = () => {
       toast.success('Slot deleted')
     },
     onError: () => { toast.error('Failed to delete slot') }
+  })
+}
+
+export const useMyTeacherSchedule = (academicYear: string) => {
+  return useQuery({
+    queryKey: ['timetable', 'my-schedule', academicYear],
+    queryFn: () => fetchMyTeacherSchedule(academicYear),
+    enabled: !!academicYear,
   })
 }
 

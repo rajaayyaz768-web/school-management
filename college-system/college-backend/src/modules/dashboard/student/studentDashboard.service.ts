@@ -186,6 +186,7 @@ export async function getStudentDashboardData(userId: string) {
       firstName: studentProfile.firstName,
       lastName: studentProfile.lastName,
       rollNumber: studentProfile.rollNumber ?? null,
+      sectionId: studentProfile.sectionId ?? null,
       sectionName: studentProfile.section?.name ?? null,
       gradeName: studentProfile.section?.grade.name ?? null,
       programName: studentProfile.section?.grade.program.name ?? null,
