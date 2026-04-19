@@ -28,6 +28,13 @@ export interface Section {
       };
     };
   };
+  // Enriched fields from UX-0B backend changes
+  studentCount?: number;
+  programId?: string | null;
+  programName?: string | null;
+  programCode?: string | null;
+  gradeName?: string | null;
+  campusId?: string | null;
 }
 
 export interface CreateSectionInput {

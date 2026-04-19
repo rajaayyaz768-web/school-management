@@ -7,6 +7,8 @@ export interface Campus {
   is_active: boolean;
   createdAt: string;
   updatedAt: string;
+  student_count?: number;
+  staff_count?: number;
 }
 
 export interface CreateCampusInput {
