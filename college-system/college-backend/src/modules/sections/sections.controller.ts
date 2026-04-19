@@ -9,7 +9,7 @@ export const getAllSections = async (req: Request, res: Response) => {
       campusId: req.query.campus_id as string | undefined,
       academicYear: req.query.academic_year as string | undefined,
     };
-    const sections = await sectionService.getAllSections(filters);
+    const sections = await sectionService.getAllSections(filters, req.user!);
     sendSuccess(res, "Sections retrieved successfully", sections);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

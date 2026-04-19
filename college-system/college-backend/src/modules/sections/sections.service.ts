@@ -1,10 +1,33 @@
 import prisma from "../../config/database";
+import { Role } from "@prisma/client";
 import { CreateSectionDto, UpdateSectionDto } from "./sections.types";
 import { Prisma } from "@prisma/client";
 
-export const getAllSections = async (filters: { gradeId?: string; campusId?: string; academicYear?: string }) => {
+type RequestUser = { id: string; role: Role; campusId: string | null };
+
+export const getAllSections = async (
+  filters: { gradeId?: string; campusId?: string; academicYear?: string },
+  user: RequestUser
+) => {
+  if (user.role === Role.PARENT || user.role === Role.STUDENT) return [];
+
   const whereClause: Prisma.SectionWhereInput = {};
-  
+
+  if (user.role === Role.TEACHER) {
+    const staffProfile = await prisma.staffProfile.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    });
+    if (!staffProfile) return [];
+    const sst = await prisma.sectionSubjectTeacher.findMany({
+      where: { staffId: staffProfile.id },
+      select: { sectionId: true },
+      distinct: ["sectionId"],
+    });
+    if (sst.length === 0) return [];
+    whereClause.id = { in: sst.map((r) => r.sectionId) };
+  }
+
   if (filters.gradeId) {
     whereClause.gradeId = filters.gradeId;
   }
@@ -15,7 +38,6 @@ export const getAllSections = async (filters: { gradeId?: string; campusId?: str
       },
     };
   }
-  // Note: academicYear is not mapped as it's not present directly on the Section model internally
 
   const sections = await prisma.section.findMany({
     where: whereClause,
@@ -29,6 +51,9 @@ export const getAllSections = async (filters: { gradeId?: string; campusId?: str
           },
         },
       },
+      _count: {
+        select: { students: true },
+      },
     },
     orderBy: {
       name: "asc",
@@ -37,8 +62,14 @@ export const getAllSections = async (filters: { gradeId?: string; campusId?: str
 
   return sections.map((sec) => ({
     ...sec,
-    campus: sec.grade?.program?.campus || null,
+    campus: sec.grade?.program?.campus ?? null,
     classTeacher: null,
+    gradeName: sec.grade?.name ?? null,
+    programId: sec.grade?.program?.id ?? null,
+    programName: sec.grade?.program?.name ?? null,
+    programCode: sec.grade?.program?.code ?? null,
+    campusId: sec.grade?.program?.campus?.id ?? null,
+    studentCount: sec._count?.students ?? 0,
   }));
 };
 

@@ -4,19 +4,33 @@ import { CreateCampusDto, UpdateCampusDto } from "./campus.types";
 
 type RequestUser = { id: string; role: Role; campusId: string | null };
 
+const countInclude = {
+  _count: {
+    select: {
+      studentProfiles: true,
+      staffAssignments: { where: { removedAt: null as null } },
+    },
+  },
+} as const;
+
 const mapToResponse = (campus: any): any => {
-  const { code, phone, isActive, ...rest } = campus;
+  const { code, phone, isActive, _count, ...rest } = campus;
   return {
     ...rest,
     campus_code: code,
     contact_number: phone,
     is_active: isActive,
+    student_count: _count?.studentProfiles ?? 0,
+    staff_count: _count?.staffAssignments ?? 0,
   };
 };
 
 export const getAllCampuses = async (user: RequestUser) => {
   if (user.role === Role.SUPER_ADMIN) {
-    const campuses = await prisma.campus.findMany({ orderBy: { name: "asc" } });
+    const campuses = await prisma.campus.findMany({
+      orderBy: { name: "asc" },
+      include: countInclude,
+    });
     return campuses.map(mapToResponse);
   }
 
@@ -27,6 +41,7 @@ export const getAllCampuses = async (user: RequestUser) => {
     const campuses = await prisma.campus.findMany({
       where: { id: user.campusId, isActive: true },
       orderBy: { name: "asc" },
+      include: countInclude,
     });
     return campuses.map(mapToResponse);
   }
@@ -46,6 +61,7 @@ export const getAllCampuses = async (user: RequestUser) => {
     const campuses = await prisma.campus.findMany({
       where: { id: { in: campusIds }, isActive: true },
       orderBy: { name: "asc" },
+      include: countInclude,
     });
     return campuses.map(mapToResponse);
   }
