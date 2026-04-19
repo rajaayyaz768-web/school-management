@@ -1,5 +1,5 @@
-import { StaffPage } from '@/features/staff/components/StaffPage';
+import { PrincipalStaffPage } from '@/features/staff/components/PrincipalStaffPage';
 
 export default function Page() {
-  return <StaffPage />;
+  return <PrincipalStaffPage />;
 }

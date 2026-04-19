@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRole } from '@/store/authStore';
 import { useStaff, useToggleStaffStatus } from '@/features/staff/hooks/useStaff';
-import { useCampuses } from '@/features/campus/hooks/useCampus';
 import { Staff } from '@/features/staff/types/staff.types';
 import { StaffTable } from '@/features/staff/components/StaffTable';
 import { StaffProfileDrawer } from '@/features/staff/components/StaffProfileDrawer';
@@ -19,23 +18,22 @@ import {
   Modal,
 } from '@/components/ui';
 
-export function StaffPage() {
+interface StaffPageProps {
+  campusId?: string
+  navigation?: React.ReactNode
+}
+
+export function StaffPage({ campusId, navigation }: StaffPageProps) {
   const role = useRole();
   const isAdminOrSuper = role === 'SUPER_ADMIN' || role === 'ADMIN';
 
-  // ─── API FILTERS ────────────────────────────────────────────────────────────
-  const [selectedCampus, setSelectedCampus] = useState('ALL');
   const [selectedEmployment, setSelectedEmployment] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
-  
-  // ─── LOCAL SEARCH FILTER ────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState('');
-
-  const { data: campuses = [] } = useCampuses();
 
   // Combine filters for React Query
   const apiFilters = {
-    campusId: selectedCampus !== 'ALL' ? selectedCampus : undefined,
+    campusId: campusId || undefined,
     employmentType: selectedEmployment !== 'ALL' ? selectedEmployment : undefined,
     isActive: selectedStatus !== 'ALL' ? (selectedStatus === 'ACTIVE') : undefined,
   };
@@ -116,13 +114,9 @@ export function StaffPage() {
         }
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8 bg-[var(--surface-container-low)] p-4 rounded-lg items-end">
-        <Select
-          label="Campus"
-          options={[{ label: 'All Campuses', value: 'ALL' }, ...campuses.map(c => ({ label: c.name, value: c.id }))]}
-          value={selectedCampus}
-          onChange={(e) => setSelectedCampus(e.target.value)}
-        />
+      {navigation}
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 bg-[var(--surface-container-low)] p-4 rounded-lg items-end">
         <Select
           label="Employment Type"
           options={[
