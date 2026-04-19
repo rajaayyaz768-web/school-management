@@ -1,17 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button, Select, Card, Modal, ConfirmDialog, Tabs, TabPanel } from '@/components/ui'
+import { Badge } from '@/components/ui/Badge'
+import { CampusSelectorCards } from '@/components/shared/selection/CampusSelectorCards'
+import { SectionSelectorCards } from '@/components/shared/selection/SectionSelectorCards'
 import { useCampuses } from '@/features/campus/hooks/useCampus'
-import { usePrograms } from '@/features/programs/hooks/usePrograms'
-import { useProgramGrades } from '@/features/sections/hooks/useSections'
 import { useExamTypes, useCreateExamType, useExams, useDeleteExam } from '@/features/exams/hooks/useExams'
-import axios from '@/lib/axios'
 import { ExamTable } from '@/features/exams/components/ExamTable'
 import { ExamForm } from '@/features/exams/components/ExamForm'
 import { ResultEntryTable } from '@/features/exams/components/ResultEntryTable'
 import { Exam } from '@/features/exams/types/exams.types'
+import type { SectionCardData } from '@/components/shared/selection/types'
 import { Plus, CalendarDays, ClipboardList, X, Tag } from 'lucide-react'
 
 const TABS = [
@@ -31,88 +32,82 @@ const STATUS_OPTIONS = [
 export default function ExamsPage() {
   const [activeTab, setActiveTab] = useState('schedule')
 
-  // ── Tab 1 cascading filters ──────────────────────────────────
-  const [filterCampusId, setFilterCampusId] = useState('')
-  const [filterProgramId, setFilterProgramId] = useState('')
-  const [filterGradeId, setFilterGradeId] = useState('')
-  const [filterSectionId, setFilterSectionId] = useState('')
+  // ── Navigation state ─────────────────────────────────────────
+  const [selectedCampusId, setSelectedCampusId] = useState<string | null>(null)
+  const [selectedSection, setSelectedSection] = useState<SectionCardData | null>(null)
+
+  // ── Content filters (type + status) ──────────────────────────
   const [filterExamTypeId, setFilterExamTypeId] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
 
-  // ── Tab 1 modals ────────────────────────────────────────────
+  // ── Modals ───────────────────────────────────────────────────
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingExam, setEditingExam] = useState<Exam | undefined>()
   const [deleteId, setDeleteId] = useState<string | null>(null)
-
-  // ── Tab 2 state ─────────────────────────────────────────────
   const [selectedExamId, setSelectedExamId] = useState('')
 
   // ── Exam Types tab state ─────────────────────────────────────
   const [newTypeName, setNewTypeName] = useState('')
   const [newTypeCampusId, setNewTypeCampusId] = useState('')
 
-  // ── Sections (fetched when grade is selected) ────────────────
-  const [sections, setSections] = useState<{ id: string; name: string }[]>([])
-  useEffect(() => {
-    if (!filterGradeId) { setSections([]); return }
-    axios.get('/sections', { params: { grade_id: filterGradeId } })
-      .then((res) => setSections(res.data.data ?? []))
-      .catch(() => setSections([]))
-  }, [filterGradeId])
-
   // ── Data ────────────────────────────────────────────────────
   const { data: campuses } = useCampuses()
-  const { data: programs } = usePrograms(filterCampusId || undefined)
-  const { data: grades } = useProgramGrades(filterProgramId || undefined)
-  const { data: examTypes } = useExamTypes(filterCampusId || undefined)
+  const { data: examTypes } = useExamTypes()
   const { data: allExamTypes, refetch: refetchAllTypes } = useExamTypes(newTypeCampusId || undefined)
   const createTypeMutation = useCreateExamType()
   const { data: exams, isLoading: examsLoading } = useExams({
-    sectionId: filterSectionId || undefined,
+    sectionId: selectedSection?.id || undefined,
     examTypeId: filterExamTypeId || undefined,
     status: filterStatus || undefined,
   })
 
   const deleteMutation = useDeleteExam()
 
-  // Exams available for result entry
   const resultExams = (exams ?? []).filter(
     (e) => e.status === 'SCHEDULED' || e.status === 'ONGOING' || e.status === 'COMPLETED'
   )
-
   const selectedExam = resultExams.find((e) => e.id === selectedExamId) ?? null
+  const hasContentFilter = !!(filterExamTypeId || filterStatus)
 
-  const hasActiveFilter = !!(filterCampusId || filterProgramId || filterGradeId || filterSectionId || filterExamTypeId || filterStatus)
-
-  const handleClearFilters = () => {
-    setFilterCampusId('')
-    setFilterProgramId('')
-    setFilterGradeId('')
-    setFilterSectionId('')
+  const handleSectionSelect = (section: SectionCardData) => {
+    setSelectedSection(section)
     setFilterExamTypeId('')
     setFilterStatus('')
+    setSelectedExamId('')
   }
 
-  const handleOpenCreate = () => {
-    setEditingExam(undefined)
-    setIsFormOpen(true)
-  }
-
-  const handleEdit = (exam: Exam) => {
-    setEditingExam(exam)
-    setIsFormOpen(true)
-  }
-
+  const handleOpenCreate = () => { setEditingExam(undefined); setIsFormOpen(true) }
+  const handleEdit = (exam: Exam) => { setEditingExam(exam); setIsFormOpen(true) }
   const handleDeleteConfirm = () => {
     if (!deleteId) return
-    deleteMutation.mutate(deleteId, {
-      onSuccess: () => setDeleteId(null),
-    })
+    deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) })
   }
-
   const handleEnterResults = (exam: Exam) => {
     setSelectedExamId(exam.id)
     setActiveTab('results')
+  }
+
+  // ── Campus / Section selection steps ────────────────────────
+  if (!selectedCampusId) {
+    return (
+      <div className="flex flex-col gap-6 p-8">
+        <PageHeader title="Exam Management" subtitle="Select a section to view and manage exams" />
+        {/* Admin has 1 campus → auto-skips immediately */}
+        <CampusSelectorCards onSelect={(c) => setSelectedCampusId(c.id)} />
+      </div>
+    )
+  }
+
+  if (!selectedSection) {
+    return (
+      <div className="flex flex-col gap-6 p-8">
+        <PageHeader title="Exam Management" subtitle="Select a section to view and manage exams" />
+        <SectionSelectorCards
+          campusId={selectedCampusId}
+          onSelect={handleSectionSelect}
+        />
+      </div>
+    )
   }
 
   return (
@@ -128,6 +123,15 @@ export default function ExamsPage() {
           ) : undefined
         }
       />
+      <div className="flex items-center gap-3 mb-2 -mt-4">
+        <Button variant="ghost" size="sm" onClick={() => { setSelectedSection(null); setSelectedCampusId(null) }}>
+          ← Change section
+        </Button>
+        <Badge variant="info">{selectedSection.name}</Badge>
+        {selectedSection.programName && (
+          <span className="text-sm text-[var(--text-muted)]">{selectedSection.programName}</span>
+        )}
+      </div>
 
       <Card className="flex-1 overflow-hidden mt-6 flex flex-col bg-[var(--surface)] border-[var(--border)]">
         <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
@@ -135,60 +139,7 @@ export default function ExamsPage() {
         <div className="flex-1 overflow-auto p-6 bg-[var(--background)]">
           {/* ── Tab 1: Exam Schedule ── */}
           <TabPanel tabId="schedule" activeTab={activeTab}>
-            {/* Row 1: Campus → Program → Grade → Section */}
-            <div className="flex flex-wrap items-end gap-4 mb-3">
-              <Select
-                label="Campus"
-                value={filterCampusId}
-                onChange={(e) => {
-                  setFilterCampusId(e.target.value)
-                  setFilterProgramId('')
-                  setFilterGradeId('')
-                  setFilterSectionId('')
-                  setFilterExamTypeId('')
-                }}
-                options={[
-                  { value: '', label: 'All Campuses' },
-                  ...(campuses ?? []).map((c) => ({ value: c.id, label: c.name })),
-                ]}
-              />
-              <Select
-                label="Program"
-                value={filterProgramId}
-                onChange={(e) => {
-                  setFilterProgramId(e.target.value)
-                  setFilterGradeId('')
-                  setFilterSectionId('')
-                }}
-                options={[
-                  { value: '', label: filterCampusId ? 'All Programs' : 'Select campus first' },
-                  ...(programs ?? []).map((p) => ({ value: p.id, label: p.name })),
-                ]}
-              />
-              <Select
-                label="Grade"
-                value={filterGradeId}
-                onChange={(e) => {
-                  setFilterGradeId(e.target.value)
-                  setFilterSectionId('')
-                }}
-                options={[
-                  { value: '', label: filterProgramId ? 'All Grades' : 'Select program first' },
-                  ...(grades ?? []).map((g) => ({ value: g.id, label: g.name })),
-                ]}
-              />
-              <Select
-                label="Section"
-                value={filterSectionId}
-                onChange={(e) => setFilterSectionId(e.target.value)}
-                options={[
-                  { value: '', label: filterGradeId ? 'All Sections' : 'Select grade first' },
-                  ...sections.map((s) => ({ value: s.id, label: s.name })),
-                ]}
-              />
-            </div>
-
-            {/* Row 2: Exam Type, Status, Clear */}
+            {/* Content filters: Exam Type + Status only */}
             <div className="flex flex-wrap items-end gap-4 mb-6">
               <Select
                 label="Exam Type"
@@ -205,11 +156,11 @@ export default function ExamsPage() {
                 onChange={(e) => setFilterStatus(e.target.value)}
                 options={STATUS_OPTIONS}
               />
-              {hasActiveFilter && (
+              {hasContentFilter && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleClearFilters}
+                  onClick={() => { setFilterExamTypeId(''); setFilterStatus('') }}
                   icon={<X className="w-3.5 h-3.5" />}
                   className="mb-0.5"
                 >
