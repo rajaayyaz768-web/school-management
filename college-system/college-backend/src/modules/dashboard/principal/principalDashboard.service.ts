@@ -49,9 +49,11 @@ async function getCampusSnapshot(campusId: string, campusName: string) {
 }
 
 function getTodayRange() {
-  const now = new Date()
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  // Use Pakistan local date so "today" matches how attendance records are stored
+  // (the attendance service writes new Date(date + 'T00:00:00.000Z') where date is local YYYY-MM-DD)
+  const dateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' })
+  const start = new Date(dateStr + 'T00:00:00.000Z')
+  const end = new Date(dateStr + 'T23:59:59.999Z')
   return { start, end }
 }
 

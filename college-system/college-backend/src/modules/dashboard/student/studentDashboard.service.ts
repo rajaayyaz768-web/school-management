@@ -160,9 +160,10 @@ export async function getStudentDashboardData(userId: string) {
   }
   const dayStatuses = Array.from(dayMap.values())
   const presentDays = dayStatuses.filter((s) => s === 'PRESENT').length
+  const lateDays = dayStatuses.filter((s) => s === 'LATE').length
   const absentDays = dayStatuses.filter((s) => s === 'ABSENT').length
   const totalDays = dayStatuses.length
-  const attendancePct = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0
+  const attendancePct = totalDays > 0 ? Math.round(((presentDays + lateDays) / totalDays) * 100) : 0
 
   // Per-subject attendance breakdown
   const subjectMap = new Map<string, { present: number; total: number }>()
@@ -171,7 +172,7 @@ export async function getStudentDashboardData(userId: string) {
     if (!subjectMap.has(subj)) subjectMap.set(subj, { present: 0, total: 0 })
     const entry = subjectMap.get(subj)!
     entry.total++
-    if (r.status === 'PRESENT') entry.present++
+    if (r.status === 'PRESENT' || r.status === 'LATE') entry.present++
   }
   const bySubject = Array.from(subjectMap.entries()).map(([subjectName, counts]) => ({
     subjectName,

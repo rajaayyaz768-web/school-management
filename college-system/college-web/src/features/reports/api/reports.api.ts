@@ -1,6 +1,11 @@
 import api from '@/lib/axios'
 import { AttendanceReportFilters, FeeReportFilters, ResultsReportFilters } from '../types/reports.types'
 
+export async function fetchAcademicYears(campusId?: string): Promise<string[]> {
+  const res = await api.get('/reports/academic-years', { params: campusId ? { campusId } : {} })
+  return res.data.data
+}
+
 function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

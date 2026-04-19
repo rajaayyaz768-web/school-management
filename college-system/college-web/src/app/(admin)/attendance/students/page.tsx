@@ -78,7 +78,7 @@ export default function StudentAttendancePage() {
     if (!programId) { setGrades([]); return }
     setGradesLoading(true)
     try {
-      const res = await axios.get('/api/v1/grades', { params: { program_id: programId } })
+      const res = await axios.get('/grades', { params: { program_id: programId } })
       setGrades(res.data.data ?? [])
     } catch { setGrades([]) }
     finally { setGradesLoading(false) }
@@ -93,7 +93,7 @@ export default function StudentAttendancePage() {
     if (!gradeId) { setSections([]); return }
     setSectionsLoading(true)
     try {
-      const res = await axios.get('/api/v1/sections', { params: { grade_id: gradeId } })
+      const res = await axios.get('/sections', { params: { grade_id: gradeId } })
       setSections(res.data.data ?? [])
     } catch { setSections([]) }
     finally { setSectionsLoading(false) }
@@ -106,14 +106,17 @@ export default function StudentAttendancePage() {
     if (!sectionId) { setSubjects([]); return }
     setSubjectsLoading(true)
     try {
-      const res = await axios.get('/api/v1/subjects/assignments', { params: { section_id: sectionId } })
+      const res = await axios.get('/subjects/assignments', { params: { section_id: sectionId } })
       const assignments = res.data.data ?? []
       setSubjects(assignments.map((a: any) => ({
         id: a.subject.id,
         name: a.subject.name,
         code: a.subject.code,
       })))
-    } catch { setSubjects([]) }
+    } catch (err) {
+      console.error('[StudentAttendance] Failed to load subjects for section:', sectionId, err)
+      setSubjects([])
+    }
     finally { setSubjectsLoading(false) }
   }
 

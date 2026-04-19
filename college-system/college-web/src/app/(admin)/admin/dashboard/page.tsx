@@ -339,13 +339,19 @@ function UpcomingExamsCard({ exams, isLoading }: { exams: AdminUpcomingExam[]; i
 // ── Recent Payments Card ──────────────────────────────────────────────────
 
 function RecentPaymentsCard({ payments, isLoading }: { payments: AdminRecentPayment[]; isLoading: boolean }) {
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' })
+  const todayCount = payments.filter((p) => {
+    const paidDate = new Date(p.paidAt).toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' })
+    return paidDate === todayStr
+  }).length
+
   return (
     <Card className="flex flex-col">
       <div className="flex items-center gap-2 px-5 pt-5 pb-3 border-b border-[var(--border)]">
         <Banknote className="w-4 h-4 text-[var(--text-muted)]" />
         <h3 className="text-sm font-semibold text-[var(--text)]">Recent Payments</h3>
-        {payments.length > 0 && (
-          <span className="ml-auto text-xs text-emerald-400 font-medium">{payments.length} today</span>
+        {todayCount > 0 && (
+          <span className="ml-auto text-xs text-emerald-400 font-medium">{todayCount} today</span>
         )}
       </div>
       <div className="flex-1 overflow-auto">
@@ -354,7 +360,7 @@ function RecentPaymentsCard({ payments, isLoading }: { payments: AdminRecentPaym
             {[...Array(4)].map((_, i) => <Skeleton key={i} variant="text" className="h-12" />)}
           </div>
         ) : payments.length === 0 ? (
-          <p className="text-sm text-[var(--text-muted)] text-center py-10">No payments today</p>
+          <p className="text-sm text-[var(--text-muted)] text-center py-10">No recent payments</p>
         ) : (
           <ul className="divide-y divide-[var(--border)]">
             {payments.map((p, idx) => {
@@ -392,7 +398,7 @@ function RecentPaymentsCard({ payments, isLoading }: { payments: AdminRecentPaym
 // ── Quick Actions ─────────────────────────────────────────────────────────
 
 const QUICK_ACTIONS = [
-  { label: 'Mark Attendance', icon: UserCheck, href: '/admin/attendance', color: 'text-emerald-400' },
+  { label: 'Mark Attendance', icon: UserCheck, href: '/attendance/students', color: 'text-emerald-400' },
   { label: 'Fee Collection', icon: Banknote, href: '/admin/fees', color: 'text-[var(--gold)]' },
   { label: 'View Reports', icon: BarChart2, href: '/admin/reports', color: 'text-blue-400' },
   { label: 'Announcements', icon: Bell, href: '/admin/announcements', color: 'text-purple-400' },

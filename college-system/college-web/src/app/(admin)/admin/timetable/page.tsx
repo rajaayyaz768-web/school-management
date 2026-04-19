@@ -66,7 +66,7 @@ export default function TimetablePage() {
     setSubjects([])
     if (!id) { setGrades([]); return }
     try {
-      const res = await axios.get('/api/v1/grades', { params: { program_id: id } })
+      const res = await axios.get('/grades', { params: { program_id: id } })
       setGrades(res.data.data ?? [])
     } catch { setGrades([]) }
   }
@@ -77,7 +77,7 @@ export default function TimetablePage() {
     setSubjects([])
     if (!id) { setSections([]); return }
     try {
-      const res = await axios.get('/api/v1/sections', { params: { grade_id: id } })
+      const res = await axios.get('/sections', { params: { grade_id: id } })
       setSections(res.data.data ?? [])
     } catch { setSections([]) }
   }
@@ -88,11 +88,16 @@ export default function TimetablePage() {
     if (!id) return
     try {
       const [subjectsRes, staffRes] = await Promise.all([
-        axios.get('/api/v1/subjects/assignments', { params: { section_id: id } }),
-        axios.get(`/api/v1/staff/by-campus/${selectedCampusId}`)
+        axios.get('/subjects/assignments', { params: { section_id: id } }),
+        axios.get(`/staff/by-campus/${selectedCampusId}`)
       ])
       const assignments = subjectsRes.data.data ?? []
-      setSubjects(assignments.map((a: any) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code })))
+      const seen = new Set<string>()
+      setSubjects(
+        assignments
+          .filter((a: any) => a.subject && !seen.has(a.subject.id) && seen.add(a.subject.id))
+          .map((a: any) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code }))
+      )
       setStaffList(staffRes.data.data ?? [])
     } catch { setSubjects([]); setStaffList([]) }
   }

@@ -33,7 +33,7 @@ export function FeeStructureForm({ structure, onSuccess, onCancel }: Props) {
     queryKey: ['grades', programId],
     queryFn: async () => {
       if (!programId) return [];
-      const res = await axios.get(`/api/v1/grades?program_id=${programId}`);
+      const res = await axios.get(`/grades?program_id=${programId}`);
       return res.data.data;
     },
     enabled: !!programId,
@@ -52,7 +52,14 @@ export function FeeStructureForm({ structure, onSuccess, onCancel }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    if (!isEditing) {
+      if (!campusId) return alert('Please select a campus');
+      if (!programId) return alert('Please select a program');
+      if (!gradeId) return alert('Please select a grade');
+      if (!academicYear.trim()) return alert('Please enter an academic year');
+    }
+
     if (isEditing) {
       const data: UpdateFeeStructureInput = {
         admissionFee: parseFloat(admissionFee),
@@ -114,7 +121,10 @@ export function FeeStructureForm({ structure, onSuccess, onCancel }: Props) {
           label="Grade"
           value={gradeId ?? ''}
           onChange={(e) => setGradeId(e.target.value)}
-          options={(grades || []).map(g => ({ value: g.id, label: g.name }))}
+          options={[
+            { value: '', label: 'Select Grade' },
+            ...(grades || []).map(g => ({ value: g.id, label: g.name })),
+          ]}
           disabled={isEditing || !programId}
           required
         />

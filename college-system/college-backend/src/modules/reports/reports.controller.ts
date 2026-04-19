@@ -3,6 +3,17 @@ import * as service from './reports.service'
 import { sendSuccess, sendError } from '../../utils/response'
 import { AttendanceReportFilters, FeeReportFilters, ResultsReportFilters, ReportFormat } from './reports.types'
 
+export const getAcademicYears = async (req: Request, res: Response) => {
+  try {
+    const { campusId } = req.query as { campusId?: string }
+    const years = await service.getDistinctAcademicYears(campusId)
+    return sendSuccess(res, 'Academic years fetched', years)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Something went wrong'
+    return sendError(res, message, 500)
+  }
+}
+
 export const getAttendanceReport = async (req: Request, res: Response) => {
   try {
     const {

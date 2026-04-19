@@ -191,7 +191,7 @@ function MySectionsCard({
                   <span>{section.studentCount}</span>
                 </div>
                 <Link
-                  href="/admin/attendance/students"
+                  href="/attendance/students"
                   className="flex items-center gap-1 text-xs text-[var(--text-muted)] group-hover:text-[var(--gold)] transition-colors opacity-0 group-hover:opacity-100"
                 >
                   <ClipboardCheck className="w-3.5 h-3.5" />
@@ -206,7 +206,7 @@ function MySectionsCard({
       {/* Quick link at bottom */}
       <div className="px-4 pb-4 border-t border-[var(--border)] pt-3">
         <Link
-          href="/admin/attendance/students"
+          href="/attendance/students"
           className="flex items-center justify-center gap-2 w-full py-2 rounded-[var(--radius)] text-xs font-medium text-[var(--gold)] border border-[var(--gold)]/30 hover:bg-[var(--gold)]/10 transition-colors"
         >
           <ClipboardCheck className="w-3.5 h-3.5" />

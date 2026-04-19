@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '../../config/database'
 
 export async function buildAbsenceAlert(staffId: string, campusId: string, date: string) {
   // Step 1 — Fetch the absent staff member

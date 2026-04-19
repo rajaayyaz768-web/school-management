@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useToast } from '@/hooks/useToast'
 import {
   downloadAttendanceExcel,
@@ -7,8 +7,17 @@ import {
   printFeeReport,
   downloadResultsExcel,
   printResultsReport,
+  fetchAcademicYears,
 } from '../api/reports.api'
 import { AttendanceReportFilters, FeeReportFilters, ResultsReportFilters } from '../types/reports.types'
+
+export const useAcademicYears = (campusId?: string) => {
+  return useQuery({
+    queryKey: ['report-academic-years', campusId],
+    queryFn: () => fetchAcademicYears(campusId),
+    enabled: true,
+  })
+}
 
 function useErrorHandler() {
   const toast = useToast()

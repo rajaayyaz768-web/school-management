@@ -2,9 +2,9 @@ import prisma from '../../../config/database'
 import { StaffAttendanceStatus, FeeStatus, ExamStatus } from '@prisma/client'
 
 function getTodayRange() {
-  const now = new Date()
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  const dateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' })
+  const start = new Date(dateStr + 'T00:00:00.000Z')
+  const end = new Date(dateStr + 'T23:59:59.999Z')
   return { start, end }
 }
 

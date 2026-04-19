@@ -199,9 +199,10 @@ export async function getParentDashboardData(userId: string, studentId?: string)
 
   const dayStatuses = Array.from(dayMap.values())
   const presentDays = dayStatuses.filter((s) => s === 'PRESENT').length
+  const lateDays = dayStatuses.filter((s) => s === 'LATE').length
   const absentDays = dayStatuses.filter((s) => s === 'ABSENT').length
   const totalDays = dayStatuses.length
-  const attendancePct = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0
+  const attendancePct = totalDays > 0 ? Math.round(((presentDays + lateDays) / totalDays) * 100) : 0
 
   // 7-day strip
   const sevenDayStrip: { date: string; status: string | null }[] = []

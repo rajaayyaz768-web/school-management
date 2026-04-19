@@ -250,15 +250,51 @@ export const getExamResults = async (examId: string): Promise<ExamResultResponse
     throw error
   }
 
-  const results = await prisma.examResult.findMany({
+  // Fetch existing results
+  const existingResults = await prisma.examResult.findMany({
     where: { examId },
     include: {
       student: { select: { id: true, firstName: true, lastName: true, rollNumber: true } },
-      exam: { select: { totalMarks: true } },
     },
   })
 
-  return results.map((r) => mapToResultResponse(r, r.exam.totalMarks))
+  const existingByStudentId = new Map(existingResults.map((r) => [r.studentId, r]))
+
+  // Get ALL students in the section so the result entry table always shows a full roster
+  const sectionStudents = await prisma.studentProfile.findMany({
+    where: { sectionId: exam.sectionId, status: 'ACTIVE' },
+    select: { id: true, firstName: true, lastName: true, rollNumber: true },
+    orderBy: [{ rollNumber: 'asc' }, { firstName: 'asc' }],
+  })
+
+  const now = new Date().toISOString()
+
+  return sectionStudents.map((student) => {
+    const existing = existingByStudentId.get(student.id)
+    if (existing) {
+      return mapToResultResponse({ ...existing, exam: { totalMarks: exam.totalMarks } }, exam.totalMarks)
+    }
+    // Placeholder for students without a result yet
+    return {
+      id: '',
+      examId,
+      studentId: student.id,
+      obtainedMarks: null,
+      isAbsent: false,
+      remarks: null,
+      gradedById: null,
+      createdAt: now,
+      updatedAt: now,
+      student: {
+        id: student.id,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        rollNumber: student.rollNumber ?? null,
+      },
+      grade: null,
+      percentage: null,
+    }
+  })
 }
 
 export const enterBulkResults = async (

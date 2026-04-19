@@ -144,16 +144,16 @@ export const getDailyReport = async (campusId: string, date: string): Promise<Da
   const startOfDay = new Date(date + 'T00:00:00.000Z')
   const endOfDay = new Date(date + 'T23:59:59.999Z')
 
-  const records = await prisma.staffAttendance.findMany({
-    where: {
-      campusId,
-      date: {
-        gte: startOfDay,
-        lte: endOfDay,
-      }
-    },
-    include: staffAttendanceInclude,
-  })
+  const [records, totalStaff] = await Promise.all([
+    prisma.staffAttendance.findMany({
+      where: {
+        campusId,
+        date: { gte: startOfDay, lte: endOfDay },
+      },
+      include: staffAttendanceInclude,
+    }),
+    prisma.staffCampusAssignment.count({ where: { campusId, removedAt: null } }),
+  ])
 
   const present = records.filter((r) => r.status === StaffAttendanceStatus.PRESENT).length
   const absent = records.filter((r) => r.status === StaffAttendanceStatus.ABSENT).length
@@ -164,7 +164,7 @@ export const getDailyReport = async (campusId: string, date: string): Promise<Da
   return {
     date,
     campusId,
-    totalStaff: records.length,
+    totalStaff,
     present,
     absent,
     onLeave,

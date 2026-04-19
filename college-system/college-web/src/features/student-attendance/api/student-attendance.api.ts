@@ -12,7 +12,7 @@ export const fetchStudentsForAttendance = async (
   subjectId: string,
   date: string
 ): Promise<StudentWithAttendance[]> => {
-  const res = await axios.get('/api/v1/student-attendance/students-list', {
+  const res = await axios.get('/student-attendance/students-list', {
     params: { sectionId, subjectId, date }
   })
   return res.data.data
@@ -21,7 +21,7 @@ export const fetchStudentsForAttendance = async (
 export const markStudentAttendance = async (
   data: MarkStudentAttendanceInput
 ): Promise<SectionAttendanceReport> => {
-  const res = await axios.post('/api/v1/student-attendance/mark', data)
+  const res = await axios.post('/student-attendance/mark', data)
   return res.data.data
 }
 
@@ -30,7 +30,7 @@ export const fetchSectionAttendanceReport = async (
   subjectId: string,
   date: string
 ): Promise<SectionAttendanceReport> => {
-  const res = await axios.get('/api/v1/student-attendance/section-report', {
+  const res = await axios.get('/student-attendance/section-report', {
     params: { sectionId, subjectId, date }
   })
   return res.data.data
@@ -40,7 +40,7 @@ export const fetchStudentAttendanceSummary = async (
   studentId: string,
   subjectId?: string
 ): Promise<StudentAttendanceSummary> => {
-  const res = await axios.get(`/api/v1/student-attendance/summary/${studentId}`, {
+  const res = await axios.get(`/student-attendance/summary/${studentId}`, {
     params: subjectId ? { subjectId } : {}
   })
   return res.data.data

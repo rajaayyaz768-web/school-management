@@ -7,6 +7,13 @@ import * as controller from './reports.controller'
 const router = Router()
 
 router.get(
+  '/academic-years',
+  authenticate,
+  authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER),
+  controller.getAcademicYears
+)
+
+router.get(
   '/attendance',
   authenticate,
   authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER),

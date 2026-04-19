@@ -1,20 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button, Select, Card, Modal, ConfirmDialog, Tabs, TabPanel } from '@/components/ui'
 import { useCampuses } from '@/features/campus/hooks/useCampus'
-import { useSections } from '@/features/sections/hooks/useSections'
-import { useExamTypes, useExams, useDeleteExam } from '@/features/exams/hooks/useExams'
+import { usePrograms } from '@/features/programs/hooks/usePrograms'
+import { useProgramGrades } from '@/features/sections/hooks/useSections'
+import { useExamTypes, useCreateExamType, useExams, useDeleteExam } from '@/features/exams/hooks/useExams'
+import axios from '@/lib/axios'
 import { ExamTable } from '@/features/exams/components/ExamTable'
 import { ExamForm } from '@/features/exams/components/ExamForm'
 import { ResultEntryTable } from '@/features/exams/components/ResultEntryTable'
 import { Exam } from '@/features/exams/types/exams.types'
-import { Plus, CalendarDays, ClipboardList, X } from 'lucide-react'
+import { Plus, CalendarDays, ClipboardList, X, Tag } from 'lucide-react'
 
 const TABS = [
   { id: 'schedule', label: 'Exam Schedule', icon: <CalendarDays className="w-4 h-4" /> },
   { id: 'results', label: 'Enter Results', icon: <ClipboardList className="w-4 h-4" /> },
+  { id: 'types', label: 'Exam Types', icon: <Tag className="w-4 h-4" /> },
 ]
 
 const STATUS_OPTIONS = [
@@ -28,8 +31,10 @@ const STATUS_OPTIONS = [
 export default function ExamsPage() {
   const [activeTab, setActiveTab] = useState('schedule')
 
-  // ── Tab 1 filters ───────────────────────────────────────────
+  // ── Tab 1 cascading filters ──────────────────────────────────
   const [filterCampusId, setFilterCampusId] = useState('')
+  const [filterProgramId, setFilterProgramId] = useState('')
+  const [filterGradeId, setFilterGradeId] = useState('')
   const [filterSectionId, setFilterSectionId] = useState('')
   const [filterExamTypeId, setFilterExamTypeId] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
@@ -42,10 +47,26 @@ export default function ExamsPage() {
   // ── Tab 2 state ─────────────────────────────────────────────
   const [selectedExamId, setSelectedExamId] = useState('')
 
+  // ── Exam Types tab state ─────────────────────────────────────
+  const [newTypeName, setNewTypeName] = useState('')
+  const [newTypeCampusId, setNewTypeCampusId] = useState('')
+
+  // ── Sections (fetched when grade is selected) ────────────────
+  const [sections, setSections] = useState<{ id: string; name: string }[]>([])
+  useEffect(() => {
+    if (!filterGradeId) { setSections([]); return }
+    axios.get('/sections', { params: { grade_id: filterGradeId } })
+      .then((res) => setSections(res.data.data ?? []))
+      .catch(() => setSections([]))
+  }, [filterGradeId])
+
   // ── Data ────────────────────────────────────────────────────
   const { data: campuses } = useCampuses()
-  const { data: sections } = useSections(undefined)
+  const { data: programs } = usePrograms(filterCampusId || undefined)
+  const { data: grades } = useProgramGrades(filterProgramId || undefined)
   const { data: examTypes } = useExamTypes(filterCampusId || undefined)
+  const { data: allExamTypes, refetch: refetchAllTypes } = useExamTypes(newTypeCampusId || undefined)
+  const createTypeMutation = useCreateExamType()
   const { data: exams, isLoading: examsLoading } = useExams({
     sectionId: filterSectionId || undefined,
     examTypeId: filterExamTypeId || undefined,
@@ -54,19 +75,23 @@ export default function ExamsPage() {
 
   const deleteMutation = useDeleteExam()
 
-  // Exams available for result entry (SCHEDULED or ONGOING)
+  // Exams available for result entry
   const resultExams = (exams ?? []).filter(
     (e) => e.status === 'SCHEDULED' || e.status === 'ONGOING' || e.status === 'COMPLETED'
   )
 
   const selectedExam = resultExams.find((e) => e.id === selectedExamId) ?? null
 
-  // Sections filtered by campus (client-side from full list)
-  const filteredSections = filterCampusId
-    ? (sections ?? []).filter(
-        (s) => s.grade?.program?.campus?.id === filterCampusId
-      )
-    : (sections ?? [])
+  const hasActiveFilter = !!(filterCampusId || filterProgramId || filterGradeId || filterSectionId || filterExamTypeId || filterStatus)
+
+  const handleClearFilters = () => {
+    setFilterCampusId('')
+    setFilterProgramId('')
+    setFilterGradeId('')
+    setFilterSectionId('')
+    setFilterExamTypeId('')
+    setFilterStatus('')
+  }
 
   const handleOpenCreate = () => {
     setEditingExam(undefined)
@@ -110,12 +135,15 @@ export default function ExamsPage() {
         <div className="flex-1 overflow-auto p-6 bg-[var(--background)]">
           {/* ── Tab 1: Exam Schedule ── */}
           <TabPanel tabId="schedule" activeTab={activeTab}>
-            <div className="flex flex-wrap items-end gap-4 mb-6">
+            {/* Row 1: Campus → Program → Grade → Section */}
+            <div className="flex flex-wrap items-end gap-4 mb-3">
               <Select
                 label="Campus"
-                value={filterCampusId ?? ''}
+                value={filterCampusId}
                 onChange={(e) => {
                   setFilterCampusId(e.target.value)
+                  setFilterProgramId('')
+                  setFilterGradeId('')
                   setFilterSectionId('')
                   setFilterExamTypeId('')
                 }}
@@ -125,17 +153,46 @@ export default function ExamsPage() {
                 ]}
               />
               <Select
-                label="Section"
-                value={filterSectionId ?? ''}
-                onChange={(e) => setFilterSectionId(e.target.value)}
+                label="Program"
+                value={filterProgramId}
+                onChange={(e) => {
+                  setFilterProgramId(e.target.value)
+                  setFilterGradeId('')
+                  setFilterSectionId('')
+                }}
                 options={[
-                  { value: '', label: 'All Sections' },
-                  ...filteredSections.map((s) => ({ value: s.id, label: s.name })),
+                  { value: '', label: filterCampusId ? 'All Programs' : 'Select campus first' },
+                  ...(programs ?? []).map((p) => ({ value: p.id, label: p.name })),
                 ]}
               />
               <Select
+                label="Grade"
+                value={filterGradeId}
+                onChange={(e) => {
+                  setFilterGradeId(e.target.value)
+                  setFilterSectionId('')
+                }}
+                options={[
+                  { value: '', label: filterProgramId ? 'All Grades' : 'Select program first' },
+                  ...(grades ?? []).map((g) => ({ value: g.id, label: g.name })),
+                ]}
+              />
+              <Select
+                label="Section"
+                value={filterSectionId}
+                onChange={(e) => setFilterSectionId(e.target.value)}
+                options={[
+                  { value: '', label: filterGradeId ? 'All Sections' : 'Select grade first' },
+                  ...sections.map((s) => ({ value: s.id, label: s.name })),
+                ]}
+              />
+            </div>
+
+            {/* Row 2: Exam Type, Status, Clear */}
+            <div className="flex flex-wrap items-end gap-4 mb-6">
+              <Select
                 label="Exam Type"
-                value={filterExamTypeId ?? ''}
+                value={filterExamTypeId}
                 onChange={(e) => setFilterExamTypeId(e.target.value)}
                 options={[
                   { value: '', label: 'All Types' },
@@ -144,20 +201,15 @@ export default function ExamsPage() {
               />
               <Select
                 label="Status"
-                value={filterStatus ?? ''}
+                value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
                 options={STATUS_OPTIONS}
               />
-              {(filterCampusId || filterSectionId || filterExamTypeId || filterStatus) && (
+              {hasActiveFilter && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    setFilterCampusId('')
-                    setFilterSectionId('')
-                    setFilterExamTypeId('')
-                    setFilterStatus('')
-                  }}
+                  onClick={handleClearFilters}
                   icon={<X className="w-3.5 h-3.5" />}
                   className="mb-0.5"
                 >
@@ -173,6 +225,79 @@ export default function ExamsPage() {
               onDelete={(id) => setDeleteId(id)}
               onEnterResults={handleEnterResults}
             />
+          </TabPanel>
+
+          {/* ── Tab 3: Exam Types ── */}
+          <TabPanel tabId="types" activeTab={activeTab}>
+            <div className="max-w-lg space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text)] mb-4">Create New Exam Type</h3>
+                <div className="flex gap-3 items-end">
+                  <div className="flex-1">
+                    <Select
+                      label="Campus"
+                      value={newTypeCampusId}
+                      onChange={(e) => setNewTypeCampusId(e.target.value)}
+                      options={[
+                        { value: '', label: 'Select Campus' },
+                        ...(campuses ?? []).map((c) => ({ value: c.id, label: c.name })),
+                      ]}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block font-body text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                      Type Name
+                    </label>
+                    <input
+                      className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] px-4 py-2.5 font-body text-sm text-[var(--text)] outline-none focus:border-[var(--primary)]"
+                      placeholder="e.g. Mid-Term, Final, Quiz"
+                      value={newTypeName}
+                      onChange={(e) => setNewTypeName(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    onClick={() => {
+                      if (!newTypeCampusId) return
+                      if (!newTypeName.trim()) return
+                      createTypeMutation.mutate(
+                        { name: newTypeName.trim(), campusId: newTypeCampusId },
+                        {
+                          onSuccess: () => {
+                            setNewTypeName('')
+                            refetchAllTypes()
+                          },
+                        }
+                      )
+                    }}
+                    loading={createTypeMutation.isPending}
+                    icon={<Plus className="w-4 h-4" />}
+                  >
+                    Add
+                  </Button>
+                </div>
+              </div>
+
+              {newTypeCampusId && (
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--text)] mb-3">Existing Types</h3>
+                  {(allExamTypes ?? []).length === 0 ? (
+                    <p className="text-sm text-[var(--text-muted)]">No exam types for this campus yet.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {(allExamTypes ?? []).map((t) => (
+                        <div
+                          key={t.id}
+                          className="flex items-center justify-between px-4 py-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)]"
+                        >
+                          <span className="text-sm font-medium text-[var(--text)]">{t.name}</span>
+                          <Tag className="w-4 h-4 text-[var(--text-muted)]" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </TabPanel>
 
           {/* ── Tab 2: Enter Results ── */}

@@ -8,6 +8,8 @@ import { usePrograms } from '@/features/programs/hooks/usePrograms'
 import { useProgramGrades, useSections } from '@/features/sections/hooks/useSections'
 import { useAssignmentsBySection } from '@/features/subjects/hooks/useSubjects'
 import { useExams } from '@/features/exams/hooks/useExams'
+import { useToast } from '@/hooks/useToast'
+import { useAcademicYears } from '../hooks/useReports'
 import {
   AttendanceReportFilters,
   FeeReportFilters,
@@ -31,6 +33,7 @@ interface Props {
 }
 
 export function ReportFilters({ reportType, onDownloadExcel, onPrint, isLoading }: Props) {
+  const toast = useToast()
   const { data: campuses } = useCampuses()
 
   // ── Cascade state (shared for attendance + results) ──────────────────────
@@ -50,6 +53,7 @@ export function ReportFilters({ reportType, onDownloadExcel, onPrint, isLoading 
   // ── Fee-specific ─────────────────────────────────────────────────────────
   const [academicYear, setAcademicYear] = useState('')
   const [feeStatus, setFeeStatus] = useState('')
+  const { data: academicYears } = useAcademicYears(campusId || undefined)
 
   // ── Results-specific ─────────────────────────────────────────────────────
   const [subjectId, setSubjectId] = useState('')
@@ -59,6 +63,23 @@ export function ReportFilters({ reportType, onDownloadExcel, onPrint, isLoading 
     sectionId: sectionId || undefined,
     subjectId: subjectId || undefined,
   })
+
+  function validate(): string | null {
+    if (reportType === 'attendance') {
+      if (!campusId) return 'Please select a campus'
+      if (!startDate) return 'Please select a start date'
+      if (!endDate) return 'Please select an end date'
+      if (startDate > endDate) return 'Start date must be before end date'
+    }
+    if (reportType === 'fees') {
+      if (!campusId) return 'Please select a campus'
+      if (!academicYear) return 'Please enter an academic year'
+    }
+    if (reportType === 'results') {
+      if (!sectionId) return 'Please select a section'
+    }
+    return null
+  }
 
   function getFilters() {
     if (reportType === 'attendance') {
@@ -81,6 +102,18 @@ export function ReportFilters({ reportType, onDownloadExcel, onPrint, isLoading 
       subjectId: subjectId || undefined,
       examId: examId || undefined,
     } as ResultsReportFilters
+  }
+
+  function handleDownload() {
+    const error = validate()
+    if (error) { toast.error(error); return }
+    onDownloadExcel(getFilters())
+  }
+
+  function handlePrint() {
+    const error = validate()
+    if (error) { toast.error(error); return }
+    onPrint(getFilters())
   }
 
   const campusOptions = [
@@ -167,15 +200,20 @@ export function ReportFilters({ reportType, onDownloadExcel, onPrint, isLoading 
             <Select
               label="Campus"
               value={campusId}
-              onChange={(e) => setCampusId(e.target.value)}
+              onChange={(e) => {
+                setCampusId(e.target.value)
+                setAcademicYear('')
+              }}
               options={campusOptions}
             />
-            <Input
+            <Select
               label="Academic Year"
-              type="text"
-              placeholder="e.g. 2024-2025"
               value={academicYear}
               onChange={(e) => setAcademicYear(e.target.value)}
+              options={[
+                { value: '', label: campusId ? (academicYears?.length ? 'Select Academic Year' : 'No years found') : 'Select campus first' },
+                ...(academicYears ?? []).map((y) => ({ value: y, label: y })),
+              ]}
             />
             <Select
               label="Status"
@@ -272,7 +310,7 @@ export function ReportFilters({ reportType, onDownloadExcel, onPrint, isLoading 
           variant="gold"
           icon={<Download className="w-4 h-4" />}
           loading={isLoading}
-          onClick={() => onDownloadExcel(getFilters())}
+          onClick={handleDownload}
         >
           Download Excel
         </Button>
@@ -280,7 +318,7 @@ export function ReportFilters({ reportType, onDownloadExcel, onPrint, isLoading 
           variant="outline"
           icon={<Printer className="w-4 h-4" />}
           loading={isLoading}
-          onClick={() => onPrint(getFilters())}
+          onClick={handlePrint}
         >
           Print / Preview
         </Button>

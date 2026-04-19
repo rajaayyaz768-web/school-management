@@ -1,9 +1,11 @@
 import axios from '@/lib/axios';
 import { Section, CreateSectionInput, UpdateSectionInput, GradeFilterItem } from '../types/sections.types';
 
-export const fetchAllSections = async (gradeId?: string): Promise<Section[]> => {
-  const url = gradeId ? `/sections?grade_id=${gradeId}` : '/sections';
-  const response = await axios.get(url);
+export const fetchAllSections = async (gradeId?: string, campusId?: string): Promise<Section[]> => {
+  const params: Record<string, string> = {}
+  if (gradeId) params.grade_id = gradeId
+  if (campusId) params.campus_id = campusId
+  const response = await axios.get('/sections', { params });
   return response.data.data;
 };
 

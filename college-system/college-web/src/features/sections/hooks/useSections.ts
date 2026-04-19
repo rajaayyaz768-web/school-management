@@ -3,10 +3,10 @@ import * as sectionsApi from '../api/sections.api';
 import { CreateSectionInput, UpdateSectionInput } from '../types/sections.types';
 import { useToast } from '@/hooks/useToast';
 
-export const useSections = (gradeId?: string) => {
+export const useSections = (gradeId?: string, campusId?: string) => {
   return useQuery({
-    queryKey: ['sections', gradeId],
-    queryFn: () => sectionsApi.fetchAllSections(gradeId),
+    queryKey: ['sections', gradeId, campusId],
+    queryFn: () => sectionsApi.fetchAllSections(gradeId, campusId),
   });
 };
 

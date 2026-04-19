@@ -8,6 +8,22 @@ import {
   ReportResult,
 } from './reports.types'
 
+// ─── Academic Years ───────────────────────────────────────────────────────────
+
+export const getDistinctAcademicYears = async (campusId?: string): Promise<string[]> => {
+  const where: any = {}
+  if (campusId) where.campusId = campusId
+
+  const structures = await prisma.feeStructure.findMany({
+    where,
+    select: { academicYear: true },
+    distinct: ['academicYear'],
+    orderBy: { academicYear: 'desc' },
+  })
+
+  return structures.map((s) => s.academicYear)
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function calculateGrade(obtained: number, total: number): { grade: string; percentage: number } {
@@ -80,7 +96,9 @@ export const generateAttendanceReport = async (
 
   const where: any = {
     date: { gte: start, lte: end },
-    student: { campusId: filters.campusId },
+    // Filter by campus through the section → grade → program → campus chain
+    // (more reliable than student.campusId when campus IDs may be inconsistent)
+    section: { grade: { program: { campusId: filters.campusId } } },
   }
   if (filters.sectionId) where.sectionId = filters.sectionId
   if (filters.studentId) where.studentId = filters.studentId
@@ -196,7 +214,8 @@ export const generateFeeReport = async (
 ): Promise<ReportResult> => {
   const where: any = {
     academicYear: filters.academicYear,
-    student: { campusId: filters.campusId },
+    // Filter by campus through the fee structure (more direct than student.campusId)
+    feeStructure: { campusId: filters.campusId },
   }
   if (filters.status) where.status = filters.status
 
