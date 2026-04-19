@@ -11,6 +11,7 @@ import { useExamTypes, useCreateExamType, useExams, useDeleteExam } from '@/feat
 import { ExamTable } from '@/features/exams/components/ExamTable'
 import { ExamForm } from '@/features/exams/components/ExamForm'
 import { ResultEntryTable } from '@/features/exams/components/ResultEntryTable'
+import { ExamSelectorCards } from '@/features/exams/components/ExamSelectorCards'
 import { Exam } from '@/features/exams/types/exams.types'
 import type { SectionCardData } from '@/components/shared/selection/types'
 import { Plus, CalendarDays, ClipboardList, X, Tag } from 'lucide-react'
@@ -254,83 +255,65 @@ export default function ExamsPage() {
           {/* ── Tab 2: Enter Results ── */}
           <TabPanel tabId="results" activeTab={activeTab}>
             <div className="space-y-6">
-              {/* Exam selector */}
-              <div className="max-w-lg">
-                <Select
-                  label="Select Exam"
-                  value={selectedExamId ?? ''}
-                  onChange={(e) => setSelectedExamId(e.target.value)}
-                  options={[
-                    { value: '', label: 'Choose an exam to enter results...' },
-                    ...resultExams.map((e) => ({
-                      value: e.id,
-                      label: `${e.subject?.name ?? ''} — ${e.section?.name ?? ''} (${
-                        e.date ? new Date(e.date).toLocaleDateString() : ''
-                      })`,
-                    })),
-                  ]}
-                />
-              </div>
-
-              {/* Exam detail card */}
-              {selectedExam && (
-                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-4">
-                  <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-                    <div>
-                      <span className="text-[var(--text-muted)] font-medium uppercase text-xs tracking-wide">
-                        Subject
-                      </span>
-                      <p className="font-medium mt-0.5">
-                        {selectedExam.subject?.name ?? '—'}{' '}
-                        <span className="text-[var(--text-muted)]">
-                          ({selectedExam.subject?.code ?? ''})
-                        </span>
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[var(--text-muted)] font-medium uppercase text-xs tracking-wide">
-                        Section
-                      </span>
-                      <p className="font-medium mt-0.5">{selectedExam.section?.name ?? '—'}</p>
-                    </div>
-                    <div>
-                      <span className="text-[var(--text-muted)] font-medium uppercase text-xs tracking-wide">
-                        Date
-                      </span>
-                      <p className="font-medium mt-0.5">
-                        {selectedExam.date
-                          ? new Date(selectedExam.date).toLocaleDateString('en-PK', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                            })
-                          : '—'}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[var(--text-muted)] font-medium uppercase text-xs tracking-wide">
-                        Total Marks
-                      </span>
-                      <p className="font-medium mt-0.5">{selectedExam.totalMarks}</p>
-                    </div>
+              {!selectedExamId ? (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+                    Select an Exam
+                  </p>
+                  <ExamSelectorCards
+                    exams={resultExams}
+                    selectedId={selectedExamId || null}
+                    onSelect={(exam) => setSelectedExamId(exam.id)}
+                    isLoading={examsLoading}
+                  />
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3">
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedExamId('')}>
+                      ← Change Exam
+                    </Button>
+                    {selectedExam && (
+                      <Badge variant="success">{selectedExam.subject?.name}</Badge>
+                    )}
                   </div>
-                </div>
-              )}
 
-              {/* Results table */}
-              {selectedExamId && (
-                <ResultEntryTable
-                  examId={selectedExamId}
-                  totalMarks={selectedExam?.totalMarks ?? 100}
-                  isLoading={false}
-                />
-              )}
+                  {selectedExam && (
+                    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-4">
+                      <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                        <div>
+                          <span className="text-[var(--text-muted)] font-medium uppercase text-xs tracking-wide">Subject</span>
+                          <p className="font-medium mt-0.5">
+                            {selectedExam.subject?.name ?? '—'}{' '}
+                            <span className="text-[var(--text-muted)]">({selectedExam.subject?.code ?? ''})</span>
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-[var(--text-muted)] font-medium uppercase text-xs tracking-wide">Section</span>
+                          <p className="font-medium mt-0.5">{selectedExam.section?.name ?? '—'}</p>
+                        </div>
+                        <div>
+                          <span className="text-[var(--text-muted)] font-medium uppercase text-xs tracking-wide">Date</span>
+                          <p className="font-medium mt-0.5">
+                            {selectedExam.date
+                              ? new Date(selectedExam.date).toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' })
+                              : '—'}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-[var(--text-muted)] font-medium uppercase text-xs tracking-wide">Total Marks</span>
+                          <p className="font-medium mt-0.5">{selectedExam.totalMarks}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-              {!selectedExamId && (
-                <div className="text-center py-16 text-[var(--text-muted)]">
-                  <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">Select an exam above to enter student results.</p>
-                </div>
+                  <ResultEntryTable
+                    examId={selectedExamId}
+                    totalMarks={selectedExam?.totalMarks ?? 100}
+                    isLoading={false}
+                  />
+                </>
               )}
             </div>
           </TabPanel>

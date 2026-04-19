@@ -1,1 +1,5 @@
-export default function Page() { return <div>Page Page</div>; }
+import { TeacherResultsPage } from '@/features/exams/components/TeacherResultsPage';
+
+export default function Page() {
+  return <TeacherResultsPage />;
+}
