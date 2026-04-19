@@ -1,5 +1,5 @@
-import { StudentsPage } from '@/features/students/components/StudentsPage';
+import { AdminStudentsPage } from '@/features/students/components/AdminStudentsPage';
 
 export default function Page() {
-  return <StudentsPage />;
+  return <AdminStudentsPage />;
 }

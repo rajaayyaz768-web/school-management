@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Student } from '@/features/students/types/students.types';
 import { useStudents } from '@/features/students/hooks/useStudents';
-import { useCampuses } from '@/features/campus/hooks/useCampus';
 import { StudentTable } from '@/features/students/components/StudentTable';
 import { StudentProfileDrawer } from '@/features/students/components/StudentProfileDrawer';
 import { StudentForm } from '@/features/students/components/StudentForm';
@@ -18,8 +17,13 @@ import {
 } from '@/components/ui';
 import { useToast } from '@/hooks/useToast';
 
-export function StudentsPage() {
-  const [selectedCampus, setSelectedCampus] = useState<string>('');
+interface StudentsPageProps {
+  campusId?: string
+  sectionId?: string
+  navigation?: React.ReactNode
+}
+
+export function StudentsPage({ campusId, sectionId, navigation }: StudentsPageProps) {
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,10 +43,9 @@ export function StudentsPage() {
   const { success } = useToast();
 
   // Queries
-  const { data: campuses = [] } = useCampuses();
-  
   const { data: paginatedData, isLoading } = useStudents({
-    campusId: selectedCampus || undefined,
+    campusId: campusId || undefined,
+    sectionId: sectionId || undefined,
     status: selectedStatus !== 'ALL' ? selectedStatus : undefined,
     page: currentPage,
     limit,
@@ -61,6 +64,7 @@ export function StudentsPage() {
   });
 
   const handleAddStudentClick = () => {
+    setCurrentPage(1);
     setEditingStudent(null);
     setIsFormModalOpen(true);
   };
@@ -88,11 +92,6 @@ export function StudentsPage() {
     setIsDrawerOpen(true);
   };
 
-  const campusOptions = [
-    { label: 'All Campuses', value: '' },
-    ...campuses.map(c => ({ label: c.name, value: c.id }))
-  ];
-
   const statusOptions = [
     { label: 'All Statuses', value: 'ALL' },
     { label: 'Unassigned', value: 'UNASSIGNED' },
@@ -117,24 +116,17 @@ export function StudentsPage() {
         }
       />
 
-      {/* Filter Bar Layout engineered per Stitch MCP conceptual constraints */}
+      {navigation}
+
+      {/* Filter Bar */}
       <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          <Select
-            options={campusOptions}
-            value={selectedCampus}
-            onChange={(e) => {
-              setSelectedCampus(e.target.value);
-              setCurrentPage(1); // Reset page on filter change
-            }}
-            className="w-full sm:w-48"
-          />
           <Select
             options={statusOptions}
             value={selectedStatus}
             onChange={(e) => {
               setSelectedStatus(e.target.value);
-              setCurrentPage(1); // Reset page on filter change
+              setCurrentPage(1);
             }}
             className="w-full sm:w-48"
           />
