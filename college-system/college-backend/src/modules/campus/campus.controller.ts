@@ -8,7 +8,7 @@ import {
 
 export const getAllCampuses = async (req: Request, res: Response) => {
   try {
-    const campuses = await campusService.getAllCampuses();
+    const campuses = await campusService.getAllCampuses(req.user!);
     sendSuccess(res, "Campuses retrieved successfully", campuses);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

@@ -1,5 +1,8 @@
 import prisma from "../../config/database";
+import { Role } from "@prisma/client";
 import { CreateCampusDto, UpdateCampusDto } from "./campus.types";
+
+type RequestUser = { id: string; role: Role; campusId: string | null };
 
 const mapToResponse = (campus: any): any => {
   const { code, phone, isActive, ...rest } = campus;
@@ -11,13 +14,45 @@ const mapToResponse = (campus: any): any => {
   };
 };
 
-export const getAllCampuses = async () => {
-  const campuses = await prisma.campus.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
-  return campuses.map(mapToResponse);
+export const getAllCampuses = async (user: RequestUser) => {
+  if (user.role === Role.SUPER_ADMIN) {
+    const campuses = await prisma.campus.findMany({ orderBy: { name: "asc" } });
+    return campuses.map(mapToResponse);
+  }
+
+  if (user.role === Role.ADMIN) {
+    if (!user.campusId) {
+      throw Object.assign(new Error("Admin has no assigned campus"), { statusCode: 403 });
+    }
+    const campuses = await prisma.campus.findMany({
+      where: { id: user.campusId, isActive: true },
+      orderBy: { name: "asc" },
+    });
+    return campuses.map(mapToResponse);
+  }
+
+  if (user.role === Role.TEACHER) {
+    const staffProfile = await prisma.staffProfile.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    });
+    if (!staffProfile) return [];
+    const assignments = await prisma.staffCampusAssignment.findMany({
+      where: { staffId: staffProfile.id, removedAt: null },
+      select: { campusId: true },
+    });
+    const campusIds = assignments.map((a) => a.campusId);
+    if (campusIds.length === 0) return [];
+    const campuses = await prisma.campus.findMany({
+      where: { id: { in: campusIds }, isActive: true },
+      orderBy: { name: "asc" },
+    });
+    return campuses.map(mapToResponse);
+  }
+
+  // PARENT and STUDENT have no campus picker
+  console.warn(`[Campus Service] getAllCampuses called by role ${user.role} — returning empty array`);
+  return [];
 };
 
 export const getCampusById = async (id: string) => {
