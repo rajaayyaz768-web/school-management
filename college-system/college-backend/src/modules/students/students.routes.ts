@@ -6,6 +6,7 @@ import { Role } from "@prisma/client";
 import {
   getAllStudents,
   getStudentById,
+  getMyProfile,
   createStudent,
   updateStudent,
   getUnassignedStudents,
@@ -17,6 +18,13 @@ import {
 } from "./students.validation";
 
 const router = Router();
+
+router.get(
+  "/me",
+  authenticate,
+  authorize(Role.STUDENT),
+  getMyProfile
+);
 
 router.get(
   "/unassigned",

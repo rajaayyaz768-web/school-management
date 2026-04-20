@@ -68,6 +68,33 @@ export const getStudentById = async (id: string) => {
   return student;
 };
 
+export const getMyProfile = async (userId: string) => {
+  const student = await prisma.studentProfile.findUnique({
+    where: { userId },
+    include: {
+      user: { select: { id: true, email: true, isActive: true } },
+      section: {
+        include: {
+          grade: {
+            include: {
+              program: {
+                include: { campus: true },
+              },
+            },
+          },
+        },
+      },
+      campus: { select: { id: true, name: true, code: true } },
+    },
+  });
+
+  if (!student) {
+    throw Object.assign(new Error("Student profile not found"), { statusCode: 404 });
+  }
+
+  return student;
+};
+
 export const createStudent = async (data: CreateStudentDto) => {
   return await prisma.$transaction(async (tx) => {
     // 1. Verify campus

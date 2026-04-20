@@ -31,6 +31,16 @@ export const getStudentById = async (req: Request, res: Response) => {
   }
 };
 
+export const getMyProfile = async (req: Request, res: Response) => {
+  try {
+    const student = await studentsService.getMyProfile(req.user!.id);
+    sendSuccess(res, "Student profile retrieved successfully", student);
+  } catch (error: unknown) {
+    const err = error as Error & { statusCode?: number };
+    sendError(res, err.message || "Internal Server Error", err.statusCode || 500);
+  }
+};
+
 export const createStudent = async (req: Request, res: Response) => {
   try {
     const result = await studentsService.createStudent(req.body);
