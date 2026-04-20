@@ -69,6 +69,16 @@ export const linkStudent = async (req: Request, res: Response) => {
   }
 };
 
+export const getMyChildren = async (req: Request, res: Response) => {
+  try {
+    const children = await parentsService.getMyChildren(req.user!.id);
+    sendSuccess(res, "Children retrieved successfully", children);
+  } catch (error: unknown) {
+    const err = error as Error & { statusCode?: number };
+    sendError(res, err.message || "Internal Server Error", err.statusCode || 500);
+  }
+};
+
 export const unlinkStudent = async (req: Request, res: Response) => {
   try {
     const parentId = req.params.id as string;

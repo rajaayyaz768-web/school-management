@@ -290,6 +290,45 @@ export const linkStudentToParent = async (parentId: string, data: LinkStudentDto
   });
 };
 
+export const getMyChildren = async (userId: string) => {
+  const parentProfile = await prisma.parentProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+
+  if (!parentProfile) {
+    throw Object.assign(new Error("Parent profile not found"), { statusCode: 404 });
+  }
+
+  const links = await prisma.studentParentLink.findMany({
+    where: { parentId: parentProfile.id },
+    include: {
+      student: {
+        include: {
+          section: {
+            include: {
+              grade: {
+                include: {
+                  program: {
+                    include: { campus: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: { isPrimary: "desc" },
+  });
+
+  return links.map((link) => ({
+    relationship: link.relationship,
+    isPrimary: link.isPrimary,
+    student: link.student,
+  }));
+};
+
 export const unlinkStudentFromParent = async (parentId: string, studentId: string) => {
   const existingLink = await prisma.studentParentLink.findUnique({
     where: {

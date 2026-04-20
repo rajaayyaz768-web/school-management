@@ -7,6 +7,7 @@ import {
   getAllParents,
   getParentById,
   getParentByStudentId,
+  getMyChildren,
   createParent,
   updateParent,
   linkStudent,
@@ -19,6 +20,13 @@ import {
 } from "./parents.validation";
 
 const router = Router();
+
+router.get(
+  "/my-children",
+  authenticate,
+  authorize(Role.PARENT),
+  getMyChildren
+);
 
 router.get(
   "/by-student",
