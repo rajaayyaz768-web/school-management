@@ -7,6 +7,8 @@ import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { StudentContextStrip } from '@/components/shared/selection/StudentContextStrip'
+import { useMyProfile } from '@/features/students/hooks/useStudents'
 import { useAnnouncementsForMe } from '@/features/announcements/hooks/useAnnouncements'
 import { Announcement } from '@/features/announcements/types/announcements.types'
 
@@ -57,6 +59,7 @@ function AnnouncementCard({ item }: { item: Announcement }) {
 
 export default function StudentAnnouncementsPage() {
   const { data: announcements, isLoading } = useAnnouncementsForMe()
+  const { data: profile } = useMyProfile()
 
   return (
     <div className="p-6 space-y-6">
@@ -64,6 +67,8 @@ export default function StudentAnnouncementsPage() {
         title="Notices & Announcements"
         breadcrumb={[{ label: 'Home', href: '/student/dashboard' }, { label: 'Notices' }]}
       />
+
+      {profile && <StudentContextStrip profile={profile} />}
 
       {isLoading ? (
         <div className="space-y-4">

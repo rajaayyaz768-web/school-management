@@ -63,3 +63,29 @@ export const updateStudent = async (id: string, data: UpdateStudentInput): Promi
   const response = await axios.put<{ success: boolean; data: Student }>(`/students/${id}`, data);
   return response.data.data;
 };
+
+export interface MyStudentProfile extends Student {
+  section: {
+    id: string;
+    name: string;
+    grade: {
+      id: string;
+      name: string;
+      program: {
+        id: string;
+        name: string;
+        code: string;
+        campus: {
+          id: string;
+          name: string;
+          campusCode: string;
+        };
+      };
+    } | null;
+  } | null;
+}
+
+export const fetchMyProfile = async (): Promise<MyStudentProfile> => {
+  const response = await axios.get<{ success: boolean; data: MyStudentProfile }>('/students/me');
+  return response.data.data;
+};

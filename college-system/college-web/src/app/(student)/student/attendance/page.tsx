@@ -6,7 +6,8 @@ import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { useStudentDashboard } from '@/features/dashboard/student/hooks/useStudentDashboard'
+import { StudentContextStrip } from '@/components/shared/selection/StudentContextStrip'
+import { useMyProfile } from '@/features/students/hooks/useStudents'
 import { useStudentAttendanceSummary } from '@/features/student-attendance/hooks/useStudentAttendance'
 
 function CircleProgress({ pct, size = 80 }: { pct: number; size?: number }) {
@@ -30,11 +31,11 @@ function CircleProgress({ pct, size = 80 }: { pct: number; size?: number }) {
 }
 
 export default function StudentAttendancePage() {
-  const { data: dashboard, isLoading: dashLoading } = useStudentDashboard()
-  const studentId = dashboard?.student?.id ?? ''
+  const { data: profile, isLoading: profileLoading } = useMyProfile()
+  const studentId = profile?.id ?? ''
   const { data: summary, isLoading: summaryLoading } = useStudentAttendanceSummary(studentId)
 
-  const isLoading = dashLoading || summaryLoading
+  const isLoading = profileLoading || summaryLoading
   const pct = summary?.attendancePercentage ?? 0
   const pctColor = pct >= 75 ? 'success' : pct >= 60 ? 'warning' : 'danger'
 
@@ -44,6 +45,8 @@ export default function StudentAttendancePage() {
         title="My Attendance"
         breadcrumb={[{ label: 'Home', href: '/student/dashboard' }, { label: 'Attendance' }]}
       />
+
+      {profile && <StudentContextStrip profile={profile} />}
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

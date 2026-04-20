@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { useStudentDashboard } from '@/features/dashboard/student/hooks/useStudentDashboard'
+import { StudentContextStrip } from '@/components/shared/selection/StudentContextStrip'
+import { useMyProfile } from '@/features/students/hooks/useStudents'
 import { useStudentReportCard } from '@/features/results/hooks/useResults'
 import { SubjectResultSummary, ExamResultEntry } from '@/features/results/types/results.types'
 
@@ -89,11 +90,11 @@ function SubjectCard({ subject }: { subject: SubjectResultSummary }) {
 
 export default function StudentResultsPage() {
   const [academicYear, setAcademicYear] = useState('2025-2026')
-  const { data: dashboard, isLoading: dashLoading } = useStudentDashboard()
-  const studentId = dashboard?.student?.id ?? ''
+  const { data: profile, isLoading: profileLoading } = useMyProfile()
+  const studentId = profile?.id ?? ''
   const { data: reportCard, isLoading: rcLoading } = useStudentReportCard(studentId, academicYear)
 
-  const isLoading = dashLoading || rcLoading
+  const isLoading = profileLoading || rcLoading
 
   return (
     <div className="p-6 space-y-6">
@@ -101,6 +102,8 @@ export default function StudentResultsPage() {
         title="My Results"
         breadcrumb={[{ label: 'Home', href: '/student/dashboard' }, { label: 'Results' }]}
       />
+
+      {profile && <StudentContextStrip profile={profile} />}
 
       <div className="rounded-xl p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
         <div className="max-w-xs">

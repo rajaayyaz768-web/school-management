@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { useStudentDashboard } from '@/features/dashboard/student/hooks/useStudentDashboard'
+import { StudentContextStrip } from '@/components/shared/selection/StudentContextStrip'
+import { useMyProfile } from '@/features/students/hooks/useStudents'
 import { useSectionTimetable } from '@/features/timetable/hooks/useTimetable'
 import { TimetableSlot, DayOfWeek } from '@/features/timetable/types/timetable.types'
 import { cn } from '@/lib/utils'
@@ -86,8 +87,8 @@ function SlotCard({ slot }: { slot: TimetableSlot }) {
 
 export default function StudentTimetablePage() {
   const [academicYear, setAcademicYear] = useState('2025-2026')
-  const { data: dashboard, isLoading: dashLoading } = useStudentDashboard()
-  const sectionId = dashboard?.student?.sectionId ?? ''
+  const { data: profile, isLoading: dashLoading } = useMyProfile()
+  const sectionId = profile?.sectionId ?? ''
   const { data: timetable, isLoading: ttLoading } = useSectionTimetable(sectionId, academicYear)
 
   const isLoading = dashLoading || ttLoading
@@ -105,6 +106,8 @@ export default function StudentTimetablePage() {
         title="My Timetable"
         breadcrumb={[{ label: 'Home', href: '/student/dashboard' }, { label: 'Timetable' }]}
       />
+
+      {profile && <StudentContextStrip profile={profile} />}
 
       <div className="rounded-xl p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
         <div className="max-w-xs">

@@ -26,6 +26,14 @@ export const useUnassignedStudents = (gradeId: string) => {
   });
 };
 
+export const useMyProfile = () => {
+  return useQuery({
+    queryKey: ['student-me'],
+    queryFn: () => studentsApi.fetchMyProfile(),
+    staleTime: 30 * 60 * 1000,
+  });
+};
+
 export const useStudentsBySection = (sectionId: string) => {
   return useQuery({
     queryKey: ['students', 'section', sectionId],
