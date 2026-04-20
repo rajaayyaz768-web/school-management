@@ -65,6 +65,17 @@ export const authenticate = async (
     };
 
     // ─── Campus scope enforcement ───────────────────────────────────────────
+    // Express 5 exposes req.query as a getter — direct property assignment is
+    // silently dropped. We must use Object.defineProperty to shadow the getter
+    // with a plain writable value so downstream controllers read our overrides.
+    const overrideQuery = (extra: Record<string, string>) => {
+      Object.defineProperty(req, 'query', {
+        value: Object.assign(Object.create(null), req.query, extra),
+        writable: true,
+        configurable: true,
+      })
+    }
+
     // ADMIN: must have a campus assignment. Lock all queries to their campus
     // regardless of what the client sends in ?campusId.
     if (user.role === Role.ADMIN) {
@@ -72,17 +83,11 @@ export const authenticate = async (
         sendError(res, 'Admin user has no assigned campus. Contact the principal.', 403)
         return
       }
-      ;(req.query as Record<string, string>).campusId = campusId
-    } else if (
-      user.role === Role.TEACHER ||
-      user.role === Role.STUDENT ||
-      user.role === Role.PARENT
-    ) {
-      // Defense in depth: if the user has a known campus, lock it.
-      // These roles are already scoped via their own IDs in service queries,
-      // but this prevents accidental leakage if a future endpoint adds campus filtering.
-      if (campusId) (req.query as Record<string, string>).campusId = campusId
+      overrideQuery({ campusId, campus_id: campusId })
     }
+    // TEACHER / STUDENT / PARENT: campus scoping is handled at the service layer
+    // (SectionSubjectTeacher for sections, /students/me, /parents/my-children).
+    // Forcing campus_id here would break multi-campus teacher flows.
     // SUPER_ADMIN: leave req.query.campusId untouched.
     // null = all campuses; a specific id = drill into that campus.
 
