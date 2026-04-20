@@ -5,11 +5,12 @@ import { Trophy, BookOpen, Users, ChevronDown, ChevronUp } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Select } from '@/components/ui/Select'
 import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { useParentDashboard } from '@/features/dashboard/parent/hooks/useParentDashboard'
+import { ChildSwitcher } from '@/components/shared/selection/ChildSwitcher'
+import { ChildInfoStrip } from '@/components/shared/selection/ChildInfoStrip'
+import { useMyChildren } from '@/features/parents/hooks/useParents'
 import { useStudentReportCard } from '@/features/results/hooks/useResults'
 import { SubjectResultSummary } from '@/features/results/types/results.types'
 
@@ -89,13 +90,13 @@ export default function ParentResultsPage() {
   const [academicYear, setAcademicYear] = useState('2025-2026')
   const [selectedStudentId, setSelectedStudentId] = useState<string>('')
 
-  const { data: dashboard, isLoading: dashLoading } = useParentDashboard()
-  const linkedStudents = dashboard?.linkedStudents ?? []
-  const studentId = selectedStudentId || dashboard?.primaryStudent?.id || ''
+  const { data: children, isLoading: childrenLoading } = useMyChildren()
+  const activeChild = children?.find(c => c.student.id === (selectedStudentId || children?.[0]?.student.id))
+  const studentId = activeChild?.student.id ?? ''
 
   const { data: reportCard, isLoading: rcLoading } = useStudentReportCard(studentId, academicYear)
 
-  const isLoading = dashLoading || rcLoading
+  const isLoading = childrenLoading || rcLoading
 
   return (
     <div className="p-6 space-y-6">
@@ -104,20 +105,19 @@ export default function ParentResultsPage() {
         breadcrumb={[{ label: 'Home', href: '/parent/dashboard' }, { label: 'Results' }]}
       />
 
+      {!childrenLoading && children && (
+        <>
+          <ChildSwitcher
+            children={children}
+            activeId={studentId}
+            onChange={setSelectedStudentId}
+          />
+          {activeChild && <ChildInfoStrip child={activeChild} />}
+        </>
+      )}
+
       <div className="rounded-xl p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 max-w-md gap-4">
-          {linkedStudents.length > 1 && (
-            <Select
-              label="Select Child"
-              id="student-select"
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              options={linkedStudents.map((s) => ({
-                value: s.id,
-                label: `${s.firstName} ${s.lastName}${s.isPrimary ? ' (Primary)' : ''}`,
-              }))}
-            />
-          )}
+        <div className="max-w-xs">
           <Input label="Academic Year" value={academicYear} onChange={(e) => setAcademicYear(e.target.value)} id="academic-year" />
         </div>
       </div>

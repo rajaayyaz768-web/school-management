@@ -5,10 +5,11 @@ import { CalendarCheck, CheckCircle2, XCircle, Clock, MinusCircle, Users } from 
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Select } from '@/components/ui/Select'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { useParentDashboard } from '@/features/dashboard/parent/hooks/useParentDashboard'
+import { ChildSwitcher } from '@/components/shared/selection/ChildSwitcher'
+import { ChildInfoStrip } from '@/components/shared/selection/ChildInfoStrip'
+import { useMyChildren } from '@/features/parents/hooks/useParents'
 import { useStudentAttendanceSummary } from '@/features/student-attendance/hooks/useStudentAttendance'
 
 function CircleProgress({ pct, size = 80 }: { pct: number; size?: number }) {
@@ -31,14 +32,15 @@ function CircleProgress({ pct, size = 80 }: { pct: number; size?: number }) {
 }
 
 export default function ParentAttendancePage() {
-  const { data: dashboard, isLoading: dashLoading } = useParentDashboard()
-  const linkedStudents = dashboard?.linkedStudents ?? []
+  const { data: children, isLoading: childrenLoading } = useMyChildren()
   const [selectedStudentId, setSelectedStudentId] = useState<string>('')
 
-  const studentId = selectedStudentId || dashboard?.primaryStudent?.id || ''
+  const activeChild = children?.find(c => c.student.id === (selectedStudentId || children?.[0]?.student.id))
+  const studentId = activeChild?.student.id ?? ''
+
   const { data: summary, isLoading: summaryLoading } = useStudentAttendanceSummary(studentId)
 
-  const isLoading = dashLoading
+  const isLoading = childrenLoading
   const pct = summary?.attendancePercentage ?? 0
   const pctColor: 'success' | 'warning' | 'danger' = pct >= 75 ? 'success' : pct >= 60 ? 'warning' : 'danger'
 
@@ -49,21 +51,15 @@ export default function ParentAttendancePage() {
         breadcrumb={[{ label: 'Home', href: '/parent/dashboard' }, { label: 'Attendance' }]}
       />
 
-      {linkedStudents.length > 1 && (
-        <div className="rounded-xl p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-          <div className="max-w-xs">
-            <Select
-              label="Select Child"
-              id="student-select"
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              options={linkedStudents.map((s) => ({
-                value: s.id,
-                label: `${s.firstName} ${s.lastName}${s.isPrimary ? ' (Primary)' : ''}`,
-              }))}
-            />
-          </div>
-        </div>
+      {!childrenLoading && children && (
+        <>
+          <ChildSwitcher
+            children={children}
+            activeId={studentId}
+            onChange={setSelectedStudentId}
+          />
+          {activeChild && <ChildInfoStrip child={activeChild} />}
+        </>
       )}
 
       {isLoading ? (

@@ -73,6 +73,14 @@ export const useLinkStudent = () => {
   });
 };
 
+export const useMyChildren = () => {
+  return useQuery({
+    queryKey: ['my-children'],
+    queryFn: () => parentsApi.fetchMyChildren(),
+    staleTime: 10 * 60 * 1000,
+  });
+};
+
 export const useUnlinkStudent = () => {
   const queryClient = useQueryClient();
   const { success, error } = useToast();

@@ -1,6 +1,7 @@
 import axios from '@/lib/axios';
 import {
   Parent,
+  MyChild,
   CreateParentInput,
   UpdateParentInput,
   LinkStudentInput,
@@ -49,4 +50,9 @@ export const linkStudent = async (parentId: string, data: LinkStudentInput): Pro
 
 export const unlinkStudent = async (parentId: string, studentId: string): Promise<void> => {
   await axios.delete(`/parents/${parentId}/unlink-student/${studentId}`);
+};
+
+export const fetchMyChildren = async (): Promise<MyChild[]> => {
+  const response = await axios.get<{ success: boolean; data: MyChild[] }>('/parents/my-children');
+  return response.data.data;
 };

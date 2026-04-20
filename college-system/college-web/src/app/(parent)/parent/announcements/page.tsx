@@ -7,6 +7,9 @@ import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ChildSwitcher } from '@/components/shared/selection/ChildSwitcher'
+import { ChildInfoStrip } from '@/components/shared/selection/ChildInfoStrip'
+import { useMyChildren } from '@/features/parents/hooks/useParents'
 import { useAnnouncementsForMe } from '@/features/announcements/hooks/useAnnouncements'
 import { Announcement } from '@/features/announcements/types/announcements.types'
 
@@ -53,6 +56,9 @@ function AnnouncementCard({ item }: { item: Announcement }) {
 
 export default function ParentAnnouncementsPage() {
   const { data: announcements, isLoading } = useAnnouncementsForMe()
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('')
+  const { data: children } = useMyChildren()
+  const activeChild = children?.find(c => c.student.id === (selectedStudentId || children?.[0]?.student.id))
 
   return (
     <div className="p-6 space-y-6">
@@ -60,6 +66,17 @@ export default function ParentAnnouncementsPage() {
         title="Announcements"
         breadcrumb={[{ label: 'Home', href: '/parent/dashboard' }, { label: 'Announcements' }]}
       />
+
+      {children && (
+        <>
+          <ChildSwitcher
+            children={children}
+            activeId={activeChild?.student.id ?? ''}
+            onChange={setSelectedStudentId}
+          />
+          {activeChild && <ChildInfoStrip child={activeChild} />}
+        </>
+      )}
 
       {isLoading ? (
         <div className="space-y-4">

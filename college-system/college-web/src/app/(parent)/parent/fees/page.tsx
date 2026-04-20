@@ -5,10 +5,11 @@ import { CreditCard, Users, AlertCircle, CheckCircle2, Clock } from 'lucide-reac
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Select } from '@/components/ui/Select'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { useParentDashboard } from '@/features/dashboard/parent/hooks/useParentDashboard'
+import { ChildSwitcher } from '@/components/shared/selection/ChildSwitcher'
+import { ChildInfoStrip } from '@/components/shared/selection/ChildInfoStrip'
+import { useMyChildren } from '@/features/parents/hooks/useParents'
 import { useStudentFeeRecords } from '@/features/fees/hooks/useFees'
 import { FeeRecordResponse, FeeStatus } from '@/features/fees/types/fees.types'
 
@@ -67,11 +68,12 @@ function FeeCard({ record }: { record: FeeRecordResponse }) {
 }
 
 export default function ParentFeesPage() {
-  const { data: dashboard, isLoading: dashLoading } = useParentDashboard()
-  const linkedStudents = dashboard?.linkedStudents ?? []
+  const { data: children, isLoading: childrenLoading } = useMyChildren()
   const [selectedStudentId, setSelectedStudentId] = useState<string>('')
 
-  const studentId = selectedStudentId || dashboard?.primaryStudent?.id || ''
+  const activeChild = children?.find(c => c.student.id === (selectedStudentId || children?.[0]?.student.id))
+  const studentId = activeChild?.student.id ?? ''
+
   const { data: records, isLoading: feesLoading } = useStudentFeeRecords(studentId)
 
   const totalDue = (records ?? []).reduce((s, r) => s + r.amountDue, 0)
@@ -85,24 +87,18 @@ export default function ParentFeesPage() {
         breadcrumb={[{ label: 'Home', href: '/parent/dashboard' }, { label: 'Fees' }]}
       />
 
-      {linkedStudents.length > 1 && (
-        <div className="rounded-xl p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-          <div className="max-w-xs">
-            <Select
-              label="Select Child"
-              id="student-select"
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              options={linkedStudents.map((s) => ({
-                value: s.id,
-                label: `${s.firstName} ${s.lastName}${s.isPrimary ? ' (Primary)' : ''}`,
-              }))}
-            />
-          </div>
-        </div>
+      {!childrenLoading && children && (
+        <>
+          <ChildSwitcher
+            children={children}
+            activeId={studentId}
+            onChange={setSelectedStudentId}
+          />
+          {activeChild && <ChildInfoStrip child={activeChild} />}
+        </>
       )}
 
-      {dashLoading ? (
+      {childrenLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => <Skeleton key={i} variant="card" className="h-24" />)}
         </div>
@@ -128,7 +124,6 @@ export default function ParentFeesPage() {
         </div>
       ) : (
         <>
-          {/* Summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { label: 'Total Due', value: formatPKR(totalDue), icon: <AlertCircle className="w-5 h-5" />, color: 'var(--danger)' },
@@ -147,7 +142,6 @@ export default function ParentFeesPage() {
             ))}
           </div>
 
-          {/* Fee Records */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {records.map((record) => <FeeCard key={record.id} record={record} />)}
           </div>
