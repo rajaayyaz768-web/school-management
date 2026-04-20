@@ -30,17 +30,19 @@ interface Props {
   onDownloadExcel: (filters: AttendanceReportFilters | FeeReportFilters | ResultsReportFilters) => void
   onPrint: (filters: AttendanceReportFilters | FeeReportFilters | ResultsReportFilters) => void
   isLoading: boolean
+  initialCampusId?: string
+  initialSectionId?: string
 }
 
-export function ReportFilters({ reportType, onDownloadExcel, onPrint, isLoading }: Props) {
+export function ReportFilters({ reportType, onDownloadExcel, onPrint, isLoading, initialCampusId = '', initialSectionId = '' }: Props) {
   const toast = useToast()
   const { data: campuses } = useCampuses()
 
   // ── Cascade state (shared for attendance + results) ──────────────────────
-  const [campusId, setCampusId] = useState('')
+  const [campusId, setCampusId] = useState(initialCampusId)
   const [programId, setProgramId] = useState('')
   const [gradeId, setGradeId] = useState('')
-  const [sectionId, setSectionId] = useState('')
+  const [sectionId, setSectionId] = useState(initialSectionId)
 
   const { data: programs } = usePrograms(campusId || undefined)
   const { data: grades } = useProgramGrades(programId || undefined)
