@@ -4,13 +4,12 @@ import { useState } from 'react'
 import axios from '@/lib/axios'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
-import { Select } from '@/components/ui/Select'
+import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useCampuses } from '@/features/campus/hooks/useCampus'
-import { usePrograms } from '@/features/programs/hooks/usePrograms'
+import { SectionSelectorCards } from '@/components/shared/selection/SectionSelectorCards'
 import {
   useSectionTimetable,
   usePeriodConfig,
@@ -21,16 +20,15 @@ import {
   useUpsertPeriodConfig,
 } from '@/features/timetable/hooks/useTimetable'
 import { TimetableGrid } from '@/features/timetable/components/TimetableGrid'
-import { CalendarDays, Settings2 } from 'lucide-react'
+import { Settings2, CalendarDays } from 'lucide-react'
+import type { SectionCardData } from '@/components/shared/selection/types'
+
+type Step = 'section' | 'builder'
 
 export default function TimetablePage() {
-  const [selectedCampusId, setSelectedCampusId] = useState<string>('')
-  const [selectedProgramId, setSelectedProgramId] = useState<string>('')
-  const [selectedGradeId, setSelectedGradeId] = useState<string>('')
-  const [selectedSectionId, setSelectedSectionId] = useState<string>('')
-  const [academicYear, setAcademicYear] = useState<string>('2025-2026')
-  const [sections, setSections] = useState<{ id: string; name: string }[]>([])
-  const [grades, setGrades] = useState<{ id: string; name: string; displayOrder: number }[]>([])
+  const [step, setStep] = useState<Step>('section')
+  const [selectedSection, setSelectedSection] = useState<SectionCardData | null>(null)
+  const [academicYear, setAcademicYear] = useState('2025-2026')
   const [subjects, setSubjects] = useState<{ id: string; name: string; code: string }[]>([])
   const [staffList, setStaffList] = useState<{ id: string; firstName: string; lastName: string; staffCode: string }[]>([])
   const [showClearConfirm, setShowClearConfirm] = useState(false)
@@ -38,58 +36,27 @@ export default function TimetablePage() {
   const [configForm, setConfigForm] = useState({ totalPeriods: 8, periodDurationMins: 45, breakAfterPeriod: 4 })
 
   const { data: campuses } = useCampuses()
-  const { data: programs } = usePrograms(selectedCampusId)
-  const { data: timetable, isLoading: timetableLoading } = useSectionTimetable(selectedSectionId, academicYear)
-  const { data: periodConfig } = usePeriodConfig(selectedCampusId, selectedGradeId)
+  const campusId = campuses?.[0]?.id ?? ''
+
+  const sectionId = selectedSection?.id ?? ''
+  const gradeId = selectedSection?.gradeId ?? ''
+
+  const { data: timetable, isLoading: timetableLoading } = useSectionTimetable(sectionId, academicYear)
+  const { data: periodConfig } = usePeriodConfig(campusId, gradeId)
   const { mutate: saveSlot, isPending: isSaving } = useCreateSlot()
   const { mutate: editSlot } = useUpdateSlot()
   const { mutate: removeSlot } = useDeleteSlot()
   const { mutate: clearTimetable, isPending: isClearing } = useClearTimetable()
   const { mutate: savePeriodConfig } = useUpsertPeriodConfig()
 
-  const handleCampusChange = (id: string) => {
-    setSelectedCampusId(id)
-    setSelectedProgramId('')
-    setSelectedGradeId('')
-    setSelectedSectionId('')
-    setGrades([])
-    setSections([])
+  const handleSectionSelect = async (section: SectionCardData) => {
+    setSelectedSection(section)
     setSubjects([])
     setStaffList([])
-  }
-
-  const handleProgramChange = async (id: string) => {
-    setSelectedProgramId(id)
-    setSelectedGradeId('')
-    setSelectedSectionId('')
-    setSections([])
-    setSubjects([])
-    if (!id) { setGrades([]); return }
-    try {
-      const res = await axios.get('/grades', { params: { program_id: id } })
-      setGrades(res.data.data ?? [])
-    } catch { setGrades([]) }
-  }
-
-  const handleGradeChange = async (id: string) => {
-    setSelectedGradeId(id)
-    setSelectedSectionId('')
-    setSubjects([])
-    if (!id) { setSections([]); return }
-    try {
-      const res = await axios.get('/sections', { params: { grade_id: id } })
-      setSections(res.data.data ?? [])
-    } catch { setSections([]) }
-  }
-
-  const handleSectionChange = async (id: string) => {
-    setSelectedSectionId(id)
-    setSubjects([])
-    if (!id) return
     try {
       const [subjectsRes, staffRes] = await Promise.all([
-        axios.get('/subjects/assignments', { params: { section_id: id } }),
-        axios.get(`/staff/by-campus/${selectedCampusId}`)
+        axios.get('/subjects/assignments', { params: { section_id: section.id } }),
+        campusId ? axios.get(`/staff/by-campus/${campusId}`) : Promise.resolve({ data: { data: [] } }),
       ])
       const assignments = subjectsRes.data.data ?? []
       const seen = new Set<string>()
@@ -99,7 +66,11 @@ export default function TimetablePage() {
           .map((a: any) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code }))
       )
       setStaffList(staffRes.data.data ?? [])
-    } catch { setSubjects([]); setStaffList([]) }
+    } catch {
+      setSubjects([])
+      setStaffList([])
+    }
+    setStep('builder')
   }
 
   const handleSlotSave = (data: any, existingSlotId?: string) => {
@@ -110,24 +81,13 @@ export default function TimetablePage() {
     }
   }
 
-  const campusOptions = (campuses ?? []).map((c: any) => ({ value: c.id, label: c.name }))
-  const programOptions = (programs ?? []).map((p: any) => ({ value: p.id, label: p.name }))
-  const gradeOptions = grades.map((g) => ({ value: g.id, label: g.name }))
-  const sectionOptions = sections.map((s) => ({ value: s.id, label: s.name }))
-
   const configFooter = (
     <>
-      <Button variant="secondary" onClick={() => setShowConfigModal(false)}>
-        Cancel
-      </Button>
+      <Button variant="secondary" onClick={() => setShowConfigModal(false)}>Cancel</Button>
       <Button
         variant="primary"
         onClick={() => {
-          savePeriodConfig({
-            campusId: selectedCampusId,
-            gradeId: selectedGradeId,
-            ...configForm,
-          })
+          savePeriodConfig({ campusId, gradeId, ...configForm })
           setShowConfigModal(false)
         }}
       >
@@ -135,6 +95,29 @@ export default function TimetablePage() {
       </Button>
     </>
   )
+
+  if (step === 'section' && campusId) {
+    return (
+      <div className="flex flex-col gap-6 p-8">
+        <PageHeader
+          title="Timetable Builder"
+          subtitle="Select a section to view or build its timetable"
+        />
+        <div className="max-w-xs">
+          <Input
+            label="Academic Year"
+            value={academicYear}
+            onChange={(e) => setAcademicYear(e.target.value)}
+          />
+        </div>
+        <SectionSelectorCards
+          campusId={campusId}
+          onSelect={handleSectionSelect}
+          selectedId={selectedSection?.id}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -146,104 +129,39 @@ export default function TimetablePage() {
         ]}
         actions={
           <>
-            <Button
-              variant="secondary"
-              icon={<Settings2 size={16} />}
-              onClick={() => setShowConfigModal(true)}
-            >
+            <Button variant="secondary" icon={<Settings2 size={16} />} onClick={() => setShowConfigModal(true)}>
               Configure Periods
             </Button>
-            <Button
-              variant="danger"
-              disabled={!selectedSectionId}
-              onClick={() => setShowClearConfirm(true)}
-            >
+            <Button variant="danger" disabled={!sectionId} onClick={() => setShowClearConfirm(true)}>
               Clear Timetable
             </Button>
           </>
         }
       />
 
-      {/* Filter Bar */}
-      <div
-        className="rounded-xl p-5"
-        style={{
-          background: 'var(--surface)',
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Select
-            label="Campus"
-            options={campusOptions}
-            value={selectedCampusId ?? ''}
-            placeholder="Select campus"
-            onChange={(e) => handleCampusChange(e.target.value)}
-            id="filter-campus"
-          />
-          <Select
-            label="Program"
-            options={programOptions}
-            value={selectedProgramId ?? ''}
-            placeholder="Select program"
-            disabled={!selectedCampusId}
-            onChange={(e) => handleProgramChange(e.target.value)}
-            id="filter-program"
-          />
-          <Select
-            label="Grade"
-            options={gradeOptions}
-            value={selectedGradeId ?? ''}
-            placeholder="Select grade"
-            disabled={!selectedProgramId}
-            onChange={(e) => handleGradeChange(e.target.value)}
-            id="filter-grade"
-          />
-          <Select
-            label="Section"
-            options={sectionOptions}
-            value={selectedSectionId ?? ''}
-            placeholder="Select section"
-            disabled={!selectedGradeId}
-            onChange={(e) => handleSectionChange(e.target.value)}
-            id="filter-section"
-          />
+      <div className="flex items-center gap-3 -mt-4">
+        <Button variant="ghost" size="sm" onClick={() => { setSelectedSection(null); setStep('section') }}>
+          ← Change Section
+        </Button>
+        {selectedSection && <Badge variant="info">{selectedSection.name}</Badge>}
+        {selectedSection?.programCode && (
+          <span className="text-sm text-[var(--text-muted)]">{selectedSection.programCode}</span>
+        )}
+        <div className="ml-auto max-w-[180px]">
           <Input
-            label="Academic Year"
-            type="text"
-            value={academicYear ?? ''}
+            label=""
+            value={academicYear}
             onChange={(e) => setAcademicYear(e.target.value)}
-            id="filter-academic-year"
+            placeholder="Academic Year"
           />
         </div>
       </div>
 
-      {/* Main Content */}
-      {!selectedSectionId ? (
-        <div
-          className="rounded-xl"
-          style={{
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow-sm)',
-          }}
-        >
-          <EmptyState
-            icon={<CalendarDays size={28} style={{ color: 'var(--primary)' }} />}
-            title="No Section Selected"
-            description="Select a section to view and build its timetable"
-          />
-        </div>
-      ) : (
-        <div
-          className="rounded-xl p-4"
-          style={{
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow-sm)',
-          }}
-        >
+      <div
+        className="rounded-xl p-4"
+        style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}
+      >
+        {sectionId ? (
           <TimetableGrid
             timetable={timetable ?? null}
             periodConfig={periodConfig ?? null}
@@ -254,12 +172,16 @@ export default function TimetablePage() {
             isSaving={isSaving}
             onSlotDelete={(id) => removeSlot(id)}
             academicYear={academicYear}
-            sectionId={selectedSectionId}
+            sectionId={sectionId}
           />
-        </div>
-      )}
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 text-[var(--text-muted)]">
+            <CalendarDays className="w-12 h-12 mb-3 opacity-30" />
+            <p className="text-sm">Select a section to start building.</p>
+          </div>
+        )}
+      </div>
 
-      {/* Configure Periods Modal */}
       <Modal
         isOpen={showConfigModal}
         onClose={() => setShowConfigModal(false)}
@@ -268,44 +190,16 @@ export default function TimetablePage() {
         footer={configFooter}
       >
         <div className="space-y-4">
-          <Input
-            label="Total Periods"
-            type="number"
-            value={configForm.totalPeriods ?? ''}
-            onChange={(e) =>
-              setConfigForm((prev) => ({ ...prev, totalPeriods: Number(e.target.value) }))
-            }
-            id="config-total-periods"
-          />
-          <Input
-            label="Period Duration (mins)"
-            type="number"
-            value={configForm.periodDurationMins ?? ''}
-            onChange={(e) =>
-              setConfigForm((prev) => ({ ...prev, periodDurationMins: Number(e.target.value) }))
-            }
-            id="config-period-duration"
-          />
-          <Input
-            label="Break After Period"
-            type="number"
-            value={configForm.breakAfterPeriod ?? ''}
-            onChange={(e) =>
-              setConfigForm((prev) => ({ ...prev, breakAfterPeriod: Number(e.target.value) }))
-            }
-            id="config-break-after"
-          />
+          <Input label="Total Periods" type="number" value={configForm.totalPeriods} onChange={(e) => setConfigForm((p) => ({ ...p, totalPeriods: Number(e.target.value) }))} />
+          <Input label="Period Duration (mins)" type="number" value={configForm.periodDurationMins} onChange={(e) => setConfigForm((p) => ({ ...p, periodDurationMins: Number(e.target.value) }))} />
+          <Input label="Break After Period" type="number" value={configForm.breakAfterPeriod} onChange={(e) => setConfigForm((p) => ({ ...p, breakAfterPeriod: Number(e.target.value) }))} />
         </div>
       </Modal>
 
-      {/* Clear Timetable Confirm Dialog */}
       <ConfirmDialog
         isOpen={showClearConfirm}
         onClose={() => setShowClearConfirm(false)}
-        onConfirm={() => {
-          clearTimetable({ sectionId: selectedSectionId, academicYear })
-          setShowClearConfirm(false)
-        }}
+        onConfirm={() => { clearTimetable({ sectionId, academicYear }); setShowClearConfirm(false) }}
         title="Clear Timetable"
         message="This will delete ALL timetable slots for this section. This cannot be undone."
         confirmText="Clear All"

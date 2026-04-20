@@ -10,6 +10,7 @@ export interface CampusCardData {
 export interface SectionCardData {
   id: string;
   name: string;
+  gradeId: string | null;
   programName: string | null;
   programCode: string | null;
   gradeName: string | null;

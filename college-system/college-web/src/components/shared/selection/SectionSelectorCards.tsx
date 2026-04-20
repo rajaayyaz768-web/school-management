@@ -19,6 +19,7 @@ export function SectionSelectorCards({ campusId, onSelect, selectedId }: Section
   const sections: SectionCardData[] = raw.map((s) => ({
     id: s.id,
     name: s.name,
+    gradeId: s.gradeId ?? s.grade?.id ?? null,
     programName: s.programName ?? s.grade?.program?.name ?? null,
     programCode: s.programCode ?? s.grade?.program?.code ?? null,
     gradeName: s.gradeName ?? s.grade?.name ?? null,
