@@ -108,7 +108,7 @@ export default function ParentResultsPage() {
       {!childrenLoading && children && (
         <>
           <ChildSwitcher
-            children={children}
+            items={children}
             activeId={studentId}
             onChange={setSelectedStudentId}
           />

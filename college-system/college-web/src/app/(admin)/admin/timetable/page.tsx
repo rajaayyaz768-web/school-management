@@ -58,12 +58,12 @@ export default function TimetablePage() {
         axios.get('/subjects/assignments', { params: { section_id: section.id } }),
         campusId ? axios.get(`/staff/by-campus/${campusId}`) : Promise.resolve({ data: { data: [] } }),
       ])
-      const assignments = subjectsRes.data.data ?? []
+      const assignments: { subject: { id: string; name: string; code: string } }[] = subjectsRes.data.data ?? []
       const seen = new Set<string>()
       setSubjects(
         assignments
-          .filter((a: any) => a.subject && !seen.has(a.subject.id) && seen.add(a.subject.id))
-          .map((a: any) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code }))
+          .filter((a) => a.subject && !seen.has(a.subject.id) && seen.add(a.subject.id))
+          .map((a) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code }))
       )
       setStaffList(staffRes.data.data ?? [])
     } catch {
@@ -73,7 +73,7 @@ export default function TimetablePage() {
     setStep('builder')
   }
 
-  const handleSlotSave = (data: any, existingSlotId?: string) => {
+  const handleSlotSave = (data: import('@/features/timetable/types/timetable.types').CreateSlotInput, existingSlotId?: string) => {
     if (existingSlotId) {
       editSlot({ id: existingSlotId, data })
     } else {

@@ -70,7 +70,7 @@ export default function ParentAnnouncementsPage() {
       {children && (
         <>
           <ChildSwitcher
-            children={children}
+            items={children}
             activeId={activeChild?.student.id ?? ''}
             onChange={setSelectedStudentId}
           />

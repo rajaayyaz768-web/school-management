@@ -90,7 +90,7 @@ export default function ParentFeesPage() {
       {!childrenLoading && children && (
         <>
           <ChildSwitcher
-            children={children}
+            items={children}
             activeId={studentId}
             onChange={setSelectedStudentId}
           />

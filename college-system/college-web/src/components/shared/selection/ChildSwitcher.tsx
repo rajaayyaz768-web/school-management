@@ -4,17 +4,17 @@ import { Button } from '@/components/ui/Button'
 import { MyChild } from '@/features/parents/types/parents.types'
 
 interface ChildSwitcherProps {
-  children: MyChild[]
+  items: MyChild[]
   activeId: string
   onChange: (studentId: string) => void
 }
 
-export function ChildSwitcher({ children, activeId, onChange }: ChildSwitcherProps) {
-  if (children.length < 2) return null
+export function ChildSwitcher({ items, activeId, onChange }: ChildSwitcherProps) {
+  if (items.length < 2) return null
 
   return (
     <div className="flex items-center gap-2 flex-wrap mb-2">
-      {children.map((c) => (
+      {items.map((c) => (
         <Button
           key={c.student.id}
           variant={activeId === c.student.id ? 'primary' : 'ghost'}
