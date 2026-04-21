@@ -1,6 +1,7 @@
 'use client'
 
-import { Users, GraduationCap, CreditCard, UserX } from 'lucide-react'
+import { Users, GraduationCap, CreditCard, UserX, AlertTriangle } from 'lucide-react'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { useCampusStore } from '@/store/campusStore'
 import type { CampusBreakdown } from '../types/principal-dashboard.types'
@@ -85,6 +86,40 @@ export function CampusSummaryCard({ campus }: { campus: CampusBreakdown }) {
             Sections
           </span>
           <p className="text-lg font-bold text-[var(--text)]">{campus.totalSections}</p>
+        </div>
+      </div>
+
+      {/* Fee breakdown row */}
+      <div className="mt-3 pt-3 border-t border-[var(--border)] grid grid-cols-3 gap-2">
+        <div className="space-y-0.5">
+          <span className="text-[10px] font-medium uppercase tracking-widest text-[var(--text-muted)]">This Month</span>
+          <p className="text-xs font-bold text-emerald-400">
+            PKR {campus.collectedThisMonth.toLocaleString('en-PK', { maximumFractionDigits: 0 })}
+          </p>
+        </div>
+
+        <div className="space-y-0.5">
+          <span className="text-[10px] font-medium uppercase tracking-widest text-[var(--text-muted)]">Pending</span>
+          <p className="text-xs font-bold text-amber-400">
+            PKR {campus.totalPending.toLocaleString('en-PK', { maximumFractionDigits: 0 })}
+          </p>
+        </div>
+
+        <div className="space-y-0.5">
+          <span className="text-[10px] font-medium uppercase tracking-widest text-[var(--text-muted)]">Defaulters</span>
+          <Link
+            href={`/principal/fees/defaulters?campusId=${campus.campusId}`}
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1 w-fit"
+          >
+            <AlertTriangle className="w-3 h-3 text-red-400" />
+            <span className={cn(
+              'text-xs font-bold',
+              campus.defaulterCount > 0 ? 'text-red-400 underline underline-offset-2' : 'text-[var(--text-muted)]'
+            )}>
+              {campus.defaulterCount}
+            </span>
+          </Link>
         </div>
       </div>
 

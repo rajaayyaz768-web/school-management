@@ -5,36 +5,43 @@ import { StaffAttendanceStatus, FeeStatus, ExamStatus } from '@prisma/client'
 
 async function getCampusSnapshot(campusId: string, campusName: string) {
   const { start: todayStart, end: todayEnd } = getTodayRange()
+  const { start: monthStart, end: monthEnd } = getMonthRange()
+  const feeBase = { feeStructure: { campusId } }
+  const defaulterWhere = {
+    status: { in: [FeeStatus.PENDING, FeeStatus.PARTIAL, FeeStatus.OVERDUE] as FeeStatus[] },
+    dueDate: { lt: new Date() },
+    ...feeBase,
+  }
 
-  const [totalStudents, totalStaff, totalSections, todayStaffAttendance, absentStaffCount] =
-    await Promise.all([
-      prisma.studentProfile.count({
-        where: { status: 'ACTIVE', section: { grade: { program: { campusId } } } },
-      }),
-      prisma.staffCampusAssignment.count({ where: { campusId, removedAt: null } }),
-      prisma.section.count({ where: { grade: { program: { campusId } } } }),
-      prisma.staffAttendance.groupBy({
-        by: ['status'],
-        where: { campusId, date: { gte: todayStart, lt: todayEnd } },
-        _count: { status: true },
-      }),
-      prisma.staffAttendance.count({
-        where: {
-          campusId,
-          date: { gte: todayStart, lt: todayEnd },
-          status: StaffAttendanceStatus.ABSENT,
-        },
-      }),
-    ])
+  const [
+    totalStudents,
+    totalStaff,
+    totalSections,
+    todayStaffAttendance,
+    absentStaffCount,
+    todayFeeAgg,
+    monthFeeAgg,
+    pendingFeeAgg,
+    defaulterCount,
+    defaulterAmountAgg,
+  ] = await Promise.all([
+    prisma.studentProfile.count({ where: { status: 'ACTIVE', section: { grade: { program: { campusId } } } } }),
+    prisma.staffCampusAssignment.count({ where: { campusId, removedAt: null } }),
+    prisma.section.count({ where: { grade: { program: { campusId } } } }),
+    prisma.staffAttendance.groupBy({ by: ['status'], where: { campusId, date: { gte: todayStart, lt: todayEnd } }, _count: { status: true } }),
+    prisma.staffAttendance.count({ where: { campusId, date: { gte: todayStart, lt: todayEnd }, status: StaffAttendanceStatus.ABSENT } }),
+    prisma.feeRecord.aggregate({ _sum: { amountPaid: true }, where: { paidAt: { gte: todayStart, lt: todayEnd }, ...feeBase } }),
+    prisma.feeRecord.aggregate({ _sum: { amountPaid: true }, where: { paidAt: { gte: monthStart, lt: monthEnd }, ...feeBase } }),
+    prisma.feeRecord.aggregate({ _sum: { amountDue: true, amountPaid: true }, where: { status: { not: FeeStatus.PAID }, ...feeBase } }),
+    prisma.feeRecord.count({ where: defaulterWhere }),
+    prisma.feeRecord.aggregate({ _sum: { amountDue: true, amountPaid: true }, where: defaulterWhere }),
+  ])
 
   const attendanceMap: Record<string, number> = {}
   for (const row of todayStaffAttendance) attendanceMap[row.status] = row._count.status
   const presentStaff = attendanceMap[StaffAttendanceStatus.PRESENT] ?? 0
-
-  const todayFeeCollection = await prisma.feeRecord.aggregate({
-    _sum: { amountPaid: true },
-    where: { paidAt: { gte: todayStart, lt: todayEnd }, feeStructure: { campusId } },
-  })
+  const totalPending = (pendingFeeAgg._sum.amountDue ?? 0) - (pendingFeeAgg._sum.amountPaid ?? 0)
+  const defaulterAmount = (defaulterAmountAgg._sum.amountDue ?? 0) - (defaulterAmountAgg._sum.amountPaid ?? 0)
 
   return {
     campusId,
@@ -44,7 +51,11 @@ async function getCampusSnapshot(campusId: string, campusName: string) {
     totalSections,
     presentStaff,
     absentStaffCount,
-    todayFeeCollection: todayFeeCollection._sum.amountPaid ?? 0,
+    todayFeeCollection: todayFeeAgg._sum.amountPaid ?? 0,
+    collectedThisMonth: monthFeeAgg._sum.amountPaid ?? 0,
+    totalPending,
+    defaulterCount,
+    defaulterAmount,
   }
 }
 
@@ -58,9 +69,14 @@ function getTodayRange() {
 }
 
 function getMonthRange() {
-  const now = new Date()
-  const start = new Date(now.getFullYear(), now.getMonth(), 1)
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+  // Derive current month in Karachi time, same as getTodayRange, so both helpers agree.
+  const dateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' })
+  const [year, month] = dateStr.split('-').map(Number)
+  const nextMonth = month === 12 ? 1 : month + 1
+  const nextYear = month === 12 ? year + 1 : year
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const start = new Date(`${year}-${pad(month)}-01T00:00:00.000Z`)
+  const end = new Date(`${nextYear}-${pad(nextMonth)}-01T00:00:00.000Z`)
   return { start, end }
 }
 
@@ -168,10 +184,11 @@ export async function getPrincipalDashboardData(campusId?: string) {
       },
     }),
 
-    // 9. Fee defaulters count
+    // 9. Fee defaulters count — status overdue/pending/partial AND past due date
     prisma.feeRecord.count({
       where: {
-        status: FeeStatus.OVERDUE,
+        status: { in: [FeeStatus.PENDING, FeeStatus.PARTIAL, FeeStatus.OVERDUE] },
+        dueDate: { lt: new Date() },
         ...(campusId ? { feeStructure: { campusId } } : {}),
       },
     }),

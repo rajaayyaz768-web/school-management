@@ -54,6 +54,10 @@ export interface CampusBreakdown {
   presentStaff: number
   absentStaffCount: number
   todayFeeCollection: number
+  collectedThisMonth: number
+  totalPending: number
+  defaulterCount: number
+  defaulterAmount: number
 }
 
 export interface PrincipalDashboardData {
