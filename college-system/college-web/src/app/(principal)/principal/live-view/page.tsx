@@ -1,19 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-import axios from '@/lib/axios'
-import { Eye, CalendarDays, Clock, User } from 'lucide-react'
+import { CalendarDays, Clock, User } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Select } from '@/components/ui/Select'
+import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { useCampuses } from '@/features/campus/hooks/useCampus'
-import { usePrograms } from '@/features/programs/hooks/usePrograms'
+import { CampusSelectorCards } from '@/components/shared/selection/CampusSelectorCards'
+import { SectionSelectorCards } from '@/components/shared/selection/SectionSelectorCards'
 import { useSectionTimetable } from '@/features/timetable/hooks/useTimetable'
 import { TimetableSlot, DayOfWeek } from '@/features/timetable/types/timetable.types'
 import { cn } from '@/lib/utils'
+import type { CampusCardData, SectionCardData } from '@/components/shared/selection/types'
 
 const DAYS: { key: DayOfWeek; label: string }[] = [
   { key: 'MON', label: 'Monday' },
@@ -76,49 +76,15 @@ function SlotCell({ slot }: { slot: TimetableSlot }) {
   )
 }
 
+type Step = 'campus' | 'section' | 'view'
+
 export default function LiveViewPage() {
-  const [selectedCampusId, setSelectedCampusId] = useState('')
-  const [selectedProgramId, setSelectedProgramId] = useState('')
-  const [selectedGradeId, setSelectedGradeId] = useState('')
-  const [selectedSectionId, setSelectedSectionId] = useState('')
+  const [step, setStep] = useState<Step>('campus')
+  const [selectedCampus, setSelectedCampus] = useState<CampusCardData | null>(null)
+  const [selectedSection, setSelectedSection] = useState<SectionCardData | null>(null)
   const [academicYear, setAcademicYear] = useState('2025-2026')
-  const [grades, setGrades] = useState<{ id: string; name: string }[]>([])
-  const [sections, setSections] = useState<{ id: string; name: string }[]>([])
 
-  const { data: campuses } = useCampuses()
-  const { data: programs } = usePrograms(selectedCampusId)
-  const { data: timetable, isLoading: ttLoading } = useSectionTimetable(selectedSectionId, academicYear)
-
-  const handleCampusChange = (id: string) => {
-    setSelectedCampusId(id)
-    setSelectedProgramId('')
-    setSelectedGradeId('')
-    setSelectedSectionId('')
-    setGrades([])
-    setSections([])
-  }
-
-  const handleProgramChange = async (id: string) => {
-    setSelectedProgramId(id)
-    setSelectedGradeId('')
-    setSelectedSectionId('')
-    setSections([])
-    if (!id) { setGrades([]); return }
-    try {
-      const res = await axios.get('/grades', { params: { program_id: id } })
-      setGrades(res.data.data ?? [])
-    } catch { setGrades([]) }
-  }
-
-  const handleGradeChange = async (id: string) => {
-    setSelectedGradeId(id)
-    setSelectedSectionId('')
-    if (!id) { setSections([]); return }
-    try {
-      const res = await axios.get('/sections', { params: { grade_id: id } })
-      setSections(res.data.data ?? [])
-    } catch { setSections([]) }
-  }
+  const { data: timetable, isLoading: ttLoading } = useSectionTimetable(selectedSection?.id ?? '', academicYear)
 
   const slotsByDay = (day: DayOfWeek) =>
     (timetable?.slots ?? [])
@@ -127,69 +93,60 @@ export default function LiveViewPage() {
 
   const activeDays = DAYS.filter((d) => slotsByDay(d.key).length > 0)
 
+  const breadcrumb = [{ label: 'Home', href: '/principal/dashboard' }, { label: 'Live View' }]
+
+  if (step === 'campus') {
+    return (
+      <div className="p-6 space-y-6">
+        <PageHeader title="Live Timetable View" subtitle="Select a campus to begin" breadcrumb={breadcrumb} />
+        <CampusSelectorCards
+          onSelect={(campus) => { setSelectedCampus(campus); setSelectedSection(null); setStep('section') }}
+          selectedId={selectedCampus?.id}
+        />
+      </div>
+    )
+  }
+
+  if (step === 'section') {
+    return (
+      <div className="p-6 space-y-6">
+        <PageHeader title="Live Timetable View" subtitle="Select a section" breadcrumb={breadcrumb} />
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => setStep('campus')}>← Back</Button>
+          {selectedCampus && <Badge variant="info">{selectedCampus.name}</Badge>}
+        </div>
+        <SectionSelectorCards
+          campusId={selectedCampus?.id ?? ''}
+          onSelect={(section) => { setSelectedSection(section); setStep('view') }}
+          selectedId={selectedSection?.id}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="p-6 space-y-6">
-      <PageHeader
-        title="Live Timetable View"
-        breadcrumb={[{ label: 'Home', href: '/principal/dashboard' }, { label: 'Live View' }]}
-      />
+      <PageHeader title="Live Timetable View" breadcrumb={breadcrumb} />
 
-      {/* Filters */}
-      <div className="rounded-xl p-5" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Select
-            label="Campus"
-            id="campus"
-            options={(campuses ?? []).map((c: any) => ({ value: c.id, label: c.name }))}
-            value={selectedCampusId}
-            placeholder="Select campus"
-            onChange={(e) => handleCampusChange(e.target.value)}
-          />
-          <Select
-            label="Program"
-            id="program"
-            options={(programs ?? []).map((p: any) => ({ value: p.id, label: p.name }))}
-            value={selectedProgramId}
-            placeholder="Select program"
-            disabled={!selectedCampusId}
-            onChange={(e) => handleProgramChange(e.target.value)}
-          />
-          <Select
-            label="Grade"
-            id="grade"
-            options={grades.map((g) => ({ value: g.id, label: g.name }))}
-            value={selectedGradeId}
-            placeholder="Select grade"
-            disabled={!selectedProgramId}
-            onChange={(e) => handleGradeChange(e.target.value)}
-          />
-          <Select
-            label="Section"
-            id="section"
-            options={sections.map((s) => ({ value: s.id, label: s.name }))}
-            value={selectedSectionId}
-            placeholder="Select section"
-            disabled={!selectedGradeId}
-            onChange={(e) => setSelectedSectionId(e.target.value)}
-          />
-          <Input
-            label="Academic Year"
-            id="academic-year"
-            value={academicYear}
-            onChange={(e) => setAcademicYear(e.target.value)}
-          />
+      <div className="flex items-center gap-3 flex-wrap">
+        <Button variant="ghost" size="sm" onClick={() => { setStep('section'); setSelectedSection(null) }}>
+          ← Change Section
+        </Button>
+        {selectedCampus && <Badge variant="neutral">{selectedCampus.name}</Badge>}
+        {selectedSection && <Badge variant="info">{selectedSection.name}</Badge>}
+        {selectedSection?.programCode && (
+          <span className="text-sm text-[var(--text-muted)]">{selectedSection.programCode}</span>
+        )}
+        {selectedSection?.gradeName && (
+          <span className="text-sm text-[var(--text-muted)]">· {selectedSection.gradeName}</span>
+        )}
+        <div className="ml-auto max-w-[160px]">
+          <Input label="" value={academicYear} onChange={(e) => setAcademicYear(e.target.value)} placeholder="Academic Year" />
         </div>
       </div>
 
-      {/* Timetable */}
       <div className="rounded-xl p-5" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-        {!selectedSectionId ? (
-          <EmptyState
-            icon={<Eye size={28} style={{ color: 'var(--primary)' }} />}
-            title="Select a Section"
-            description="Choose a campus, program, grade and section to view its live timetable."
-          />
-        ) : ttLoading ? (
+        {ttLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => <Skeleton key={i} variant="card" className="h-48" />)}
           </div>

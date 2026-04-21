@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import axios from '@/lib/axios'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Select, Input, Button, ConfirmDialog } from '@/components/ui'
+import { Input, Button, ConfirmDialog } from '@/components/ui'
+import { Badge } from '@/components/ui/Badge'
 import { useCampuses } from '@/features/campus/hooks/useCampus'
-import { usePrograms } from '@/features/programs/hooks/usePrograms'
 import {
   useStudentsForAttendance,
   useSectionAttendanceReport,
@@ -14,30 +14,28 @@ import {
 import { AttendanceStatus, SingleStudentAttendanceInput } from '@/features/student-attendance/types/student-attendance.types'
 import { AttendanceReportCard } from '@/features/student-attendance/components/AttendanceReportCard'
 import { StudentAttendanceTable } from '@/features/student-attendance/components/StudentAttendanceTable'
+import { SectionSelectorCards } from '@/components/shared/selection/SectionSelectorCards'
+import { cn } from '@/lib/utils'
+import type { SectionCardData } from '@/components/shared/selection/types'
+
+type Step = 'section' | 'attendance'
 
 export default function StudentAttendancePage() {
-  const [selectedCampusId, setSelectedCampusId] = useState<string>('')
-  const [selectedProgramId, setSelectedProgramId] = useState<string>('')
-  const [selectedGradeId, setSelectedGradeId] = useState<string>('')
-  const [selectedSectionId, setSelectedSectionId] = useState<string>('')
+  const [step, setStep] = useState<Step>('section')
+  const [selectedSection, setSelectedSection] = useState<SectionCardData | null>(null)
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('')
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   )
   const [pendingAttendances, setPendingAttendances] = useState<Record<string, SingleStudentAttendanceInput>>({})
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  
-  const [grades, setGrades] = useState<{ id: string; name: string }[]>([])
-  const [sections, setSections] = useState<{ id: string; name: string }[]>([])
   const [subjects, setSubjects] = useState<{ id: string; name: string; code: string }[]>([])
-  
-  const [gradesLoading, setGradesLoading] = useState(false)
-  const [sectionsLoading, setSectionsLoading] = useState(false)
   const [subjectsLoading, setSubjectsLoading] = useState(false)
 
   const { data: campuses } = useCampuses()
-  const { data: programs } = usePrograms(selectedCampusId)
-  
+  const campusId = campuses?.[0]?.id ?? ''
+  const selectedSectionId = selectedSection?.id ?? ''
+
   const isQueryEnabled = !!selectedSectionId && !!selectedSubjectId && !!selectedDate
 
   const { data: studentList, isLoading: studentsLoading } = useStudentsForAttendance(
@@ -45,7 +43,7 @@ export default function StudentAttendancePage() {
     selectedSubjectId,
     selectedDate
   )
-  
+
   const { data: report, isLoading: reportLoading } = useSectionAttendanceReport(
     selectedSectionId,
     selectedSubjectId,
@@ -54,70 +52,25 @@ export default function StudentAttendancePage() {
 
   const { mutate: submitAttendance, isPending } = useMarkStudentAttendance()
 
-  const handleCampusChange = (campusId: string) => {
-    setSelectedCampusId(campusId)
-    setSelectedProgramId('')
-    setSelectedGradeId('')
-    setSelectedSectionId('')
+  const handleSectionSelect = async (section: SectionCardData) => {
+    setSelectedSection(section)
     setSelectedSubjectId('')
     setPendingAttendances({})
-    setGrades([])
-    setSections([])
-    setSubjects([])
-  }
-
-  const handleProgramChange = async (programId: string) => {
-    setSelectedProgramId(programId)
-    setSelectedGradeId('')
-    setSelectedSectionId('')
-    setSelectedSubjectId('')
-    setPendingAttendances({})
-    setSections([])
-    setSubjects([])
-    
-    if (!programId) { setGrades([]); return }
-    setGradesLoading(true)
-    try {
-      const res = await axios.get('/grades', { params: { program_id: programId } })
-      setGrades(res.data.data ?? [])
-    } catch { setGrades([]) }
-    finally { setGradesLoading(false) }
-  }
-
-  const handleGradeChange = async (gradeId: string) => {
-    setSelectedGradeId(gradeId)
-    setSelectedSectionId('')
-    setSelectedSubjectId('')
-    setPendingAttendances({})
-    setSubjects([])
-    if (!gradeId) { setSections([]); return }
-    setSectionsLoading(true)
-    try {
-      const res = await axios.get('/sections', { params: { grade_id: gradeId } })
-      setSections(res.data.data ?? [])
-    } catch { setSections([]) }
-    finally { setSectionsLoading(false) }
-  }
-
-  const handleSectionChange = async (sectionId: string) => {
-    setSelectedSectionId(sectionId)
-    setSelectedSubjectId('')
-    setPendingAttendances({})
-    if (!sectionId) { setSubjects([]); return }
     setSubjectsLoading(true)
     try {
-      const res = await axios.get('/subjects/assignments', { params: { section_id: sectionId } })
+      const res = await axios.get('/subjects/assignments', { params: { section_id: section.id } })
       const assignments = res.data.data ?? []
       setSubjects(assignments.map((a: any) => ({
         id: a.subject.id,
         name: a.subject.name,
         code: a.subject.code,
       })))
-    } catch (err) {
-      console.error('[StudentAttendance] Failed to load subjects for section:', sectionId, err)
+    } catch {
       setSubjects([])
+    } finally {
+      setSubjectsLoading(false)
     }
-    finally { setSubjectsLoading(false) }
+    setStep('attendance')
   }
 
   const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
@@ -160,92 +113,87 @@ export default function StudentAttendancePage() {
     )
   }
 
+  const breadcrumb = [
+    { label: 'Home', href: '/admin' },
+    { label: 'Attendance', href: '/admin/attendance' },
+    { label: 'Students' }
+  ]
+
+  if (step === 'section') {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHeader title="Student Attendance" breadcrumb={breadcrumb} />
+        <p className="text-[var(--text-muted)]">Select a section to mark attendance</p>
+        {campusId && (
+          <SectionSelectorCards
+            campusId={campusId}
+            onSelect={handleSectionSelect}
+            selectedId={selectedSection?.id}
+          />
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Student Attendance"
-        breadcrumb={[
-          { label: 'Home', href: '/admin' },
-          { label: 'Attendance', href: '/admin/attendance' },
-          { label: 'Students' }
-        ]}
-      />
-      <div>
-        <p className="text-gray-500 mb-6">Mark daily student attendance for subjects</p>
+      <PageHeader title="Student Attendance" breadcrumb={breadcrumb} />
+
+      <div className="flex items-center gap-3 flex-wrap">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setStep('section')
+            setSelectedSection(null)
+            setSelectedSubjectId('')
+            setPendingAttendances({})
+          }}
+        >
+          ← Change Section
+        </Button>
+        {selectedSection && <Badge variant="info">{selectedSection.name}</Badge>}
+        {selectedSection?.programCode && (
+          <span className="text-sm text-[var(--text-muted)]">{selectedSection.programCode}</span>
+        )}
+        {selectedSection?.gradeName && (
+          <span className="text-sm text-[var(--text-muted)]">· {selectedSection.gradeName}</span>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 align-top items-end mb-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Campus</label>
-          <Select
-            value={selectedCampusId ?? ''}
-            onChange={(e) => handleCampusChange(e.target.value)}
-            options={campuses?.map((c: any) => ({ value: c.id, label: c.name })) || []}
-            placeholder="Select Campus..."
-          />
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap gap-2">
+          {subjectsLoading ? (
+            <span className="text-sm text-[var(--text-muted)]">Loading subjects…</span>
+          ) : subjects.length === 0 ? (
+            <span className="text-sm text-[var(--text-muted)]">No subjects assigned to this section</span>
+          ) : (
+            subjects.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => { setSelectedSubjectId(s.id); setPendingAttendances({}) }}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-sm font-medium border transition-colors',
+                  selectedSubjectId === s.id
+                    ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                    : 'bg-[var(--surface)] text-[var(--text)] border-[var(--border)] hover:border-[var(--primary)]'
+                )}
+              >
+                {s.name}
+              </button>
+            ))
+          )}
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Program</label>
-          <Select
-            value={selectedProgramId ?? ''}
-            onChange={(e) => handleProgramChange(e.target.value)}
-            disabled={!selectedCampusId}
-            options={programs?.map((p: any) => ({ value: p.id, label: p.name })) || []}
-            placeholder="Select Program..."
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Grade</label>
-          <Select
-            value={selectedGradeId ?? ''}
-            onChange={(e) => handleGradeChange(e.target.value)}
-            disabled={!selectedProgramId || gradesLoading}
-            options={grades.map((g: any) => ({ value: g.id, label: g.name }))}
-            placeholder="Select Grade..."
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Section</label>
-          <Select
-            value={selectedSectionId ?? ''}
-            onChange={(e) => handleSectionChange(e.target.value)}
-            disabled={!selectedGradeId || sectionsLoading}
-            options={sections.map((s: any) => ({ value: s.id, label: s.name }))}
-            placeholder="Select Section..."
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Subject</label>
-          <Select
-            value={selectedSubjectId ?? ''}
-            onChange={(e) => setSelectedSubjectId(e.target.value)}
-            disabled={!selectedSectionId || subjectsLoading}
-            options={subjects.map((s: any) => ({ value: s.id, label: s.name }))}
-            placeholder="Select Subject..."
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Date</label>
+        <div className="ml-auto">
           <Input
             type="date"
-            value={selectedDate ?? ''}
+            value={selectedDate}
             onChange={(e) => {
               setSelectedDate(e.target.value)
               setPendingAttendances({})
             }}
           />
         </div>
-      </div>
-
-      <div className="flex justify-end mt-2 mb-2">
-        <Button
-          onClick={() => setShowConfirmDialog(true)}
-          disabled={!selectedSectionId || !selectedSubjectId || isPending}
-          loading={isPending}
-          variant="primary"
-        >
-          Save Attendance
-        </Button>
       </div>
 
       {isQueryEnabled && (
@@ -258,18 +206,26 @@ export default function StudentAttendancePage() {
             onLeave={report?.onLeave ?? 0}
             isLoading={reportLoading}
           />
-
-          <div className="mt-4">
-            <StudentAttendanceTable
-              studentList={studentList || []}
-              isLoading={studentsLoading}
-              pendingAttendances={pendingAttendances}
-              onStatusChange={handleStatusChange}
-              onRemarksChange={handleRemarksChange}
-            />
-          </div>
+          <StudentAttendanceTable
+            studentList={studentList || []}
+            isLoading={studentsLoading}
+            pendingAttendances={pendingAttendances}
+            onStatusChange={handleStatusChange}
+            onRemarksChange={handleRemarksChange}
+          />
         </>
       )}
+
+      <div className="flex justify-end mt-2">
+        <Button
+          onClick={() => setShowConfirmDialog(true)}
+          disabled={!selectedSectionId || !selectedSubjectId || isPending}
+          loading={isPending}
+          variant="primary"
+        >
+          Save Attendance
+        </Button>
+      </div>
 
       <ConfirmDialog
         isOpen={showConfirmDialog}

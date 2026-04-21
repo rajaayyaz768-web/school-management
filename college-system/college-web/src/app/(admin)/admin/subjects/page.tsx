@@ -2,18 +2,18 @@
 
 import { useState } from 'react';
 import { useRole } from '@/store/authStore';
-import { 
-  useSubjects, 
-  useToggleSubjectStatus, 
-  useAssignmentsBySection, 
-  useDeleteAssignment 
+import {
+  useSubjects,
+  useToggleSubjectStatus,
+  useAssignmentsBySection,
+  useDeleteAssignment
 } from '@/features/subjects/hooks/useSubjects';
 import { useCampuses } from '@/features/campus/hooks/useCampus';
-import { usePrograms } from '@/features/programs/hooks/usePrograms';
-import { useProgramGrades, useSections } from '@/features/sections/hooks/useSections';
 import { Subject, SectionSubjectTeacher } from '@/features/subjects/types/subjects.types';
 import { SubjectForm } from '@/features/subjects/components/SubjectForm';
 import { AssignmentForm } from '@/features/subjects/components/AssignmentForm';
+import { SectionSelectorCards } from '@/components/shared/selection/SectionSelectorCards';
+import type { SectionCardData } from '@/components/shared/selection/types';
 
 import PageHeader from '@/components/layout/PageHeader';
 import {
@@ -23,7 +23,6 @@ import {
   Skeleton,
   ErrorState,
   EmptyState,
-  Select,
   SearchInput,
   Tabs,
   TabPanel,
@@ -89,35 +88,13 @@ export default function SubjectsPage() {
   ];
 
   // ─── TAB 2: ASSIGNMENTS ──────────────────────────────────────────────────────
-  const [selectedCampus, setSelectedCampus] = useState('');
-  const [selectedProgram, setSelectedProgram] = useState('');
-  const [selectedGrade, setSelectedGrade] = useState('');
-  const [selectedSection, setSelectedSection] = useState('');
-
-  // Cascade resets
-  const handleCampusFilterChange = (val: string) => {
-    setSelectedCampus(val);
-    setSelectedProgram('');
-    setSelectedGrade('');
-    setSelectedSection('');
-  };
-  const handleProgramFilterChange = (val: string) => {
-    setSelectedProgram(val);
-    setSelectedGrade('');
-    setSelectedSection('');
-  };
-  const handleGradeFilterChange = (val: string) => {
-    setSelectedGrade(val);
-    setSelectedSection('');
-  };
+  const [selectedSection, setSelectedSection] = useState<SectionCardData | null>(null);
 
   const { data: campuses = [] } = useCampuses();
-  const { data: programs = [] } = usePrograms(selectedCampus || undefined);
-  const { data: grades = [] } = useProgramGrades(selectedProgram || undefined);
-  const { data: sections = [] } = useSections(selectedGrade || undefined);
+  const campusId = campuses[0]?.id ?? '';
 
   // Assignments Query
-  const { data: assignments = [], isLoading: loadingAssignments } = useAssignmentsBySection(selectedSection);
+  const { data: assignments = [], isLoading: loadingAssignments } = useAssignmentsBySection(selectedSection?.id ?? '');
   const deleteAssignmentMutation = useDeleteAssignment();
 
   const [isAddAssignmentModalOpen, setIsAddAssignmentModalOpen] = useState(false);
@@ -168,8 +145,8 @@ export default function SubjectsPage() {
               </Button>
             )}
             {isAdminOrSuper && activeTab === 'assignments' && (
-              <Button 
-                variant="gold" 
+              <Button
+                variant="gold"
                 onClick={() => setIsAddAssignmentModalOpen(true)}
                 disabled={!selectedSection}
               >
@@ -217,51 +194,35 @@ export default function SubjectsPage() {
         </TabPanel>
 
         <TabPanel tabId="assignments" activeTab={activeTab}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 p-4 bg-[var(--surface-container-low)] rounded-lg">
-            <Select
-              options={[{ label: 'Select Campus...', value: '' }, ...campuses.map(c => ({ label: c.name, value: c.id }))]}
-              value={selectedCampus}
-              onChange={(e) => handleCampusFilterChange(e.target.value)}
-              placeholder="Campus"
-            />
-            <Select
-              options={[{ label: 'Select Program...', value: '' }, ...programs.map(p => ({ label: p.name, value: p.id }))]}
-              value={selectedProgram}
-              onChange={(e) => handleProgramFilterChange(e.target.value)}
-              disabled={!selectedCampus}
-              placeholder="Program"
-            />
-            <Select
-              options={[{ label: 'Select Grade...', value: '' }, ...grades.map(g => ({ label: g.name, value: g.id }))]}
-              value={selectedGrade}
-              onChange={(e) => handleGradeFilterChange(e.target.value)}
-              disabled={!selectedProgram}
-              placeholder="Grade"
-            />
-            <Select
-              options={[{ label: 'Select Section...', value: '' }, ...sections.map(s => ({ label: s.name, value: s.id }))]}
-              value={selectedSection}
-              onChange={(e) => setSelectedSection(e.target.value)}
-              disabled={!selectedGrade}
-              placeholder="Section"
-            />
-          </div>
-
           {!selectedSection ? (
-            <div className="text-center py-12 text-[var(--text-muted)]">
-              Please select a Section descending through the filters above to view assignments.
-            </div>
-          ) : loadingAssignments ? (
+            <SectionSelectorCards
+              campusId={campusId}
+              onSelect={(section) => setSelectedSection(section)}
+            />
+          ) : (
+            <>
+              <div className="flex items-center gap-3 mb-6">
+                <Button variant="ghost" size="sm" onClick={() => setSelectedSection(null)}>← Change Section</Button>
+                <Badge variant="info">{selectedSection.name}</Badge>
+                {selectedSection.programCode && <span className="text-sm text-[var(--text-muted)]">{selectedSection.programCode}</span>}
+                {selectedSection.gradeName && <span className="text-sm text-[var(--text-muted)]">· {selectedSection.gradeName}</span>}
+              </div>
+            </>
+          )}
+
+          {selectedSection && loadingAssignments && (
             <div className="space-y-4">
               <Skeleton variant="text" />
               <Skeleton variant="text" />
             </div>
-          ) : assignments.length === 0 ? (
+          )}
+          {selectedSection && !loadingAssignments && assignments.length === 0 && (
             <EmptyState
               title="No subjects assigned yet"
               description="Click Assign Subject to add a teacher to a subject for this section."
             />
-          ) : (
+          )}
+          {selectedSection && !loadingAssignments && assignments.length > 0 && (
             <div className="bg-[var(--surface-container-lowest)] rounded-lg border border-[var(--border)] overflow-hidden">
               <Table columns={assignmentColumns} data={assignments} />
             </div>
@@ -318,7 +279,7 @@ export default function SubjectsPage() {
         size="md"
       >
         <AssignmentForm
-          sectionId={selectedSection}
+          sectionId={selectedSection?.id ?? ''}
           academicYear={currentAcademicYear}
           onSuccess={() => setIsAddAssignmentModalOpen(false)}
           onCancel={() => setIsAddAssignmentModalOpen(false)}
@@ -332,7 +293,7 @@ export default function SubjectsPage() {
         size="md"
       >
         <AssignmentForm
-          sectionId={selectedSection}
+          sectionId={selectedSection?.id ?? ''}
           academicYear={currentAcademicYear}
           assignment={editingAssignment || undefined}
           onSuccess={() => setEditingAssignment(null)}

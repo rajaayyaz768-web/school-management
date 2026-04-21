@@ -1,92 +1,85 @@
 'use client'
 
 import { useState } from 'react'
-import { BarChart2, FileText, Download, X } from 'lucide-react'
+import { BarChart2, FileText, Download } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
 import { Tabs, TabPanel } from '@/components/ui/Tabs'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useCampuses } from '@/features/campus/hooks/useCampus'
-import { usePrograms } from '@/features/programs/hooks/usePrograms'
-import { useProgramGrades, useSections } from '@/features/sections/hooks/useSections'
 import { useStudentsBySection } from '@/features/students/hooks/useStudents'
 import { useAssignmentsBySection } from '@/features/subjects/hooks/useSubjects'
 import { useExams } from '@/features/exams/hooks/useExams'
 import { useStudentReportCard, useSectionResults } from '@/features/results/hooks/useResults'
 import { ReportCard } from '@/features/results/components/ReportCard'
 import { SectionResultsTable } from '@/features/results/components/SectionResultsTable'
+import { SectionSelectorCards } from '@/components/shared/selection/SectionSelectorCards'
+import type { SectionCardData } from '@/components/shared/selection/types'
+
+type Step = 'section' | 'content'
 
 const TABS = [
   { id: 'report-card', label: 'Student Report Card', icon: <FileText className="w-4 h-4" /> },
-  { id: 'section', label: 'Section Results', icon: <BarChart2 className="w-4 h-4" /> },
+  { id: 'section-results', label: 'Section Results', icon: <BarChart2 className="w-4 h-4" /> },
 ]
 
 export default function ResultsPage() {
+  const [step, setStep] = useState<Step>('section')
+  const [selectedSection, setSelectedSection] = useState<SectionCardData | null>(null)
   const [activeTab, setActiveTab] = useState('report-card')
-
-  // ── Tab 1 (Report Card) state ────────────────────────────────
-  const [rcSectionId, setRcSectionId] = useState('')
   const [rcStudentId, setRcStudentId] = useState('')
-  const [rcCampusId, setRcCampusId] = useState('')
-  const [rcProgramId, setRcProgramId] = useState('')
-  const [rcGradeId, setRcGradeId] = useState('')
-
-  // ── Tab 2 (Section Results) state ────────────────────────────
-  const [srCampusId, setSrCampusId] = useState('')
-  const [srProgramId, setSrProgramId] = useState('')
-  const [srGradeId, setSrGradeId] = useState('')
-  const [srSectionId, setSrSectionId] = useState('')
   const [srSubjectId, setSrSubjectId] = useState('')
   const [srExamId, setSrExamId] = useState('')
 
-  // ── Shared data ──────────────────────────────────────────────
   const { data: campuses } = useCampuses()
+  const campusId = campuses?.[0]?.id ?? ''
+  const sectionId = selectedSection?.id ?? ''
 
-  // ── Tab 1 data ───────────────────────────────────────────────
-  const { data: rcPrograms } = usePrograms(rcCampusId || undefined)
-  const { data: rcGrades } = useProgramGrades(rcProgramId || undefined)
-  const { data: rcSections } = useSections(rcGradeId || undefined)
-  const { data: rcStudents } = useStudentsBySection(rcSectionId)
-  const {
-    data: reportCard,
-    isLoading: reportCardLoading,
-    error: reportCardError,
-  } = useStudentReportCard(rcStudentId)
-
-  // ── Tab 2 data ───────────────────────────────────────────────
-  const { data: srPrograms } = usePrograms(srCampusId || undefined)
-  const { data: srGrades } = useProgramGrades(srProgramId || undefined)
-  const { data: srSections } = useSections(srGradeId || undefined)
-  const { data: srAssignments } = useAssignmentsBySection(srSectionId)
-  const { data: srExams } = useExams({ sectionId: srSectionId || undefined, subjectId: srSubjectId || undefined })
-  const {
-    data: sectionResults,
-    isLoading: sectionResultsLoading,
-  } = useSectionResults({
-    sectionId: srSectionId,
+  const { data: rcStudents } = useStudentsBySection(sectionId)
+  const { data: srAssignments } = useAssignmentsBySection(sectionId)
+  const { data: srExams } = useExams({ sectionId: sectionId || undefined, subjectId: srSubjectId || undefined })
+  const { data: reportCard, isLoading: reportCardLoading, error: reportCardError } = useStudentReportCard(rcStudentId)
+  const { data: sectionResults, isLoading: sectionResultsLoading } = useSectionResults({
+    sectionId,
     subjectId: srSubjectId || undefined,
     examId: srExamId || undefined,
   })
 
-  const handleClearRcFilters = () => {
-    setRcCampusId('')
-    setRcProgramId('')
-    setRcGradeId('')
-    setRcSectionId('')
+  const handleSectionSelect = (section: SectionCardData) => {
+    setSelectedSection(section)
     setRcStudentId('')
-  }
-
-  const handleClearSrFilters = () => {
-    setSrCampusId('')
-    setSrProgramId('')
-    setSrGradeId('')
-    setSrSectionId('')
     setSrSubjectId('')
     setSrExamId('')
+    setStep('content')
+  }
+
+  const handleChangeSection = () => {
+    setStep('section')
+    setSelectedSection(null)
+    setRcStudentId('')
+    setSrSubjectId('')
+    setSrExamId('')
+  }
+
+  if (step === 'section' && campusId) {
+    return (
+      <div className="p-8 space-y-6">
+        <PageHeader
+          title="Results"
+          subtitle="Select a section to view student report cards or exam results"
+        />
+        <SectionSelectorCards
+          campusId={campusId}
+          onSelect={handleSectionSelect}
+          selectedId={selectedSection?.id}
+        />
+      </div>
+    )
   }
 
   return (
@@ -96,118 +89,69 @@ export default function ResultsPage() {
         subtitle="View student report cards and section exam results"
       />
 
-      <Card className="flex-1 overflow-hidden mt-6 flex flex-col bg-[var(--surface)] border-[var(--border)]">
-        <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
+      <div className="flex items-center gap-3 mt-4 mb-2">
+        <Button variant="ghost" size="sm" onClick={handleChangeSection}>
+          ← Change Section
+        </Button>
+        {selectedSection && <Badge variant="info">{selectedSection.name}</Badge>}
+        {selectedSection?.programCode && (
+          <span className="text-sm text-[var(--text-muted)]">{selectedSection.programCode}</span>
+        )}
+        {selectedSection?.gradeName && (
+          <span className="text-sm text-[var(--text-muted)]">· {selectedSection.gradeName}</span>
+        )}
+      </div>
+
+      <Card className="flex-1 overflow-hidden flex flex-col bg-[var(--surface)] border-[var(--border)]">
+        <Tabs
+          tabs={TABS}
+          activeTab={activeTab}
+          onChange={(tab) => {
+            setActiveTab(tab)
+            setRcStudentId('')
+            setSrSubjectId('')
+            setSrExamId('')
+          }}
+        />
 
         <div className="flex-1 overflow-auto p-6 bg-[var(--background)]">
-
           {/* ── Tab 1: Student Report Card ── */}
           <TabPanel tabId="report-card" activeTab={activeTab}>
             <div className="space-y-6">
-              {/* Filters */}
-              <div className="flex flex-wrap items-end gap-4">
-                <Select
-                  label="Campus"
-                  value={rcCampusId}
-                  onChange={(e) => {
-                    setRcCampusId(e.target.value)
-                    setRcProgramId('')
-                    setRcGradeId('')
-                    setRcSectionId('')
-                    setRcStudentId('')
-                  }}
-                  options={[
-                    { value: '', label: 'All Campuses' },
-                    ...(campuses ?? []).map((c) => ({ value: c.id, label: c.name })),
-                  ]}
-                />
-                <Select
-                  label="Program"
-                  value={rcProgramId}
-                  onChange={(e) => {
-                    setRcProgramId(e.target.value)
-                    setRcGradeId('')
-                    setRcSectionId('')
-                    setRcStudentId('')
-                  }}
-                  options={[
-                    { value: '', label: 'All Programs' },
-                    ...(rcPrograms ?? []).map((p) => ({ value: p.id, label: p.name })),
-                  ]}
-                />
-                <Select
-                  label="Grade"
-                  value={rcGradeId}
-                  onChange={(e) => {
-                    setRcGradeId(e.target.value)
-                    setRcSectionId('')
-                    setRcStudentId('')
-                  }}
-                  options={[
-                    { value: '', label: 'All Grades' },
-                    ...(rcGrades ?? []).map((g) => ({ value: g.id, label: g.name })),
-                  ]}
-                />
-                <Select
-                  label="Section"
-                  value={rcSectionId}
-                  onChange={(e) => {
-                    setRcSectionId(e.target.value)
-                    setRcStudentId('')
-                  }}
-                  options={[
-                    { value: '', label: 'Select Section' },
-                    ...(rcSections ?? []).map((s) => ({ value: s.id, label: s.name })),
-                  ]}
-                />
+              <div className="max-w-xs">
                 <Select
                   label="Student"
                   value={rcStudentId}
                   onChange={(e) => setRcStudentId(e.target.value)}
                   options={[
-                    { value: '', label: rcSectionId ? 'Select Student' : 'Select a section first' },
+                    { value: '', label: rcStudents?.length ? 'Select Student' : 'Loading students…' },
                     ...(rcStudents ?? []).map((s) => ({
                       value: s.id,
                       label: `${s.firstName} ${s.lastName}${s.rollNumber ? ` (#${s.rollNumber})` : ''}`,
                     })),
                   ]}
                 />
-                {(rcCampusId || rcProgramId || rcGradeId || rcSectionId || rcStudentId) && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleClearRcFilters}
-                    icon={<X className="w-3.5 h-3.5" />}
-                    className="mb-0.5"
-                  >
-                    Clear
-                  </Button>
-                )}
               </div>
 
-              {/* Report Card content */}
               {!rcStudentId && (
                 <EmptyState
                   title="No student selected"
-                  description="Select a campus, program, grade, section, and student to view the report card"
+                  description="Select a student above to view their report card"
                   icon={<FileText className="w-10 h-10" />}
                 />
               )}
-
               {rcStudentId && reportCardLoading && (
                 <div className="space-y-4">
                   <Skeleton variant="card" />
                   <Skeleton variant="card" />
                 </div>
               )}
-
               {rcStudentId && reportCardError && (
                 <EmptyState
                   title="Failed to load report card"
                   description="Something went wrong. Please try again."
                 />
               )}
-
               {rcStudentId && reportCard && !reportCardLoading && (
                 <ReportCard data={reportCard} />
               )}
@@ -215,75 +159,13 @@ export default function ResultsPage() {
           </TabPanel>
 
           {/* ── Tab 2: Section Results ── */}
-          <TabPanel tabId="section" activeTab={activeTab}>
+          <TabPanel tabId="section-results" activeTab={activeTab}>
             <div className="space-y-6">
-              {/* Filters */}
               <div className="flex flex-wrap items-end gap-4">
-                <Select
-                  label="Campus"
-                  value={srCampusId}
-                  onChange={(e) => {
-                    setSrCampusId(e.target.value)
-                    setSrProgramId('')
-                    setSrGradeId('')
-                    setSrSectionId('')
-                    setSrSubjectId('')
-                    setSrExamId('')
-                  }}
-                  options={[
-                    { value: '', label: 'All Campuses' },
-                    ...(campuses ?? []).map((c) => ({ value: c.id, label: c.name })),
-                  ]}
-                />
-                <Select
-                  label="Program"
-                  value={srProgramId}
-                  onChange={(e) => {
-                    setSrProgramId(e.target.value)
-                    setSrGradeId('')
-                    setSrSectionId('')
-                    setSrSubjectId('')
-                    setSrExamId('')
-                  }}
-                  options={[
-                    { value: '', label: 'All Programs' },
-                    ...(srPrograms ?? []).map((p) => ({ value: p.id, label: p.name })),
-                  ]}
-                />
-                <Select
-                  label="Grade"
-                  value={srGradeId}
-                  onChange={(e) => {
-                    setSrGradeId(e.target.value)
-                    setSrSectionId('')
-                    setSrSubjectId('')
-                    setSrExamId('')
-                  }}
-                  options={[
-                    { value: '', label: 'All Grades' },
-                    ...(srGrades ?? []).map((g) => ({ value: g.id, label: g.name })),
-                  ]}
-                />
-                <Select
-                  label="Section"
-                  value={srSectionId}
-                  onChange={(e) => {
-                    setSrSectionId(e.target.value)
-                    setSrSubjectId('')
-                    setSrExamId('')
-                  }}
-                  options={[
-                    { value: '', label: 'Select Section' },
-                    ...(srSections ?? []).map((s) => ({ value: s.id, label: s.name })),
-                  ]}
-                />
                 <Select
                   label="Subject (optional)"
                   value={srSubjectId}
-                  onChange={(e) => {
-                    setSrSubjectId(e.target.value)
-                    setSrExamId('')
-                  }}
+                  onChange={(e) => { setSrSubjectId(e.target.value); setSrExamId('') }}
                   options={[
                     { value: '', label: 'All Subjects' },
                     ...(srAssignments ?? []).map((a) => ({
@@ -304,60 +186,31 @@ export default function ResultsPage() {
                     })),
                   ]}
                 />
-                {(srCampusId || srProgramId || srGradeId || srSectionId || srSubjectId || srExamId) && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleClearSrFilters}
-                    icon={<X className="w-3.5 h-3.5" />}
-                    className="mb-0.5"
-                  >
-                    Clear Filters
-                  </Button>
-                )}
                 <Tooltip content="Export is coming soon">
                   <span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      icon={<Download className="w-3.5 h-3.5" />}
-                      disabled
-                    >
+                    <Button variant="outline" size="sm" icon={<Download className="w-3.5 h-3.5" />} disabled>
                       Export
                     </Button>
                   </span>
                 </Tooltip>
               </div>
 
-              {/* Section results content */}
-              {!srSectionId && (
-                <EmptyState
-                  title="No section selected"
-                  description="Select a campus, program, grade, and section to view exam results"
-                  icon={<BarChart2 className="w-10 h-10" />}
-                />
-              )}
-
-              {srSectionId && sectionResultsLoading && (
+              {sectionResultsLoading && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-4 gap-4">
-                    {[...Array(4)].map((_, i) => (
-                      <Skeleton key={i} variant="card" />
-                    ))}
+                    {[...Array(4)].map((_, i) => <Skeleton key={i} variant="card" />)}
                   </div>
                   <Skeleton variant="table" />
                 </div>
               )}
-
-              {srSectionId && !sectionResultsLoading && sectionResults && sectionResults.length === 0 && (
+              {!sectionResultsLoading && (!sectionResults || sectionResults.length === 0) && (
                 <EmptyState
                   title="No results found"
-                  description="No exam results match the selected filters"
+                  description="No exam results have been recorded for this section yet"
                   icon={<BarChart2 className="w-10 h-10" />}
                 />
               )}
-
-              {srSectionId && !sectionResultsLoading && sectionResults && sectionResults.length > 0 && (
+              {!sectionResultsLoading && sectionResults && sectionResults.length > 0 && (
                 <div className="space-y-8">
                   {sectionResults.map((summary) => (
                     <SectionResultsTable key={summary.examId} data={summary} />
