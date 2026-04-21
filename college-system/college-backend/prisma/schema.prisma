@@ -144,6 +144,7 @@ model User {
   auditLogs              AuditLog[]
   gradedResults          ExamResult[]        @relation("ResultGradedBy")
   supervisedExams        Exam[]              @relation("ExamSupervisor")
+  googleDriveToken       GoogleDriveToken?
 
   @@map("users")
 }
@@ -727,4 +728,52 @@ model AppVersion {
 
   @@unique([platform, version])
   @@map("app_versions")
+}
+
+// 31. EmailOtp — OTP verification for Google Drive setup
+model EmailOtp {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String                           // hashed OTP
+  expiresAt DateTime @map("expires_at")
+  verified  Boolean  @default(false)
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email, otp])
+  @@map("email_otps")
+}
+
+// 32. GoogleDriveToken — OAuth2 tokens for Google Drive backup
+model GoogleDriveToken {
+  id           String   @id @default(uuid())
+  userId       String   @unique @map("user_id")
+  email        String                          // verified Gmail address
+  accessToken  String   @map("access_token")
+  refreshToken String   @map("refresh_token")
+  expiresAt    DateTime @map("expires_at")
+  folderId     String?  @map("folder_id")      // Drive folder for backups
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("google_drive_tokens")
+}
+
+// 33. OutgoingMessage — audit trail for WhatsApp notifications
+model OutgoingMessage {
+  id                String   @id @default(uuid())
+  toPhone           String   @map("to_phone")
+  channel           String   @default("WHATSAPP")
+  templateName      String   @map("template_name")
+  payload           Json
+  status            String   // SKIPPED | SENT | FAILED
+  providerMessageId String?  @map("provider_message_id")
+  errorText         String?  @map("error_text")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@index([toPhone])
+  @@index([status])
+  @@map("outgoing_messages")
 }

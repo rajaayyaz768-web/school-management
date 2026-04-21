@@ -10,6 +10,7 @@ import {
   FeeDefaulter
 } from './fees.types'
 import { requireOwnCampus, assertSectionCampus, assertStudentCampus } from '../../utils/campusGuard'
+import { sendFeePaidWhatsApp } from '../notifications/notifications.service'
 
 interface RequestUser { id: string; role: Role; campusId: string | null }
 
@@ -343,6 +344,56 @@ export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: R
     },
     include: feeRecordInclude,
   })
+
+  // WhatsApp notification — fire-and-forget, never blocks the payment
+  void (async () => {
+    try {
+      const studentProfile = await prisma.studentProfile.findUnique({
+        where: { id: record.studentId },
+        select: {
+          firstName: true,
+          lastName: true,
+          section: {
+            select: {
+              name: true,
+              grade: { select: { name: true, program: { select: { name: true } } } },
+            },
+          },
+          parentLinks: {
+            where: { isPrimary: true },
+            select: { parent: { select: { firstName: true, phone: true } } },
+            take: 1,
+          },
+        },
+      })
+
+      const parentLink = studentProfile?.parentLinks?.[0]
+      const phone = parentLink?.parent.phone
+      if (!phone) return
+
+      const grade = studentProfile?.section?.grade
+      const className = [grade?.program?.name, grade?.name, studentProfile?.section?.name]
+        .filter(Boolean).join(' ')
+      const month = new Date(record.dueDate).toLocaleDateString('en-PK', { month: 'long', year: 'numeric' })
+      const receiptNo = data.receiptNumber ?? updated.id.slice(-8).toUpperCase()
+
+      await sendFeePaidWhatsApp(
+        phone,
+        {
+          parentName: parentLink?.parent.firstName ?? 'Parent',
+          studentName: `${studentProfile?.firstName} ${studentProfile?.lastName}`,
+          className,
+          month,
+          amount: `PKR ${data.amountPaid.toLocaleString('en-PK', { maximumFractionDigits: 0 })}`,
+          date: new Date().toLocaleDateString('en-PK'),
+          receiptNumber: receiptNo,
+        },
+        process.env.META_WHATSAPP_TEMPLATE_NAME ?? 'fee_paid_confirmation'
+      )
+    } catch {
+      // Notification failure is non-fatal
+    }
+  })()
 
   return mapToFeeRecordResponse(updated)
 }
