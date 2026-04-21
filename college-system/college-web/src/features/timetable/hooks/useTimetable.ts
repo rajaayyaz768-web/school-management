@@ -9,6 +9,7 @@ import {
   deleteSlot,
   clearSectionTimetable,
   fetchMyTeacherSchedule,
+  fetchLiveTeachers,
 } from '../api/timetable.api'
 import { CreateSlotInput, UpdateSlotInput, PeriodConfigInput } from '../types/timetable.types'
 
@@ -103,5 +104,14 @@ export const useClearTimetable = () => {
       toast.success('Timetable cleared')
     },
     onError: () => { toast.error('Failed to clear timetable') }
+  })
+}
+
+export const useLiveTeachers = (campusId?: string) => {
+  return useQuery({
+    queryKey: ['timetable-live-teachers', campusId],
+    queryFn: () => fetchLiveTeachers(campusId),
+    refetchInterval: 60 * 1000,
+    staleTime: 30 * 1000,
   })
 }

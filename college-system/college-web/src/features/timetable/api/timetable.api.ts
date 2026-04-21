@@ -61,3 +61,24 @@ export const fetchMyTeacherSchedule = async (academicYear: string): Promise<Teac
   const res = await axios.get('/timetable/my-schedule', { params: { academicYear } })
   return res.data.data
 }
+
+export interface LiveTeacherCampus {
+  campusId: string
+  campusName: string
+  busy: {
+    staffId: string
+    staffName: string
+    sectionName: string
+    programCode: string
+    gradeName: string
+    subjectName: string
+    slotNumber: number
+    endTime: string
+  }[]
+  free: { staffId: string; staffName: string }[]
+}
+
+export const fetchLiveTeachers = async (campusId?: string): Promise<LiveTeacherCampus[]> => {
+  const res = await axios.get('/timetable/live/teachers', { params: campusId ? { campusId } : {} })
+  return res.data.data
+}

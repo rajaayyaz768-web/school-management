@@ -52,6 +52,7 @@ const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
     { label: "Hierarchy Browser", href: "/principal/hierarchy", icon: Network },
     { label: "Live View", href: "/principal/live-view", icon: Radio },
+    { label: "Teachers Live", href: "/principal/teachers-live", icon: UserCheck },
     { label: "Students", href: "/principal/students", icon: GraduationCap },
     { label: "Staff", href: "/principal/staff", icon: Users },
     { label: "Campus", href: "/admin/campus", icon: Building2 },

@@ -24,6 +24,7 @@ router.get('/conflict-check', authenticate, authorize(Role.ADMIN, Role.SUPER_ADM
 router.get('/section/:sectionId', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER, Role.STUDENT, Role.PARENT), controller.getSectionTimetable)
 router.get('/my-schedule', authenticate, authorize(Role.TEACHER, Role.ADMIN, Role.SUPER_ADMIN), controller.getMyTeacherTimetable)
 router.get('/teacher/:staffId', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER), controller.getTeacherTimetable)
+router.get('/live/teachers', authenticate, authorize(Role.SUPER_ADMIN), controller.getLiveTeachers)
 router.delete('/section/:sectionId/clear', authenticate, authorize(Role.SUPER_ADMIN), controller.clearSectionTimetable)
 
 export { router as timetableRouter }

@@ -272,6 +272,115 @@ export const getMyTeacherTimetable = async (userId: string, academicYear: string
 	return getTeacherTimetable(staffProfile.id, academicYear)
 }
 
+function getCurrentKarachiTime(): { day: DayOfWeek; timeStr: string } {
+	const now = new Date()
+	const karachiStr = now.toLocaleString('en-US', { timeZone: 'Asia/Karachi', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
+	// karachiStr example: "Mon, 14:35"
+	const [weekdayRaw, timePart] = karachiStr.split(', ')
+	const dayMap: Record<string, DayOfWeek> = {
+		Mon: DayOfWeek.MON, Tue: DayOfWeek.TUE, Wed: DayOfWeek.WED,
+		Thu: DayOfWeek.THU, Fri: DayOfWeek.FRI, Sat: DayOfWeek.SAT,
+	}
+	const day = dayMap[weekdayRaw] ?? DayOfWeek.MON
+	return { day, timeStr: timePart }
+}
+
+export interface LiveTeachersResult {
+	campusId: string
+	campusName: string
+	busy: {
+		staffId: string
+		staffName: string
+		sectionName: string
+		programCode: string
+		gradeName: string
+		subjectName: string
+		slotNumber: number
+		endTime: string
+	}[]
+	free: {
+		staffId: string
+		staffName: string
+	}[]
+}
+
+export const getLiveTeachers = async (campusId?: string): Promise<LiveTeachersResult[]> => {
+	const { day, timeStr } = getCurrentKarachiTime()
+
+	const campusWhere = campusId ? { id: campusId, isActive: true } : { isActive: true }
+	const campuses = await prisma.campus.findMany({
+		where: campusWhere,
+		select: { id: true, name: true },
+		orderBy: { name: 'asc' },
+	})
+
+	const results: LiveTeachersResult[] = []
+
+	for (const campus of campuses) {
+		// All teachers assigned to this campus
+		const assignments = await prisma.staffCampusAssignment.findMany({
+			where: { campusId: campus.id, removedAt: null, staff: { user: { role: Role.TEACHER } } },
+			select: { staff: { select: { id: true, firstName: true, lastName: true } } },
+		})
+
+		const allTeachers = assignments.map((a) => ({
+			staffId: a.staff.id,
+			staffName: `${a.staff.firstName} ${a.staff.lastName}`,
+		}))
+
+		// Active slots right now: section's campus = this campus, day = today, startTime <= now < endTime
+		// We fetch slots for today with staffId set and slotType != BREAK, then filter by time in memory
+		const slotsNow = await prisma.timetableSlot.findMany({
+			where: {
+				dayOfWeek: day,
+				slotType: { not: SlotType.BREAK },
+				staffId: { not: null },
+				section: { grade: { program: { campusId: campus.id } } },
+			},
+			select: {
+				staffId: true,
+				startTime: true,
+				endTime: true,
+				slotNumber: true,
+				subject: { select: { name: true } },
+				section: {
+					select: {
+						name: true,
+						grade: {
+							select: {
+								name: true,
+								program: { select: { code: true } },
+							},
+						},
+					},
+				},
+			},
+		})
+
+		// Filter slots where startTime <= timeStr < endTime
+		const activeSlots = slotsNow.filter((s) => s.startTime <= timeStr && timeStr < s.endTime)
+
+		const busyStaffIds = new Set(activeSlots.map((s) => s.staffId!))
+
+		const busy = activeSlots.map((s) => ({
+			staffId: s.staffId!,
+			staffName: allTeachers.find((t) => t.staffId === s.staffId)?.staffName ?? s.staffId!,
+			sectionName: s.section?.name ?? '',
+			programCode: s.section?.grade?.program?.code ?? '',
+			gradeName: s.section?.grade?.name ?? '',
+			subjectName: s.subject?.name ?? '',
+			slotNumber: s.slotNumber,
+			endTime: s.endTime,
+		}))
+
+		const free = allTeachers.filter((t) => !busyStaffIds.has(t.staffId))
+
+		results.push({ campusId: campus.id, campusName: campus.name, busy, free })
+	}
+
+	return results
+}
+
 export const clearSectionTimetable = async (sectionId: string, academicYear: string, user?: RequestUser): Promise<{ deleted: number }> => {
 	if (user) await assertSectionCampus(sectionId, user)
 

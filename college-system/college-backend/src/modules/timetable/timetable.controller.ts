@@ -140,3 +140,15 @@ export const clearSectionTimetable = async (req: Request, res: Response) => {
 		return sendError(res, message, status)
 	}
 }
+
+export const getLiveTeachers = async (req: Request, res: Response) => {
+	try {
+		const campusId = req.query.campusId as string | undefined
+		const result = await service.getLiveTeachers(campusId)
+		return sendSuccess(res, 'Live teachers fetched', result)
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : 'Something went wrong'
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
+		return sendError(res, message, status)
+	}
+}
