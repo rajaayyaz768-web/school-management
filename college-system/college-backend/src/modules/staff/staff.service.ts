@@ -3,6 +3,9 @@ import bcrypt from "bcryptjs";
 import { CreateStaffDto, UpdateStaffDto } from "./staff.types";
 import { Gender, Role, Prisma } from "@prisma/client";
 import crypto from "crypto";
+import { assertStaffCampus } from "../../utils/campusGuard";
+
+interface RequestUser { id: string; role: Role; campusId: string | null }
 
 const extractNames = (fullName: string) => {
   const parts = fullName.trim().split(" ");
@@ -58,7 +61,9 @@ export const getAllStaff = async (filters: { campusId?: string; employmentType?:
   }));
 };
 
-export const getStaffById = async (id: string) => {
+export const getStaffById = async (id: string, user?: RequestUser) => {
+  if (user) await assertStaffCampus(id, user)
+
   const staff = await prisma.staffProfile.findUnique({
     where: { id },
     include: {
@@ -150,7 +155,12 @@ export const createStaff = async (data: CreateStaffDto) => {
   });
 };
 
-export const updateStaff = async (id: string, data: UpdateStaffDto) => {
+export const updateStaff = async (id: string, data: UpdateStaffDto, user?: RequestUser) => {
+  if (user) await assertStaffCampus(id, user)
+  if (user && user.role !== Role.SUPER_ADMIN && data.primaryCampusId !== undefined) {
+    throw Object.assign(new Error("Campus reassignment requires SUPER_ADMIN role"), { statusCode: 403 })
+  }
+
   return await prisma.$transaction(async (tx) => {
     const existing = await tx.staffProfile.findUnique({
       where: { id },
@@ -218,7 +228,9 @@ export const updateStaff = async (id: string, data: UpdateStaffDto) => {
   });
 };
 
-export const toggleStaffStatus = async (id: string) => {
+export const toggleStaffStatus = async (id: string, user?: RequestUser) => {
+  if (user) await assertStaffCampus(id, user)
+
   return await prisma.$transaction(async (tx) => {
     const existing = await tx.staffProfile.findUnique({
       where: { id },

@@ -1,4 +1,4 @@
-import { PrismaClient, DayOfWeek, SlotType } from '@prisma/client'
+import { PrismaClient, DayOfWeek, SlotType, Role } from '@prisma/client'
 import {
 	PeriodConfigDto,
 	CreateSlotDto,
@@ -9,6 +9,9 @@ import {
 	SectionTimetable,
 	TeacherTimetable
 } from './timetable.types'
+import { assertSectionCampus, requireOwnCampus } from '../../utils/campusGuard'
+
+interface RequestUser { id: string; role: Role; campusId: string | null }
 
 const prisma = new PrismaClient()
 
@@ -49,7 +52,8 @@ function mapSlotToResponse(slot: any): TimetableSlotResponse {
 	}
 }
 
-export const upsertPeriodConfig = async (data: PeriodConfigDto): Promise<PeriodConfigResponse> => {
+export const upsertPeriodConfig = async (data: PeriodConfigDto, user?: RequestUser): Promise<PeriodConfigResponse> => {
+	if (user) requireOwnCampus(user, data.campusId)
 	const config = await prisma.timetablePeriodsConfig.upsert({
 		where: { campusId_gradeId: { campusId: data.campusId, gradeId: data.gradeId } },
 		create: {
@@ -95,7 +99,9 @@ export const getPeriodConfig = async (campusId: string, gradeId: string): Promis
 	}
 }
 
-export const createSlot = async (data: CreateSlotDto): Promise<TimetableSlotResponse> => {
+export const createSlot = async (data: CreateSlotDto, user?: RequestUser): Promise<TimetableSlotResponse> => {
+	if (user) await assertSectionCampus(data.sectionId, user)
+
 	if (data.slotType !== SlotType.BREAK && data.staffId) {
 		const conflict = await checkConflict(data.staffId, data.dayOfWeek, data.slotNumber, data.academicYear, data.sectionId)
 		if (conflict.hasConflict) {
@@ -132,22 +138,24 @@ export const createSlot = async (data: CreateSlotDto): Promise<TimetableSlotResp
 	return mapSlotToResponse(result)
 }
 
-export const bulkCreateSlots = async (slots: CreateSlotDto[]): Promise<TimetableSlotResponse[]> => {
+export const bulkCreateSlots = async (slots: CreateSlotDto[], user?: RequestUser): Promise<TimetableSlotResponse[]> => {
 	const results: TimetableSlotResponse[] = []
 	for (const slot of slots) {
-		const result = await createSlot(slot)
+		const result = await createSlot(slot, user)
 		results.push(result)
 	}
 	return results
 }
 
-export const updateSlot = async (id: string, data: UpdateSlotDto): Promise<TimetableSlotResponse> => {
+export const updateSlot = async (id: string, data: UpdateSlotDto, user?: RequestUser): Promise<TimetableSlotResponse> => {
 	const existing = await prisma.timetableSlot.findUnique({ where: { id }, include: slotInclude })
 	if (!existing) {
 		const error = new Error('Attendance record not found') as any
 		error.status = 404
 		throw error
 	}
+
+	if (user) await assertSectionCampus(existing.sectionId, user)
 
 	if (data.staffId && data.staffId !== existing.staffId && (data.slotType ?? existing.slotType) !== SlotType.BREAK) {
 		const conflict = await checkConflict(data.staffId, existing.dayOfWeek, existing.slotNumber, existing.academicYear, existing.sectionId)
@@ -163,13 +171,15 @@ export const updateSlot = async (id: string, data: UpdateSlotDto): Promise<Timet
 	return mapSlotToResponse(updated)
 }
 
-export const deleteSlot = async (id: string): Promise<void> => {
+export const deleteSlot = async (id: string, user?: RequestUser): Promise<void> => {
 	const existing = await prisma.timetableSlot.findUnique({ where: { id } })
 	if (!existing) {
 		const error = new Error('Attendance record not found') as any
 		error.status = 404
 		throw error
 	}
+
+	if (user) await assertSectionCampus(existing.sectionId, user)
 
 	await prisma.timetableSlot.delete({ where: { id } })
 }
@@ -206,7 +216,9 @@ export const checkConflict = async (staffId: string, dayOfWeek: DayOfWeek, slotN
 	return { hasConflict: false, conflicts: [] }
 }
 
-export const getSectionTimetable = async (sectionId: string, academicYear: string): Promise<SectionTimetable> => {
+export const getSectionTimetable = async (sectionId: string, academicYear: string, user?: RequestUser): Promise<SectionTimetable> => {
+	if (user) await assertSectionCampus(sectionId, user)
+
 	const section = await prisma.section.findUnique({ where: { id: sectionId }, select: { id: true, name: true } })
 	if (!section) {
 		const error = new Error('Attendance record not found') as any
@@ -260,7 +272,9 @@ export const getMyTeacherTimetable = async (userId: string, academicYear: string
 	return getTeacherTimetable(staffProfile.id, academicYear)
 }
 
-export const clearSectionTimetable = async (sectionId: string, academicYear: string): Promise<{ deleted: number }> => {
+export const clearSectionTimetable = async (sectionId: string, academicYear: string, user?: RequestUser): Promise<{ deleted: number }> => {
+	if (user) await assertSectionCampus(sectionId, user)
+
 	const result = await prisma.timetableSlot.deleteMany({ where: { sectionId, academicYear } })
 	return { deleted: result.count }
 }

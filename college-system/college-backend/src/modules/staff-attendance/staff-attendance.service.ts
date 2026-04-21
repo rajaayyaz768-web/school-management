@@ -1,6 +1,9 @@
-import { StaffAttendanceStatus } from '@prisma/client'
+import { StaffAttendanceStatus, Role } from '@prisma/client'
 import prisma from '../../config/database'
 import { MarkStaffAttendanceDto, UpdateAttendanceDto, StaffAttendanceResponse, StaffWithAttendance, DailyAttendanceReport } from './staff-attendance.types'
+import { assertStaffCampus } from '../../utils/campusGuard'
+
+interface RequestUser { id: string; role: Role; campusId: string | null }
 
 function mapToResponse(record: any): StaffAttendanceResponse {
   return {
@@ -91,13 +94,24 @@ export const getStaffForAttendance = async (campusId: string, date: string): Pro
   return results
 }
 
-export const markDailyAttendance = async (data: MarkStaffAttendanceDto, markedById: string): Promise<DailyAttendanceReport> => {
+export const markDailyAttendance = async (data: MarkStaffAttendanceDto, markedById: string, user?: RequestUser): Promise<DailyAttendanceReport> => {
+  // Derive campusId: ADMIN callers must use their own campus; SUPER_ADMIN uses body
+  const effectiveCampusId = (user && user.role !== Role.SUPER_ADMIN && user.campusId)
+    ? user.campusId
+    : data.campusId
+
+  if (user) {
+    for (const item of data.attendances) {
+      await assertStaffCampus(item.staffId, user)
+    }
+  }
+
   await Promise.all(data.attendances.map((item) =>
     prisma.staffAttendance.upsert({
       where: { staffId_date: { staffId: item.staffId, date: new Date(data.date) } },
       create: {
         staffId: item.staffId,
-        campusId: data.campusId,
+        campusId: effectiveCampusId,
         date: new Date(data.date),
         status: item.status,
         checkIn: item.checkIn ? new Date(item.checkIn) : null,
@@ -115,10 +129,10 @@ export const markDailyAttendance = async (data: MarkStaffAttendanceDto, markedBy
     })
   ))
 
-  return getDailyReport(data.campusId, data.date)
+  return getDailyReport(effectiveCampusId, data.date)
 }
 
-export const updateSingleAttendance = async (id: string, data: UpdateAttendanceDto): Promise<StaffAttendanceResponse> => {
+export const updateSingleAttendance = async (id: string, data: UpdateAttendanceDto, user?: RequestUser): Promise<StaffAttendanceResponse> => {
   const existing = await prisma.staffAttendance.findUnique({ where: { id }, include: staffAttendanceInclude })
 
   if (!existing) {
@@ -126,6 +140,8 @@ export const updateSingleAttendance = async (id: string, data: UpdateAttendanceD
     error.status = 404
     throw error
   }
+
+  if (user) await assertStaffCampus(existing.staffId, user)
 
   const updated = await prisma.staffAttendance.update({
     where: { id },
@@ -174,7 +190,9 @@ export const getDailyReport = async (campusId: string, date: string): Promise<Da
   }
 }
 
-export const getStaffAttendanceHistory = async (staffId: string, month?: number, year?: number) => {
+export const getStaffAttendanceHistory = async (staffId: string, month?: number, year?: number, user?: RequestUser) => {
+  if (user) await assertStaffCampus(staffId, user)
+
   const where: any = { staffId }
 
   if (month && year) {

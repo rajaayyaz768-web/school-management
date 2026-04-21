@@ -1,10 +1,14 @@
+import { Role } from "@prisma/client";
 import prisma from "../../config/database";
-import { 
-  CreateSubjectDto, 
+import {
+  CreateSubjectDto,
   UpdateSubjectDto,
   CreateSectionSubjectTeacherDto,
-  UpdateSectionSubjectTeacherDto 
+  UpdateSectionSubjectTeacherDto
 } from "./subjects.types";
+import { assertSectionCampus, assertStaffCampus } from "../../utils/campusGuard";
+
+interface RequestUser { id: string; role: Role; campusId: string | null }
 
 export const getAllSubjects = async () => {
   return await prisma.subject.findMany({
@@ -101,7 +105,9 @@ export const toggleSubjectStatus = async (id: string) => {
 
 // ─── ASSIGNMENTS ─────────────────────────────────────────────────────────────
 
-export const getAssignmentsBySection = async (sectionId: string) => {
+export const getAssignmentsBySection = async (sectionId: string, user?: RequestUser) => {
+  if (user) await assertSectionCampus(sectionId, user)
+
   return await prisma.sectionSubjectTeacher.findMany({
     where: { sectionId },
     include: {
@@ -121,7 +127,10 @@ export const getAssignmentsByTeacher = async (staffId: string) => {
   });
 };
 
-export const createAssignment = async (data: CreateSectionSubjectTeacherDto) => {
+export const createAssignment = async (data: CreateSectionSubjectTeacherDto, user?: RequestUser) => {
+  if (user) await assertSectionCampus(data.sectionId, user)
+  if (user && data.staffId) await assertStaffCampus(data.staffId, user)
+
   const section = await prisma.section.findUnique({ where: { id: data.sectionId } });
   if (!section) throw Object.assign(new Error("Section not found"), { statusCode: 404 });
 
@@ -160,9 +169,12 @@ export const createAssignment = async (data: CreateSectionSubjectTeacherDto) => 
   });
 };
 
-export const updateAssignment = async (id: string, data: UpdateSectionSubjectTeacherDto) => {
+export const updateAssignment = async (id: string, data: UpdateSectionSubjectTeacherDto, user?: RequestUser) => {
   const existing = await prisma.sectionSubjectTeacher.findUnique({ where: { id } });
   if (!existing) throw Object.assign(new Error("Assignment not found"), { statusCode: 404 });
+
+  if (user) await assertSectionCampus(existing.sectionId, user)
+  if (user && data.staffId) await assertStaffCampus(data.staffId, user)
 
   const updateData: {
     sectionId?: string;
@@ -211,9 +223,11 @@ export const updateAssignment = async (id: string, data: UpdateSectionSubjectTea
   });
 };
 
-export const deleteAssignment = async (id: string) => {
+export const deleteAssignment = async (id: string, user?: RequestUser) => {
   const existing = await prisma.sectionSubjectTeacher.findUnique({ where: { id } });
   if (!existing) throw Object.assign(new Error("Assignment not found"), { statusCode: 404 });
+
+  if (user) await assertSectionCampus(existing.sectionId, user)
 
   await prisma.sectionSubjectTeacher.delete({
     where: { id },

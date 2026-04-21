@@ -3,6 +3,9 @@ import bcrypt from "bcryptjs";
 import { CreateStudentDto, UpdateStudentDto } from "./students.types";
 import { Role, StudentStatus, Prisma } from "@prisma/client";
 import crypto from "crypto";
+import { assertStudentCampus, assertSectionCampus } from "../../utils/campusGuard";
+
+interface RequestUser { id: string; role: Role; campusId: string | null }
 
 export const getAllStudents = async (
   filters: { campusId?: string; sectionId?: string; status?: string; gradeId?: string },
@@ -51,7 +54,9 @@ export const getAllStudents = async (
   };
 };
 
-export const getStudentById = async (id: string) => {
+export const getStudentById = async (id: string, user?: RequestUser) => {
+  if (user) await assertStudentCampus(id, user)
+
   const student = await prisma.studentProfile.findUnique({
     where: { id },
     include: {
@@ -158,7 +163,12 @@ export const createStudent = async (data: CreateStudentDto) => {
   });
 };
 
-export const updateStudent = async (id: string, data: UpdateStudentDto) => {
+export const updateStudent = async (id: string, data: UpdateStudentDto, user?: RequestUser) => {
+  if (user) await assertStudentCampus(id, user)
+  if (user && user.role !== Role.SUPER_ADMIN && data.campusId !== undefined) {
+    throw Object.assign(new Error("Campus reassignment requires SUPER_ADMIN role"), { statusCode: 403 })
+  }
+
   return await prisma.$transaction(async (tx) => {
     const existing = await tx.studentProfile.findUnique({ where: { id } });
     if (!existing) {
@@ -221,7 +231,9 @@ export const getUnassignedStudents = async (gradeId: string) => {
   return students;
 };
 
-export const getStudentsBySection = async (sectionId: string) => {
+export const getStudentsBySection = async (sectionId: string, user?: RequestUser) => {
+  if (user) await assertSectionCampus(sectionId, user)
+
   const section = await prisma.section.findUnique({ where: { id: sectionId } });
   if (!section) {
     throw Object.assign(new Error("Section not found"), { statusCode: 404 });

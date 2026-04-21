@@ -19,7 +19,7 @@ export const getAllSections = async (req: Request, res: Response) => {
 
 export const getSectionById = async (req: Request, res: Response) => {
   try {
-    const section = await sectionService.getSectionById(req.params.id as string);
+    const section = await sectionService.getSectionById(req.params.id as string, (req as any).user);
     sendSuccess(res, "Section retrieved successfully", section);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -29,7 +29,7 @@ export const getSectionById = async (req: Request, res: Response) => {
 
 export const createSection = async (req: Request, res: Response) => {
   try {
-    const section = await sectionService.createSection(req.body);
+    const section = await sectionService.createSection(req.body, (req as any).user);
     sendCreated(res, "Section created successfully", section);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -39,7 +39,7 @@ export const createSection = async (req: Request, res: Response) => {
 
 export const updateSection = async (req: Request, res: Response) => {
   try {
-    const section = await sectionService.updateSection(req.params.id as string, req.body);
+    const section = await sectionService.updateSection(req.params.id as string, req.body, (req as any).user);
     sendSuccess(res, "Section updated successfully", section);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -49,7 +49,7 @@ export const updateSection = async (req: Request, res: Response) => {
 
 export const toggleSectionStatus = async (req: Request, res: Response) => {
   try {
-    const section = await sectionService.toggleSectionStatus(req.params.id as string);
+    const section = await sectionService.toggleSectionStatus(req.params.id as string, (req as any).user);
     sendSuccess(res, "Section status toggled successfully", section);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -59,7 +59,7 @@ export const toggleSectionStatus = async (req: Request, res: Response) => {
 
 export const getSectionStudentCount = async (req: Request, res: Response) => {
   try {
-    const data = await sectionService.getSectionStudentCount(req.params.id as string);
+    const data = await sectionService.getSectionStudentCount(req.params.id as string, (req as any).user);
     sendSuccess(res, "Student count retrieved successfully", data);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

@@ -23,7 +23,7 @@ export const getAllStudents = async (req: Request, res: Response) => {
 
 export const getStudentById = async (req: Request, res: Response) => {
   try {
-    const student = await studentsService.getStudentById(req.params.id as string);
+    const student = await studentsService.getStudentById(req.params.id as string, (req as any).user);
     sendSuccess(res, "Student retrieved successfully", student);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -53,7 +53,7 @@ export const createStudent = async (req: Request, res: Response) => {
 
 export const updateStudent = async (req: Request, res: Response) => {
   try {
-    const student = await studentsService.updateStudent(req.params.id as string, req.body);
+    const student = await studentsService.updateStudent(req.params.id as string, req.body, (req as any).user);
     sendSuccess(res, "Student updated successfully", student);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -83,7 +83,7 @@ export const getStudentsBySection = async (req: Request, res: Response) => {
        sendError(res, "section_id is required", 400);
        return;
     }
-    const students = await studentsService.getStudentsBySection(sectionId);
+    const students = await studentsService.getStudentsBySection(sectionId, (req as any).user);
     sendSuccess(res, "Section students retrieved successfully", students);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

@@ -56,7 +56,7 @@ export const getAssignmentsBySection = async (req: Request, res: Response) => {
   try {
     const sectionId = req.query.section_id as string;
     if (!sectionId) throw Object.assign(new Error("section_id query required"), { statusCode: 400 });
-    const assignments = await subjectService.getAssignmentsBySection(sectionId);
+    const assignments = await subjectService.getAssignmentsBySection(sectionId, (req as any).user);
     sendSuccess(res, "Assignments retrieved successfully", assignments);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -87,7 +87,7 @@ export const getAssignmentsRoot = async (req: Request, res: Response) => {
 
 export const createAssignment = async (req: Request, res: Response) => {
   try {
-    const assignment = await subjectService.createAssignment(req.body);
+    const assignment = await subjectService.createAssignment(req.body, (req as any).user);
     sendCreated(res, "Assignment created successfully", assignment);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -97,7 +97,7 @@ export const createAssignment = async (req: Request, res: Response) => {
 
 export const updateAssignment = async (req: Request, res: Response) => {
   try {
-    const assignment = await subjectService.updateAssignment(req.params.id as string, req.body);
+    const assignment = await subjectService.updateAssignment(req.params.id as string, req.body, (req as any).user);
     sendSuccess(res, "Assignment updated successfully", assignment);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -107,7 +107,7 @@ export const updateAssignment = async (req: Request, res: Response) => {
 
 export const deleteAssignment = async (req: Request, res: Response) => {
   try {
-    const result = await subjectService.deleteAssignment(req.params.id as string);
+    const result = await subjectService.deleteAssignment(req.params.id as string, (req as any).user);
     sendSuccess(res, result.message, null);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

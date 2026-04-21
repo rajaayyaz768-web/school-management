@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import { logger } from "../utils/logger";
 
-// Extend Error to carry an optional HTTP status code
+// Extend Error to carry an optional HTTP status code.
+// Both `statusCode` (global error handler) and `status` (local controller
+// try/catch blocks) are set so callers using either property get the right code.
 class AppError extends Error {
   statusCode: number;
+  status: number;
   constructor(message: string, statusCode = 500) {
     super(message);
     this.statusCode = statusCode;
+    this.status = statusCode;
   }
 }
 

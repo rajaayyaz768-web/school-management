@@ -19,7 +19,7 @@ export const getAllStaff = async (req: Request, res: Response) => {
 
 export const getStaffById = async (req: Request, res: Response) => {
   try {
-    const staff = await staffService.getStaffById(req.params.id as string);
+    const staff = await staffService.getStaffById(req.params.id as string, (req as any).user);
     sendSuccess(res, "Staff retrieved successfully", staff);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -39,7 +39,7 @@ export const createStaff = async (req: Request, res: Response) => {
 
 export const updateStaff = async (req: Request, res: Response) => {
   try {
-    const staff = await staffService.updateStaff(req.params.id as string, req.body);
+    const staff = await staffService.updateStaff(req.params.id as string, req.body, (req as any).user);
     sendSuccess(res, "Staff updated successfully", staff);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
@@ -49,7 +49,7 @@ export const updateStaff = async (req: Request, res: Response) => {
 
 export const toggleStaffStatus = async (req: Request, res: Response) => {
   try {
-    const result = await staffService.toggleStaffStatus(req.params.id as string);
+    const result = await staffService.toggleStaffStatus(req.params.id as string, (req as any).user);
     sendSuccess(res, "Staff status toggled successfully", result);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

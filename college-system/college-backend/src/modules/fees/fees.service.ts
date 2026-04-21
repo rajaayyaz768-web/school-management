@@ -1,4 +1,4 @@
-import { FeeStatus } from '@prisma/client'
+import { FeeStatus, Role } from '@prisma/client'
 import prisma from '../../config/database'
 import {
   CreateFeeStructureDto,
@@ -9,6 +9,9 @@ import {
   FeeRecordResponse,
   FeeDefaulter
 } from './fees.types'
+import { requireOwnCampus, assertSectionCampus, assertStudentCampus } from '../../utils/campusGuard'
+
+interface RequestUser { id: string; role: Role; campusId: string | null }
 
 const feeStructureInclude = {
   program: { select: { id: true, name: true, code: true } },
@@ -101,7 +104,7 @@ export const getAllFeeStructures = async (filters: {
   return records.map(mapToFeeStructureResponse)
 }
 
-export const getFeeStructureById = async (id: string): Promise<FeeStructureResponse> => {
+export const getFeeStructureById = async (id: string, user?: RequestUser): Promise<FeeStructureResponse> => {
   const record = await prisma.feeStructure.findUnique({
     where: { id },
     include: feeStructureInclude,
@@ -113,10 +116,14 @@ export const getFeeStructureById = async (id: string): Promise<FeeStructureRespo
     throw error
   }
 
+  if (user) requireOwnCampus(user, record.campusId)
+
   return mapToFeeStructureResponse(record)
 }
 
-export const createFeeStructure = async (data: CreateFeeStructureDto): Promise<FeeStructureResponse> => {
+export const createFeeStructure = async (data: CreateFeeStructureDto, user?: RequestUser): Promise<FeeStructureResponse> => {
+  if (user) requireOwnCampus(user, data.campusId)
+
   const program = await prisma.program.findUnique({ where: { id: data.programId } })
   if (!program) {
     const error = new Error('Program not found') as any
@@ -172,13 +179,15 @@ export const createFeeStructure = async (data: CreateFeeStructureDto): Promise<F
   return mapToFeeStructureResponse(record)
 }
 
-export const updateFeeStructure = async (id: string, data: UpdateFeeStructureDto): Promise<FeeStructureResponse> => {
+export const updateFeeStructure = async (id: string, data: UpdateFeeStructureDto, user?: RequestUser): Promise<FeeStructureResponse> => {
   const existing = await prisma.feeStructure.findUnique({ where: { id } })
   if (!existing) {
     const error = new Error('Fee structure not found') as any
     error.status = 404
     throw error
   }
+
+  if (user) requireOwnCampus(user, existing.campusId)
 
   const admissionFee = data.admissionFee ?? existing.admissionFee
   const tuitionFee = data.tuitionFee ?? existing.tuitionFee
@@ -205,8 +214,10 @@ export const updateFeeStructure = async (id: string, data: UpdateFeeStructureDto
 
 export const generateFeeRecordsForSection = async (
   feeStructureId: string,
-  sectionId: string
+  sectionId: string,
+  user?: RequestUser
 ): Promise<{ created: number }> => {
+  if (user) await assertSectionCampus(sectionId, user)
   const feeStructure = await prisma.feeStructure.findUnique({ where: { id: feeStructureId } })
   if (!feeStructure) {
     const error = new Error('Fee structure not found') as any
@@ -252,7 +263,9 @@ export const generateFeeRecordsForSection = async (
   return { created }
 }
 
-export const getStudentFeeRecords = async (studentId: string): Promise<FeeRecordResponse[]> => {
+export const getStudentFeeRecords = async (studentId: string, user?: RequestUser): Promise<FeeRecordResponse[]> => {
+  if (user) await assertStudentCampus(studentId, user)
+
   const records = await prisma.feeRecord.findMany({
     where: { studentId },
     include: feeRecordInclude,
@@ -284,7 +297,7 @@ export const getAllFeeRecords = async (filters: {
   return records.map(mapToFeeRecordResponse)
 }
 
-export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto): Promise<FeeRecordResponse> => {
+export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: RequestUser): Promise<FeeRecordResponse> => {
   const record = await prisma.feeRecord.findUnique({
     where: { id },
     include: feeRecordInclude,
@@ -295,6 +308,8 @@ export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto): Promise
     error.status = 404
     throw error
   }
+
+  if (user) await assertStudentCampus(record.studentId, user)
 
   if (record.status === FeeStatus.PAID) {
     const error = new Error('Fee already marked as paid') as any

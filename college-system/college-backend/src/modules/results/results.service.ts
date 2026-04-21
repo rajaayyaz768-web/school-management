@@ -1,5 +1,9 @@
+import { Role } from '@prisma/client'
 import prisma from '../../config/database'
 import { StudentReportCard, SectionResultSummary, SubjectResultSummary } from './results.types'
+import { assertStudentCampus, assertSectionCampus } from '../../utils/campusGuard'
+
+interface RequestUser { id: string; role: Role; campusId: string | null }
 
 function calculateGrade(obtained: number, total: number): { grade: string; percentage: number } {
   const percentage = (obtained / total) * 100
@@ -17,8 +21,10 @@ function calculateGrade(obtained: number, total: number): { grade: string; perce
 // ─────────────────────────────────────────────────────────────────────────────
 export const getStudentReportCard = async (
   studentId: string,
-  academicYear?: string
+  academicYear?: string,
+  user?: RequestUser
 ): Promise<StudentReportCard> => {
+  if (user) await assertStudentCampus(studentId, user)
   // Fetch student with full hierarchy
   const student = await prisma.studentProfile.findUnique({
     where: { id: studentId },
@@ -167,8 +173,10 @@ export const getStudentReportCard = async (
 export const getSectionResults = async (
   sectionId: string,
   subjectId?: string,
-  examId?: string
+  examId?: string,
+  user?: RequestUser
 ): Promise<SectionResultSummary[]> => {
+  if (user) await assertSectionCampus(sectionId, user)
   // Build exam query
   const examWhere: any = { sectionId }
   if (examId) examWhere.id = examId
@@ -266,7 +274,8 @@ export const getSectionResults = async (
 // ─────────────────────────────────────────────────────────────────────────────
 export const getTopStudents = async (
   sectionId: string,
-  limit: number = 10
+  limit: number = 10,
+  user?: RequestUser
 ): Promise<
   Array<{
     studentId: string
@@ -277,6 +286,8 @@ export const getTopStudents = async (
     overallGrade: string
   }>
 > => {
+  if (user) await assertSectionCampus(sectionId, user)
+
   // All students in section
   const students = await prisma.studentProfile.findMany({
     where: { sectionId },

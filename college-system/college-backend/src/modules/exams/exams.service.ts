@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client'
 import prisma from '../../config/database'
 import {
   CreateExamTypeDto,
@@ -9,6 +10,9 @@ import {
   BulkEnterResultsDto,
   ExamResultResponse,
 } from './exams.types'
+import { assertSectionCampus, assertStudentCampus } from '../../utils/campusGuard'
+
+interface RequestUser { id: string; role: Role; campusId: string | null }
 
 function calculateGrade(obtained: number, total: number): { grade: string; percentage: number } {
   const percentage = (obtained / total) * 100
@@ -126,12 +130,16 @@ export const getAllExams = async (filters: {
   subjectId?: string
   examTypeId?: string
   status?: string
+  campusId?: string
 }): Promise<ExamResponse[]> => {
   const where: any = {}
   if (filters.sectionId) where.sectionId = filters.sectionId
   if (filters.subjectId) where.subjectId = filters.subjectId
   if (filters.examTypeId) where.examTypeId = filters.examTypeId
   if (filters.status) where.status = filters.status
+  if (filters.campusId) {
+    where.section = { grade: { program: { campusId: filters.campusId } } }
+  }
 
   const records = await prisma.exam.findMany({
     where,
@@ -142,7 +150,7 @@ export const getAllExams = async (filters: {
   return records.map(mapToExamResponse)
 }
 
-export const getExamById = async (id: string): Promise<ExamResponse> => {
+export const getExamById = async (id: string, user?: RequestUser): Promise<ExamResponse> => {
   const record = await prisma.exam.findUnique({
     where: { id },
     include: examInclude,
@@ -154,10 +162,14 @@ export const getExamById = async (id: string): Promise<ExamResponse> => {
     throw error
   }
 
+  if (user) await assertSectionCampus(record.sectionId, user)
+
   return mapToExamResponse(record)
 }
 
-export const createExam = async (data: CreateExamDto): Promise<ExamResponse> => {
+export const createExam = async (data: CreateExamDto, user?: RequestUser): Promise<ExamResponse> => {
+  if (user) await assertSectionCampus(data.sectionId, user)
+
   const section = await prisma.section.findUnique({ where: { id: data.sectionId } })
   if (!section) {
     const error = new Error('Section not found') as any
@@ -198,13 +210,15 @@ export const createExam = async (data: CreateExamDto): Promise<ExamResponse> => 
   return mapToExamResponse(record)
 }
 
-export const updateExam = async (id: string, data: UpdateExamDto): Promise<ExamResponse> => {
+export const updateExam = async (id: string, data: UpdateExamDto, user?: RequestUser): Promise<ExamResponse> => {
   const existing = await prisma.exam.findUnique({ where: { id } })
   if (!existing) {
     const error = new Error('Exam not found') as any
     error.status = 404
     throw error
   }
+
+  if (user) await assertSectionCampus(existing.sectionId, user)
 
   const updateData: any = {}
   if (data.date !== undefined) updateData.date = new Date(data.date)
@@ -224,13 +238,15 @@ export const updateExam = async (id: string, data: UpdateExamDto): Promise<ExamR
   return mapToExamResponse(record)
 }
 
-export const deleteExam = async (id: string): Promise<void> => {
+export const deleteExam = async (id: string, user?: RequestUser): Promise<void> => {
   const existing = await prisma.exam.findUnique({ where: { id } })
   if (!existing) {
     const error = new Error('Exam not found') as any
     error.status = 404
     throw error
   }
+
+  if (user) await assertSectionCampus(existing.sectionId, user)
 
   const resultsCount = await prisma.examResult.count({ where: { examId: id } })
   if (resultsCount > 0) {
@@ -299,7 +315,8 @@ export const getExamResults = async (examId: string): Promise<ExamResultResponse
 
 export const enterBulkResults = async (
   data: BulkEnterResultsDto,
-  gradedById: string
+  gradedById: string,
+  user?: RequestUser
 ): Promise<ExamResultResponse[]> => {
   for (const item of data.results) {
     const exam = await prisma.exam.findUnique({ where: { id: item.examId } })
@@ -308,6 +325,9 @@ export const enterBulkResults = async (
       error.status = 404
       throw error
     }
+
+    if (user) await assertSectionCampus(exam.sectionId, user)
+    if (user) await assertStudentCampus(item.studentId, user)
 
     if (item.obtainedMarks !== undefined && item.obtainedMarks > exam.totalMarks) {
       const error = new Error('Marks cannot exceed total marks') as any

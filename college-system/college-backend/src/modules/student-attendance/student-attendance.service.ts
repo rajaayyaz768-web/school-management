@@ -1,5 +1,6 @@
-import { AttendanceStatus } from '@prisma/client'
+import { AttendanceStatus, Role } from '@prisma/client'
 import prisma from '../../config/database'
+import { assertSectionCampus, assertStudentCampus } from '../../utils/campusGuard'
 import {
   MarkStudentAttendanceDto,
   UpdateStudentAttendanceDto,
@@ -8,6 +9,8 @@ import {
   SectionAttendanceReport,
   StudentAttendanceSummary
 } from './student-attendance.types'
+
+interface RequestUser { id: string; role: Role; campusId: string | null }
 
 const studentAttendanceInclude = {
   student: {
@@ -73,7 +76,8 @@ function getDateRange(dateStr: string) {
   }
 }
 
-export const getStudentsForAttendance = async (sectionId: string, subjectId: string, date: string): Promise<StudentWithAttendance[]> => {
+export const getStudentsForAttendance = async (sectionId: string, subjectId: string, date: string, user?: RequestUser): Promise<StudentWithAttendance[]> => {
+  if (user) await assertSectionCampus(sectionId, user)
   const students = await prisma.studentProfile.findMany({
     where: { sectionId, status: 'ACTIVE' },
     select: { id: true, firstName: true, lastName: true, rollNumber: true, photoUrl: true },
@@ -99,7 +103,11 @@ export const getStudentsForAttendance = async (sectionId: string, subjectId: str
   return records
 }
 
-export const markStudentAttendance = async (data: MarkStudentAttendanceDto, markedById: string): Promise<SectionAttendanceReport> => {
+export const markStudentAttendance = async (data: MarkStudentAttendanceDto, markedById: string, user?: RequestUser): Promise<SectionAttendanceReport> => {
+  if (user) {
+    await assertSectionCampus(data.sectionId, user)
+    await Promise.all(data.attendances.map((item) => assertStudentCampus(item.studentId, user)))
+  }
   await Promise.all(data.attendances.map((item) => prisma.studentAttendance.upsert({
     where: { studentId_subjectId_date: { studentId: item.studentId, subjectId: data.subjectId, date: new Date(data.date) } },
     create: { studentId: item.studentId, subjectId: data.subjectId, sectionId: data.sectionId, date: new Date(data.date), status: item.status, remarks: item.remarks, markedById },
@@ -109,19 +117,21 @@ export const markStudentAttendance = async (data: MarkStudentAttendanceDto, mark
   return getSectionAttendanceReport(data.sectionId, data.subjectId, data.date)
 }
 
-export const updateStudentAttendance = async (id: string, data: UpdateStudentAttendanceDto): Promise<StudentAttendanceResponse> => {
+export const updateStudentAttendance = async (id: string, data: UpdateStudentAttendanceDto, user?: RequestUser): Promise<StudentAttendanceResponse> => {
   const record = await prisma.studentAttendance.findUnique({ where: { id }, include: studentAttendanceInclude })
   if (!record) {
     const error = new Error('Attendance record not found') as any
     error.status = 404
     throw error
   }
+  if (user) await assertSectionCampus(record.sectionId, user)
 
   const updated = await prisma.studentAttendance.update({ where: { id }, data, include: studentAttendanceInclude })
   return mapToResponse(updated)
 }
 
-export const getSectionAttendanceReport = async (sectionId: string, subjectId: string, date: string): Promise<SectionAttendanceReport> => {
+export const getSectionAttendanceReport = async (sectionId: string, subjectId: string, date: string, user?: RequestUser): Promise<SectionAttendanceReport> => {
+  if (user) await assertSectionCampus(sectionId, user)
   const records = await prisma.studentAttendance.findMany({
     where: { sectionId, subjectId, date: getDateRange(date) },
     include: studentAttendanceInclude
@@ -145,7 +155,8 @@ export const getSectionAttendanceReport = async (sectionId: string, subjectId: s
   }
 }
 
-export const getStudentAttendanceSummary = async (studentId: string, subjectId?: string): Promise<StudentAttendanceSummary> => {
+export const getStudentAttendanceSummary = async (studentId: string, subjectId?: string, user?: RequestUser): Promise<StudentAttendanceSummary> => {
+  if (user) await assertStudentCampus(studentId, user)
   const student = await prisma.studentProfile.findUnique({ where: { id: studentId }, select: { id: true, firstName: true, lastName: true, rollNumber: true, photoUrl: true } })
   if (!student) {
     const error = new Error('Attendance record not found') as any
@@ -179,7 +190,8 @@ export const getStudentAttendanceSummary = async (studentId: string, subjectId?:
   }
 }
 
-export const getStudentAttendanceHistory = async (studentId: string, filters: { subjectId?: string, month?: number, year?: number }) => {
+export const getStudentAttendanceHistory = async (studentId: string, filters: { subjectId?: string, month?: number, year?: number }, user?: RequestUser) => {
+  if (user) await assertStudentCampus(studentId, user)
   const where: any = {
     studentId,
     ...(filters.subjectId ? { subjectId: filters.subjectId } : {})

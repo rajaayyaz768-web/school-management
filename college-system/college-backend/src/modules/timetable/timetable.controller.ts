@@ -4,11 +4,11 @@ import { sendSuccess, sendError } from '../../utils/response'
 
 export const upsertPeriodConfig = async (req: Request, res: Response) => {
 	try {
-		const result = await service.upsertPeriodConfig(req.body)
+		const result = await service.upsertPeriodConfig(req.body, (req as any).user)
 		return sendSuccess(res, 'Period config upserted', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
@@ -20,29 +20,29 @@ export const getPeriodConfig = async (req: Request, res: Response) => {
 		return sendSuccess(res, 'Period config fetched', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
 
 export const createSlot = async (req: Request, res: Response) => {
 	try {
-		const result = await service.createSlot(req.body)
+		const result = await service.createSlot(req.body, (req as any).user)
 		return sendSuccess(res, 'Slot created', result, 201)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
 
 export const bulkCreateSlots = async (req: Request, res: Response) => {
 	try {
-		const result = await service.bulkCreateSlots(req.body.slots)
+		const result = await service.bulkCreateSlots(req.body.slots, (req as any).user)
 		return sendSuccess(res, 'Slots created', result, 201)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
@@ -50,11 +50,11 @@ export const bulkCreateSlots = async (req: Request, res: Response) => {
 export const updateSlot = async (req: Request, res: Response) => {
 	try {
 		const id = req.params.id as string
-		const result = await service.updateSlot(id, req.body)
+		const result = await service.updateSlot(id, req.body, (req as any).user)
 		return sendSuccess(res, 'Slot updated', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
@@ -62,11 +62,11 @@ export const updateSlot = async (req: Request, res: Response) => {
 export const deleteSlot = async (req: Request, res: Response) => {
 	try {
 		const id = req.params.id as string
-		const result = await service.deleteSlot(id)
+		const result = await service.deleteSlot(id, (req as any).user)
 		return sendSuccess(res, 'Slot deleted', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
@@ -84,7 +84,7 @@ export const checkConflict = async (req: Request, res: Response) => {
 		return sendSuccess(res, 'Conflict check completed', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
@@ -93,11 +93,11 @@ export const getSectionTimetable = async (req: Request, res: Response) => {
 	try {
 		const sectionId = req.params.sectionId as string
 		const academicYear = req.query.academicYear as string
-		const result = await service.getSectionTimetable(sectionId, academicYear)
+		const result = await service.getSectionTimetable(sectionId, academicYear, (req as any).user)
 		return sendSuccess(res, 'Section timetable fetched', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
@@ -110,7 +110,7 @@ export const getTeacherTimetable = async (req: Request, res: Response) => {
 		return sendSuccess(res, 'Teacher timetable fetched', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
@@ -123,7 +123,7 @@ export const getMyTeacherTimetable = async (req: Request, res: Response) => {
 		return sendSuccess(res, 'My timetable fetched', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }
@@ -132,11 +132,11 @@ export const clearSectionTimetable = async (req: Request, res: Response) => {
 	try {
 		const sectionId = req.params.sectionId as string
 		const academicYear = req.query.academicYear as string
-		const result = await service.clearSectionTimetable(sectionId, academicYear)
+		const result = await service.clearSectionTimetable(sectionId, academicYear, (req as any).user)
 		return sendSuccess(res, 'Section timetable cleared', result)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Something went wrong'
-		const status = (error as any).status ?? 500
+		const status = (error as any).statusCode ?? (error as any).status ?? 500
 		return sendError(res, message, status)
 	}
 }

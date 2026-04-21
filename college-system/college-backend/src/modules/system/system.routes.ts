@@ -6,13 +6,24 @@ import * as controller from './system.controller'
 
 const router = Router()
 
-// All system routes are Principal-only
+// OAuth callback does NOT need auth middleware since Google redirects here directly
+router.get('/google/callback', controller.handleGoogleCallback)
+
+// All other system routes are Principal-only
 router.use(authenticate)
 router.use(authorize(...Roles.PRINCIPAL_ONLY))
 
+// Google Drive & OTP flow
+router.post('/google/send-otp', controller.sendOtp)
+router.post('/google/verify-otp', controller.verifyOtp)
+router.get('/google/auth-url', controller.getGoogleAuthUrl)
+router.get('/google/status', controller.getStatus)
+router.delete('/google/disconnect', controller.disconnectGoogle)
+
+// Backup Operations
 router.get('/backups', controller.listBackups)
-router.get('/backups/status', controller.getBackupStatus)
 router.post('/backups/trigger', controller.triggerBackup)
-router.get('/backups/:filename/download', controller.downloadBackup)
+router.get('/backups/:fileId/download', controller.downloadBackup)
+router.delete('/backups/:fileId', controller.deleteBackup)
 
 export { router as systemRouter }

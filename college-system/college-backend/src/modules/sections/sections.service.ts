@@ -2,6 +2,7 @@ import prisma from "../../config/database";
 import { Role } from "@prisma/client";
 import { CreateSectionDto, UpdateSectionDto } from "./sections.types";
 import { Prisma } from "@prisma/client";
+import { assertSectionCampus, requireOwnCampus } from "../../utils/campusGuard";
 
 type RequestUser = { id: string; role: Role; campusId: string | null };
 
@@ -73,7 +74,9 @@ export const getAllSections = async (
   }));
 };
 
-export const getSectionById = async (id: string) => {
+export const getSectionById = async (id: string, user?: RequestUser) => {
+  if (user) await assertSectionCampus(id, user)
+
   const section = await prisma.section.findUnique({
     where: { id },
     include: {
@@ -100,7 +103,7 @@ export const getSectionById = async (id: string) => {
   };
 };
 
-export const createSection = async (data: CreateSectionDto) => {
+export const createSection = async (data: CreateSectionDto, user?: RequestUser) => {
   return await prisma.$transaction(async (tx) => {
     const grade = await tx.grade.findUnique({
       where: { id: data.gradeId },
@@ -114,6 +117,10 @@ export const createSection = async (data: CreateSectionDto) => {
     });
     if (!grade) {
       throw Object.assign(new Error("Grade not found"), { statusCode: 404 });
+    }
+
+    if (user && grade.program?.campus?.id) {
+      requireOwnCampus(user, grade.program.campus.id)
     }
 
     const existing = await tx.section.findFirst({
@@ -151,13 +158,18 @@ export const createSection = async (data: CreateSectionDto) => {
   });
 };
 
-export const updateSection = async (id: string, data: UpdateSectionDto) => {
+export const updateSection = async (id: string, data: UpdateSectionDto, user?: RequestUser) => {
   const existing = await prisma.section.findUnique({
     where: { id },
+    include: { grade: { include: { program: { include: { campus: true } } } } },
   });
 
   if (!existing) {
     throw Object.assign(new Error("Section not found"), { statusCode: 404 });
+  }
+
+  if (user && existing.grade?.program?.campus?.id) {
+    requireOwnCampus(user, existing.grade.program.campus.id)
   }
 
   if (data.name) {
@@ -208,7 +220,9 @@ export const updateSection = async (id: string, data: UpdateSectionDto) => {
   };
 };
 
-export const toggleSectionStatus = async (id: string) => {
+export const toggleSectionStatus = async (id: string, user?: RequestUser) => {
+  if (user) await assertSectionCampus(id, user)
+
   const existing = await prisma.section.findUnique({
     where: { id },
   });
@@ -226,7 +240,9 @@ export const toggleSectionStatus = async (id: string) => {
   });
 };
 
-export const getSectionStudentCount = async (id: string) => {
+export const getSectionStudentCount = async (id: string, user?: RequestUser) => {
+  if (user) await assertSectionCampus(id, user)
+
   const existing = await prisma.section.findUnique({
     where: { id },
   });

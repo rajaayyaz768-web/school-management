@@ -11,7 +11,7 @@ export const getStaffForAttendance = async (req: Request, res: Response) => {
     return sendSuccess(res, 'Staff attendance list fetched', result)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Something went wrong'
-    const status = (error as any).status ?? 500
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
     return sendError(res, message, status)
   }
 }
@@ -20,7 +20,7 @@ export const markDailyAttendance = async (req: Request, res: Response) => {
   try {
     const body = req.body
     const markedById = (req as any).user.id
-    const result = await service.markDailyAttendance(body, markedById)
+    const result = await service.markDailyAttendance(body, markedById, (req as any).user)
 
     // Emit absence alerts for any ABSENT staff
     try {
@@ -43,7 +43,7 @@ export const markDailyAttendance = async (req: Request, res: Response) => {
     return sendSuccess(res, 'Daily attendance marked', result, 201)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Something went wrong'
-    const status = (error as any).status ?? 500
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
     return sendError(res, message, status)
   }
 }
@@ -52,11 +52,11 @@ export const updateSingleAttendance = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string
     const body = req.body
-    const result = await service.updateSingleAttendance(id, body)
+    const result = await service.updateSingleAttendance(id, body, (req as any).user)
     return sendSuccess(res, 'Attendance updated', result)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Something went wrong'
-    const status = (error as any).status ?? 500
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
     return sendError(res, message, status)
   }
 }
@@ -68,7 +68,7 @@ export const getDailyReport = async (req: Request, res: Response) => {
     return sendSuccess(res, 'Daily attendance report fetched', result)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Something went wrong'
-    const status = (error as any).status ?? 500
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
     return sendError(res, message, status)
   }
 }
@@ -78,11 +78,11 @@ export const getStaffAttendanceHistory = async (req: Request, res: Response) => 
     const staffId = req.params.staffId as string
     const month = req.query.month ? parseInt(req.query.month as string, 10) : undefined
     const year = req.query.year ? parseInt(req.query.year as string, 10) : undefined
-    const result = await service.getStaffAttendanceHistory(staffId, month, year)
+    const result = await service.getStaffAttendanceHistory(staffId, month, year, (req as any).user)
     return sendSuccess(res, 'Staff attendance history fetched', result)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Something went wrong'
-    const status = (error as any).status ?? 500
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
     return sendError(res, message, status)
   }
 }
@@ -94,7 +94,7 @@ export const getAbsentStaffToday = async (req: Request, res: Response) => {
     return sendSuccess(res, 'Absent staff fetched', result)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Something went wrong'
-    const status = (error as any).status ?? 500
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
     return sendError(res, message, status)
   }
 }
