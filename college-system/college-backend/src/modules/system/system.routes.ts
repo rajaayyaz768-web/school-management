@@ -24,6 +24,7 @@ router.delete('/google/disconnect', controller.disconnectGoogle)
 router.get('/backups', controller.listBackups)
 router.post('/backups/trigger', controller.triggerBackup)
 router.get('/backups/:fileId/download', controller.downloadBackup)
+router.post('/backups/:fileId/restore', controller.restoreBackup)
 router.delete('/backups/:fileId', controller.deleteBackup)
 
 export { router as systemRouter }

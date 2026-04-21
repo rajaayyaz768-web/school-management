@@ -123,3 +123,13 @@ export const deleteBackup = async (req: Request, res: Response): Promise<void> =
     sendError(res, error.message, error.status || 500)
   }
 }
+
+export const restoreBackup = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const fileId = req.params.fileId as string
+    const result = await driveService.restoreBackup(req.user!.id, fileId)
+    sendSuccess(res, result.message)
+  } catch (error: any) {
+    sendError(res, error.message, error.status || 500)
+  }
+}

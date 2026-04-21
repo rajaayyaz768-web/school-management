@@ -340,3 +340,48 @@ export async function getBackupMetadata(userId: string, fileId: string): Promise
     sizeBytes: res.data.size ? parseInt(res.data.size) : 0
   }
 }
+
+export async function restoreBackup(userId: string, fileId: string): Promise<{ message: string }> {
+  const { drive } = await getDriveClient(userId)
+
+  const dbUrl = process.env.DATABASE_URL
+  if (!dbUrl) throw Object.assign(new Error('DATABASE_URL not configured'), { status: 500 })
+
+  // 1. Get filename for the temp path
+  const meta = await drive.files.get({ fileId, fields: 'name' })
+  const filename = meta.data.name || `restore_${Date.now()}.sql.gz`
+  const tmpPath = path.join('/tmp', filename)
+
+  try {
+    // 2. Download the file from Drive to /tmp
+    const destStream = fs.createWriteStream(tmpPath)
+    const driveStream = await drive.files.get(
+      { fileId, alt: 'media' },
+      { responseType: 'stream' }
+    )
+
+    await new Promise<void>((resolve, reject) => {
+      (driveStream.data as any).pipe(destStream)
+      destStream.on('finish', resolve)
+      destStream.on('error', reject)
+      ;(driveStream.data as any).on('error', reject)
+    })
+
+    // 3. Drop and recreate the public schema, then restore
+    // Drop schema ensures a clean slate regardless of what is currently in the DB
+    await execAsync(
+      `psql "${dbUrl}" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO PUBLIC; GRANT ALL ON SCHEMA public TO postgres;"`,
+      { timeout: 30_000 }
+    )
+
+    // 4. Pipe the gzipped dump into psql
+    await execAsync(
+      `gunzip -c "${tmpPath}" | psql "${dbUrl}"`,
+      { timeout: 300_000 } // 5 minutes for large DBs
+    )
+
+    return { message: 'Database restored successfully' }
+  } finally {
+    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath)
+  }
+}
