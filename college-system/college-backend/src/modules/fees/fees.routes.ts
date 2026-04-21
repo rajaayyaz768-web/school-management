@@ -23,6 +23,7 @@ router.put('/structures/:id', authenticate, authorize(Role.ADMIN, Role.SUPER_ADM
 router.post('/records/generate', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), controller.generateFeeRecords)
 router.get('/records', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER), controller.getAllFeeRecords)
 router.get('/records/student/:studentId', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.PARENT, Role.STUDENT), controller.getStudentFeeRecords)
+router.get('/records/:id/chalan', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.PARENT), controller.getFeeRecordChalan)
 router.post('/records/:id/mark-paid', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), validate(markAsPaidSchema), controller.markFeeAsPaid)
 router.get('/defaulters', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER), controller.getFeeDefaulters)
 

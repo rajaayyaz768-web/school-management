@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { Printer } from 'lucide-react';
 import { TableColumn } from '@/components/ui/Table';
 import { Badge, Button, Table } from '@/components/ui';
 import { FeeRecordResponse, FeeStatus } from '../types/fees.types';
@@ -6,9 +8,10 @@ interface Props {
   records: FeeRecordResponse[];
   isLoading: boolean;
   onMarkPaid: (record: FeeRecordResponse) => void;
+  chalanBasePath?: string;
 }
 
-export function FeeRecordTable({ records, isLoading, onMarkPaid }: Props) {
+export function FeeRecordTable({ records, isLoading, onMarkPaid, chalanBasePath = '/admin/fees/chalan' }: Props) {
   const columns: TableColumn<FeeRecordResponse>[] = [
     {
       key: 'student',
@@ -81,13 +84,24 @@ export function FeeRecordTable({ records, isLoading, onMarkPaid }: Props) {
       key: 'actions',
       header: 'Actions',
       render: (row) => (
-        <Button
-          size="sm"
-          disabled={row.status === 'PAID' || row.status === 'WAIVED'}
-          onClick={() => onMarkPaid(row)}
-        >
-          Mark as Paid
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            disabled={row.status === 'PAID' || row.status === 'WAIVED'}
+            onClick={() => onMarkPaid(row)}
+          >
+            Mark as Paid
+          </Button>
+          <Link
+            href={`${chalanBasePath}/${row.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--primary)] transition-colors"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            Challan
+          </Link>
+        </div>
       ),
     },
   ];

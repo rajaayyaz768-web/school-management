@@ -107,3 +107,30 @@ export interface FeeDefaulter {
   balance: number;
   overdueRecords: number;
 }
+
+
+export interface FeeChalanData {
+  id: string;
+  receiptNumber: string | null;
+  dueDate: string;
+  paidAt: string | null;
+  amountDue: number;
+  amountPaid: number;
+  discount: number;
+  status: FeeStatus;
+  student: { id: string; firstName: string; lastName: string; rollNumber: string | null };
+  section: { id: string; name: string } | null;
+  grade: { id: string; name: string } | null;
+  program: { id: string; name: string; code: string } | null;
+  campus: { id: string; name: string; code: string } | null;
+  feeStructure: {
+    id: string;
+    academicYear: string;
+    totalFee: number;
+    admissionFee: number;
+    tuitionFee: number;
+    examFee: number;
+    miscFee: number;
+  };
+  parentPhone: string | null;
+}

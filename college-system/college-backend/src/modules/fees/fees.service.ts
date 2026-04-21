@@ -347,6 +347,111 @@ export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: R
   return mapToFeeRecordResponse(updated)
 }
 
+export const getFeeRecordChalan = async (id: string, user?: RequestUser) => {
+  const record = await prisma.feeRecord.findUnique({
+    where: { id },
+    include: {
+      student: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          rollNumber: true,
+          section: {
+            select: {
+              id: true,
+              name: true,
+              grade: {
+                select: {
+                  id: true,
+                  name: true,
+                  program: {
+                    select: {
+                      id: true,
+                      name: true,
+                      code: true,
+                      campus: { select: { id: true, name: true, code: true } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          parentLinks: {
+            select: {
+              relationship: true,
+              isPrimary: true,
+              parent: { select: { phone: true, firstName: true, lastName: true } },
+            },
+            orderBy: { isPrimary: 'desc' },
+            take: 1,
+          },
+        },
+      },
+      feeStructure: {
+        select: {
+          id: true,
+          academicYear: true,
+          totalFee: true,
+          admissionFee: true,
+          tuitionFee: true,
+          examFee: true,
+          miscFee: true,
+          program: { select: { id: true, name: true, code: true } },
+          grade: { select: { id: true, name: true } },
+          campus: { select: { id: true, name: true, code: true } },
+        },
+      },
+    },
+  })
+
+  if (!record) {
+    const error = new Error('Fee record not found') as any
+    error.status = 404
+    throw error
+  }
+
+  if (user) await assertStudentCampus(record.studentId, user)
+
+  const s = record.student
+  const section = s.section
+  const grade = section?.grade
+  const program = grade?.program
+  const campus = program?.campus
+  const parentLink = s.parentLinks?.[0]
+
+  return {
+    id: record.id,
+    receiptNumber: record.receiptNumber ?? null,
+    dueDate: record.dueDate.toISOString(),
+    paidAt: record.paidAt?.toISOString() ?? null,
+    amountDue: record.amountDue,
+    amountPaid: record.amountPaid,
+    discount: record.discount,
+    status: record.status,
+    student: {
+      id: s.id,
+      firstName: s.firstName,
+      lastName: s.lastName,
+      rollNumber: s.rollNumber ?? null,
+    },
+    section: section ? { id: section.id, name: section.name } : null,
+    grade: grade ? { id: grade.id, name: grade.name } : null,
+    program: program ? { id: program.id, name: program.name, code: program.code } : null,
+    campus: campus ? { id: campus.id, name: campus.name, code: campus.code } : null,
+    feeStructure: {
+      id: record.feeStructure.id,
+      academicYear: record.feeStructure.academicYear,
+      totalFee: record.feeStructure.totalFee,
+      admissionFee: record.feeStructure.admissionFee,
+      tuitionFee: record.feeStructure.tuitionFee,
+      examFee: record.feeStructure.examFee,
+      miscFee: record.feeStructure.miscFee,
+    },
+    parentPhone: parentLink?.parent.phone ?? null,
+  }
+}
+
 export const getFeeDefaulters = async (
   campusId: string,
   academicYear: string

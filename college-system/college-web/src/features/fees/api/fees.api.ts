@@ -7,6 +7,7 @@ import {
   MarkAsPaidInput,
   GenerateFeeRecordsInput,
   FeeDefaulter,
+  FeeChalanData,
 } from '../types/fees.types';
 
 export const fetchFeeStructures = async (
@@ -67,6 +68,11 @@ export const markFeeAsPaid = async (
   data: MarkAsPaidInput
 ): Promise<FeeRecordResponse> => {
   const res = await axios.post(`/fees/records/${id}/mark-paid`, data);
+  return res.data.data;
+};
+
+export const fetchFeeChalanData = async (id: string): Promise<FeeChalanData> => {
+  const res = await axios.get(`/fees/records/${id}/chalan`);
   return res.data.data;
 };
 

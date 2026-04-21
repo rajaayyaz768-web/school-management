@@ -9,6 +9,7 @@ import {
   generateFeeRecords,
   markFeeAsPaid,
   fetchFeeDefaulters,
+  fetchFeeChalanData,
 } from '../api/fees.api';
 import {
   CreateFeeStructureInput,
@@ -107,6 +108,15 @@ export const useMarkFeeAsPaid = () => {
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to mark fee as paid');
     },
+  });
+};
+
+export const useFeeChalanData = (id: string) => {
+  return useQuery({
+    queryKey: ['fee-chalan', id],
+    queryFn: () => fetchFeeChalanData(id),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

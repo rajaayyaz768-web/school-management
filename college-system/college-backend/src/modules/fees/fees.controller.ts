@@ -105,6 +105,18 @@ export const markFeeAsPaid = async (req: Request, res: Response) => {
   }
 }
 
+export const getFeeRecordChalan = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string
+    const result = await service.getFeeRecordChalan(id, (req as any).user)
+    return sendSuccess(res, 'Fee chalan fetched successfully', result)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Something went wrong'
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
+    return sendError(res, message, status)
+  }
+}
+
 export const getFeeDefaulters = async (req: Request, res: Response) => {
   try {
     const { campusId, academicYear } = req.query as { campusId?: string; academicYear?: string }
