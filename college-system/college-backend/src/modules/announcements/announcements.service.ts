@@ -1,7 +1,6 @@
-import { PrismaClient, AnnouncementAudience } from '@prisma/client'
+import { AnnouncementAudience } from '@prisma/client'
 import { CreateAnnouncementDto, UpdateAnnouncementDto, AnnouncementResponse } from './announcements.types'
-
-const prisma = new PrismaClient()
+import prisma from '../../config/database'
 
 const announcementInclude = {
   campus: { select: { id: true, name: true } },
@@ -28,12 +27,33 @@ function mapToResponse(a: any): AnnouncementResponse {
   }
 }
 
-export const getAllAnnouncements = async (): Promise<AnnouncementResponse[]> => {
-  const announcements = await prisma.announcement.findMany({
-    include: announcementInclude,
-    orderBy: { createdAt: 'desc' },
-  })
-  return announcements.map(mapToResponse)
+export const getAllAnnouncements = async (
+  campusId?: string,
+  pagination: { page?: number; limit?: number } = {}
+) => {
+  const where = campusId ? { campusId } : undefined;
+  const page = Math.max(1, pagination.page ?? 1);
+  const limit = Math.min(100, Math.max(1, pagination.limit ?? 20));
+  const skip = (page - 1) * limit;
+
+  const [announcements, total] = await Promise.all([
+    prisma.announcement.findMany({
+      where,
+      include: announcementInclude,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.announcement.count({ where }),
+  ]);
+
+  return {
+    data: announcements.map(mapToResponse),
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
 export const getAnnouncementById = async (id: string): Promise<AnnouncementResponse> => {
@@ -62,12 +82,11 @@ export const getAnnouncementsForUser = async (
     where: {
       audience: { in: audience },
       publishedAt: { lte: now },
-      OR: [
-        { expiresAt: null },
-        { expiresAt: { gt: now } },
+      AND: [
+        { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
+        ...(campusId  ? [{ OR: [{ campusId },  { campusId:  null }] }] : []),
+        ...(sectionId ? [{ OR: [{ sectionId }, { sectionId: null }] }] : []),
       ],
-      ...(campusId ? { OR: [{ campusId }, { campusId: null }] } : {}),
-      ...(sectionId ? { OR: [{ sectionId }, { sectionId: null }] } : {}),
     },
     include: announcementInclude,
     orderBy: { publishedAt: 'desc' },

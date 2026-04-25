@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as programsApi from '../api/programs.api';
 import { CreateProgramInput, UpdateProgramInput } from '../types/programs.types';
+import { UpdateGradeInput } from '../api/programs.api';
 import { useToast } from '@/hooks/useToast';
 
 export const usePrograms = (campusId?: string) => {
@@ -38,10 +39,29 @@ export const useUpdateProgram = () => {
       queryClient.invalidateQueries({ queryKey: ['programs'] });
       success('Program updated successfully');
     },
-    onError: (err: any) => {
-      const msg = err.response?.data?.message || (err instanceof Error ? err.message : 'Failed to update program');
+    onError: (err: unknown) => {
+      const e = err as { response?: { data?: { message?: string } } } & Error;
+      const msg = e.response?.data?.message || e.message || 'Failed to update program';
       error(msg);
     }
+  });
+};
+
+export const useUpdateGrade = () => {
+  const queryClient = useQueryClient();
+  const { success, error } = useToast();
+
+  return useMutation({
+    mutationFn: ({ gradeId, data }: { gradeId: string; data: UpdateGradeInput }) =>
+      programsApi.updateGrade(gradeId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['programs'] });
+      success('Grade updated successfully');
+    },
+    onError: (err: unknown) => {
+      const msg = err instanceof Error ? err.message : 'Failed to update grade';
+      error(msg);
+    },
   });
 };
 

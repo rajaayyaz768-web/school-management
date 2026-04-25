@@ -14,10 +14,11 @@ const countInclude = {
 } as const;
 
 const mapToResponse = (campus: any): any => {
-  const { code, phone, isActive, _count, ...rest } = campus;
+  const { code, phone, isActive, campusType, _count, ...rest } = campus;
   return {
     ...rest,
     campus_code: code,
+    campus_type: campusType,
     contact_number: phone,
     is_active: isActive,
     student_count: _count?.studentProfiles ?? 0,
@@ -96,6 +97,7 @@ export const createCampus = async (data: CreateCampusDto) => {
     data: {
       name: data.name,
       code: data.campus_code,
+      campusType: (data.campus_type as any) ?? "COLLEGE",
       address: data.address,
       phone: data.contact_number,
     },
@@ -116,6 +118,7 @@ export const updateCampus = async (id: string, data: UpdateCampusDto) => {
   const updateData: any = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.campus_code !== undefined) updateData.code = data.campus_code;
+  if (data.campus_type !== undefined) updateData.campusType = data.campus_type;
   if (data.address !== undefined) updateData.address = data.address;
   if (data.contact_number !== undefined) updateData.phone = data.contact_number;
 

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Parent } from '@/features/parents/types/parents.types';
-import { useParents } from '@/features/parents/hooks/useParents';
+import { useInfiniteParents } from '@/features/parents/hooks/useParents';
+import { InfiniteScrollSentinel } from '@/components/ui/InfiniteScrollSentinel';
 import { ParentTable } from '@/features/parents/components/ParentTable';
 import { ParentProfileDrawer } from '@/features/parents/components/ParentProfileDrawer';
 import { ParentForm } from '@/features/parents/components/ParentForm';
@@ -37,7 +38,8 @@ export default function ParentsPage() {
   const { success } = useToast();
 
   // Queries
-  const { data: parents = [], isLoading } = useParents(searchQuery);
+  const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteParents(searchQuery);
+  const parents = data?.pages.flatMap((p) => p.data) ?? [];
 
   const handleAddParentClick = () => {
     setEditingParent(null);
@@ -114,6 +116,8 @@ export default function ParentsPage() {
         onView={handleViewParentClick}
         onEdit={handleEditParentClick}
       />
+
+      <InfiniteScrollSentinel onVisible={fetchNextPage} hasMore={!!hasNextPage} isFetching={isFetchingNextPage} />
 
       {/* Drawer Context */}
       <ParentProfileDrawer

@@ -38,6 +38,8 @@ npm run prisma:studio       # open Prisma Studio GUI
 npx tsc --noEmit
 ```
 
+No test framework is configured — the project relies on TypeScript strict-mode compilation and manual QA.
+
 ### Seed credentials (password: `Test@1234`)
 
 | Role | Email | Scope |
@@ -98,11 +100,29 @@ Roles.ALL                 // all five roles
 
 **Response helpers** (`src/utils/response.ts`): always use `sendSuccess`, `sendCreated`, `sendError`, `sendNotFound`, etc. — never call `res.json()` directly.
 
-**Database**: PostgreSQL via Prisma 6. Schema at `prisma/schema.prisma`. Key models: `User`, `Campus`, `Program`, `Grade`, `Section`, `StaffProfile`, `StudentProfile`, `ParentProfile`, `StaffCampusAssignment`. Auth uses httpOnly cookies for refresh tokens; access tokens sent as `Authorization: Bearer`.
+**Error handling**: throw `new AppError(message, statusCode)` from services; the global error middleware (`src/middlewares/error.middleware.ts`) catches it, maps known Prisma error codes (P2002 duplicate, P2003 foreign key, P2025 not found), and logs via Winston. Never let Prisma errors bubble unhandled to the client.
+
+**Logger** (`src/utils/logger.ts`): Winston with color-coded namespaces — `logger.auth`, `logger.db`, `logger.validation`, `logger.socket`, etc. Use the relevant namespace rather than `console.log`.
+
+**Pagination** (`src/utils/pagination.ts`): use `parsePagination(query)` to read `page`/`limit` from query params, `getPrismaSkipTake()` for Prisma `skip`/`take`, and `buildPaginationMeta()` to attach metadata to the response. All list endpoints should go through this utility.
+
+**Campus ownership guard** (`src/utils/campusGuard.ts`): use `assertStudentBelongsToCampus` / `assertSectionBelongsToCampus` etc. when a service needs to verify ownership beyond what the auth middleware already scopes. These throw `AppError(403)` on mismatch.
+
+**Database**: PostgreSQL via Prisma 6. Schema at `prisma/schema.prisma`. Key model groups:
+- Auth/profiles: `User` (5 roles), `StaffProfile`, `StudentProfile`, `ParentProfile`
+- Hierarchy: `Campus` → `Program` → `Grade` → `Section`
+- Assignments: `StaffCampusAssignment`, `SectionSubjectTeacher`, `TimetableSlot`
+- Attendance: `StudentAttendance`, `StaffAttendance`, `MonthlyAttendanceSummary`
+- Academics: `Exam`, `ExamResult`, `BoardExamRecord`
+- Finance: `FeeStructure`, `FeeRecord`
+- Messaging: `ChatConversation`, `ChatMessage`, `Announcement`, `Notification`, `OutgoingMessage`
+- Ops: `AuditLog`, `AppVersion`, `GoogleDriveToken`
 
 **Prisma singleton**: always import from `src/config/database.ts` (exports the shared `prisma` instance) — never `new PrismaClient()` in service files.
 
 **Real-time**: Socket.io server initialised via `src/config/socket.ts`. Users join a room keyed by `userId` on login.
+
+**Docker**: a multi-stage `Dockerfile` (Node 20 Alpine) builds TypeScript, regenerates Prisma client, then serves from `dist/` with production-only dependencies. No `docker-compose` is provided.
 
 ### Campus Scoping (security-critical)
 
@@ -137,7 +157,7 @@ npm run dev
 # Build
 npm run build
 
-# Lint
+# Lint (ESLint 9 with Next.js preset — only frontend has a linter)
 npm run lint
 ```
 
@@ -161,9 +181,9 @@ npm run lint
 
 **Feature structure** — each feature under `src/features/<name>/` follows:
 ```
-api/         # axios calls wrapped in React Query useQuery / useMutation
+api/         # axios calls (not hooks — plain async functions)
 components/  # feature-specific UI components
-hooks/       # feature-specific hooks
+hooks/       # React Query useQuery / useMutation wrappers; onSuccess invalidates related keys and shows toast
 types/       # TypeScript types
 ```
 
@@ -175,7 +195,7 @@ types/       # TypeScript types
 - `notificationStore` — in-app notifications
 - `themeStore` — light/dark theme
 
-**Data fetching**: React Query via `src/lib/queryClient.ts`. All API calls go through React Query hooks in `features/<name>/api/` or `features/<name>/hooks/`.
+**Data fetching**: React Query via `src/lib/queryClient.ts`. All API calls go through React Query hooks in `features/<name>/hooks/`.
 
 **Styling**: Tailwind CSS v4 + `tailwind-merge` (`cn()` in `src/lib/utils.ts`). Design tokens are CSS variables (`--gold`, `--primary`, `--text`, `--border`, `--surface`, `--radius-lg`, etc.) defined in the global stylesheet — use these rather than hardcoded colors.
 

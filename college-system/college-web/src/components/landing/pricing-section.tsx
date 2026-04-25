@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, Check } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 const discountTiers = [
   {
@@ -208,10 +209,10 @@ export function PricingSection() {
                     {tier.discount > 0 ? "off" : "Standard fee"}
                   </span>
                 </div>
-                <button className="border border-foreground/20 text-foreground hover:border-foreground hover:bg-foreground/5 px-6 py-3 text-sm font-medium transition-all flex items-center gap-2 group whitespace-nowrap">
+                <Button variant="outline" size="lg" className="whitespace-nowrap group">
                   {tier.cta}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </button>
+                </Button>
               </div>
             </div>
           ))}

@@ -1,5 +1,6 @@
 import prisma from '../../../config/database'
 import { StaffAttendanceStatus, FeeStatus, ExamStatus } from '@prisma/client'
+import { cacheGet, cacheSet, TTL } from '../../../utils/cache'
 
 function getTodayRange() {
   const dateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' })
@@ -9,6 +10,15 @@ function getTodayRange() {
 }
 
 export async function getAdminDashboardData(campusId?: string) {
+  const cacheKey = `dashboard:admin:${campusId ?? 'all'}`;
+  const cached = cacheGet<ReturnType<typeof _getAdminDashboardData>>(cacheKey);
+  if (cached) return cached;
+  const result = await _getAdminDashboardData(campusId);
+  cacheSet(cacheKey, result, TTL.DASHBOARD);
+  return result;
+}
+
+async function _getAdminDashboardData(campusId?: string) {
   const { start: todayStart, end: todayEnd } = getTodayRange()
 
   const campusFilter = campusId ? { campusId } : {}

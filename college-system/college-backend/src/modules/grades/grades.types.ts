@@ -1,6 +1,8 @@
 export interface UpdateGradeDto {
   name?: string;
   is_active?: boolean;
+  teaching_mode?: "SUBJECT_WISE" | "CLASS_TEACHER" | "DUAL_TEACHER";
+  is_transitional?: boolean;
 }
 
 export interface GradeResponse {

@@ -11,10 +11,31 @@ export interface AnnouncementFilters {
   isActive?: boolean
 }
 
+export interface AnnouncementPage {
+  data: Announcement[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
 export const fetchAnnouncements = async (
   filters?: AnnouncementFilters
 ): Promise<Announcement[]> => {
   const params: Record<string, string> = {}
+  if (filters?.campusId) params.campusId = filters.campusId
+  if (filters?.audience) params.audience = filters.audience
+  if (filters?.isActive !== undefined) params.isActive = String(filters.isActive)
+  const res = await axios.get('/announcements', { params })
+  const data = res.data.data
+  return Array.isArray(data) ? data : (data.data ?? [])
+}
+
+export const fetchAnnouncementsPage = async (
+  filters: AnnouncementFilters | undefined,
+  page: number
+): Promise<AnnouncementPage> => {
+  const params: Record<string, string> = { page: String(page), limit: '20' }
   if (filters?.campusId) params.campusId = filters.campusId
   if (filters?.audience) params.audience = filters.audience
   if (filters?.isActive !== undefined) params.isActive = String(filters.isActive)

@@ -36,12 +36,34 @@ export const updateFeeStructure = async (
   return res.data.data;
 };
 
+export interface FeeRecordPage {
+  records: FeeRecordResponse[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export const fetchFeeRecords = async (
   campusId?: string,
   status?: string,
   academicYear?: string
 ): Promise<FeeRecordResponse[]> => {
   const params: Record<string, string> = {};
+  if (campusId) params.campusId = campusId;
+  if (status && status !== 'ALL') params.status = status;
+  if (academicYear) params.academicYear = academicYear;
+  const res = await axios.get('/fees/records', { params });
+  const data = res.data.data;
+  return Array.isArray(data) ? data : (data.records ?? []);
+};
+
+export const fetchFeeRecordsPage = async (
+  campusId: string | undefined,
+  status: string | undefined,
+  academicYear: string | undefined,
+  page: number
+): Promise<FeeRecordPage> => {
+  const params: Record<string, string> = { page: String(page), limit: '20' };
   if (campusId) params.campusId = campusId;
   if (status && status !== 'ALL') params.status = status;
   if (academicYear) params.academicYear = academicYear;

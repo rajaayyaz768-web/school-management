@@ -9,7 +9,11 @@ export const getAllStaff = async (req: Request, res: Response) => {
       employmentType: req.query.employment_type as string | undefined,
       isActive: req.query.is_active !== undefined ? String(req.query.is_active) === "true" : undefined,
     };
-    const staff = await staffService.getAllStaff(filters);
+    const pagination = {
+      page: req.query.page ? parseInt(req.query.page as string) : 1,
+      limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
+    };
+    const staff = await staffService.getAllStaff(filters, pagination);
     sendSuccess(res, "Staff retrieved successfully", staff);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

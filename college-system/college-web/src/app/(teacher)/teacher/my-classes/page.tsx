@@ -1,6 +1,7 @@
 'use client'
 
-import { BookOpen, Users, GraduationCap, Building2 } from 'lucide-react'
+import Link from 'next/link'
+import { BookOpen, Users, GraduationCap, Building2, ChevronRight } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -11,32 +12,37 @@ import { TeacherSection } from '@/features/dashboard/teacher/types/teacher-dashb
 
 function SectionCard({ section }: { section: TeacherSection }) {
   return (
-    <Card hoverable className="space-y-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[var(--radius)] bg-[var(--primary)]/10 border border-[var(--primary)]/20 flex items-center justify-center flex-shrink-0">
-            <BookOpen className="w-5 h-5 text-[var(--primary)]" />
+    <Link href={`/teacher/my-classes/${section.id}`} className="block">
+      <Card hoverable className="space-y-4 cursor-pointer">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-[var(--radius)] bg-[var(--primary)]/10 border border-[var(--primary)]/20 flex items-center justify-center flex-shrink-0">
+              <BookOpen className="w-5 h-5 text-[var(--primary)]" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-[var(--text)] text-base">Section {section.name}</h3>
+              <p className="text-sm text-[var(--text-muted)]">{section.gradeName}</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-[var(--text)] text-base">Section {section.name}</h3>
-            <p className="text-sm text-[var(--text-muted)]">{section.gradeName}</p>
+          <div className="flex items-center gap-2">
+            <Badge variant="info">{section.programName}</Badge>
+            <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" />
           </div>
         </div>
-        <Badge variant="info">{section.programName}</Badge>
-      </div>
 
-      <div className="flex items-center gap-4 pt-2 border-t border-[var(--border)]">
-        <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
-          <Users className="w-4 h-4" />
-          <span className="text-sm font-medium text-[var(--text)]">{section.studentCount}</span>
-          <span className="text-sm">students</span>
+        <div className="flex items-center gap-4 pt-2 border-t border-[var(--border)]">
+          <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
+            <Users className="w-4 h-4" />
+            <span className="text-sm font-medium text-[var(--text)]">{section.studentCount}</span>
+            <span className="text-sm">students</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
+            <GraduationCap className="w-4 h-4" />
+            <span className="text-sm">{section.gradeName}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
-          <GraduationCap className="w-4 h-4" />
-          <span className="text-sm">{section.gradeName}</span>
-        </div>
-      </div>
-    </Card>
+      </Card>
+    </Link>
   )
 }
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Student } from '@/features/students/types/students.types';
-import { useStudents } from '@/features/students/hooks/useStudents';
+import { useInfiniteStudents } from '@/features/students/hooks/useStudents';
 import { StudentTable } from '@/features/students/components/StudentTable';
 import { StudentProfileDrawer } from '@/features/students/components/StudentProfileDrawer';
 import { StudentForm } from '@/features/students/components/StudentForm';
@@ -12,9 +12,9 @@ import {
   Button,
   Select,
   SearchInput,
-  Pagination,
   Modal,
 } from '@/components/ui';
+import { InfiniteScrollSentinel } from '@/components/ui/InfiniteScrollSentinel';
 import { useToast } from '@/hooks/useToast';
 
 interface StudentsPageProps {
@@ -26,8 +26,6 @@ interface StudentsPageProps {
 export function StudentsPage({ campusId, sectionId, navigation }: StudentsPageProps) {
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const limit = 25;
 
   // Modaling State
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -43,16 +41,19 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
   const { success } = useToast();
 
   // Queries
-  const { data: paginatedData, isLoading } = useStudents({
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteStudents({
     campusId: campusId || undefined,
     sectionId: sectionId || undefined,
     status: selectedStatus !== 'ALL' ? selectedStatus : undefined,
-    page: currentPage,
-    limit,
   });
 
-  const studentsList = paginatedData?.data || [];
-  const totalPages = paginatedData?.totalPages || 1;
+  const studentsList = data?.pages.flatMap((p) => p.data) ?? [];
 
   // Filter client-side explicitly on Name OR Roll Number
   const filteredClientList = studentsList.filter((s) => {
@@ -64,7 +65,6 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
   });
 
   const handleAddStudentClick = () => {
-    setCurrentPage(1);
     setEditingStudent(null);
     setIsFormModalOpen(true);
   };
@@ -124,10 +124,7 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
           <Select
             options={statusOptions}
             value={selectedStatus}
-            onChange={(e) => {
-              setSelectedStatus(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(e) => setSelectedStatus(e.target.value)}
             className="w-full sm:w-48"
           />
         </div>
@@ -147,18 +144,11 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
         onEdit={handleEditStudentClick}
       />
 
-      {!isLoading && totalPages > 1 && (
-        <div className="flex justify-between items-center pt-4">
-          <p className="text-sm text-[var(--text-muted)]">
-            Showing page {currentPage} of {totalPages}
-          </p>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </div>
-      )}
+      <InfiniteScrollSentinel
+        onVisible={fetchNextPage}
+        hasMore={!!hasNextPage}
+        isFetching={isFetchingNextPage}
+      />
 
       <StudentProfileDrawer
         studentId={viewingStudentId}

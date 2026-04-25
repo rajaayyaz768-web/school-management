@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Button from '@/components/ui/Button';
 
 export interface BreadcrumbItem {
   label: string;
@@ -33,12 +34,14 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
                 {item.label}
               </Link>
             ) : item.onClick && !isLast ? (
-              <button 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={item.onClick}
-                className="text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors font-medium"
+                className="!p-0 !rounded-none !bg-transparent hover:!bg-transparent hover:!translate-y-0 text-[var(--text-muted)] hover:text-[var(--primary)] font-medium"
               >
                 {item.label}
-              </button>
+              </Button>
             ) : (
               <span className="text-[var(--text)] font-semibold" aria-current={isLast ? "page" : undefined}>
                 {item.label}

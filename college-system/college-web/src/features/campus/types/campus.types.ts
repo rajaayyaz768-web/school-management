@@ -1,7 +1,10 @@
+export type CampusType = 'SCHOOL' | 'COLLEGE';
+
 export interface Campus {
   id: string;
   name: string;
   campus_code: string;
+  campus_type: CampusType;
   address: string | null;
   contact_number: string | null;
   is_active: boolean;
@@ -14,6 +17,7 @@ export interface Campus {
 export interface CreateCampusInput {
   name: string;
   campus_code: string;
+  campus_type?: CampusType;
   address?: string;
   contact_number?: string;
 }
@@ -21,6 +25,7 @@ export interface CreateCampusInput {
 export interface UpdateCampusInput {
   name?: string;
   campus_code?: string;
+  campus_type?: CampusType;
   address?: string;
   contact_number?: string;
 }

@@ -8,8 +8,17 @@ import {
 } from "./parents.types";
 import { Role, Prisma } from "@prisma/client";
 
-export const getAllParents = async (filters: { search?: string }) => {
+export const getAllParents = async (
+  filters: { search?: string; campusId?: string },
+  pagination: { page?: number; limit?: number } = {}
+) => {
   const whereClause: Prisma.ParentProfileWhereInput = {};
+
+  if (filters.campusId) {
+    whereClause.studentLinks = {
+      some: { student: { campusId: filters.campusId } },
+    };
+  }
 
   if (filters.search) {
     whereClause.OR = [
@@ -19,7 +28,12 @@ export const getAllParents = async (filters: { search?: string }) => {
     ];
   }
 
-  const parents = await prisma.parentProfile.findMany({
+  const page = Math.max(1, pagination.page ?? 1);
+  const limit = Math.min(100, Math.max(1, pagination.limit ?? 20));
+  const skip = (page - 1) * limit;
+
+  const [parentsData, total] = await Promise.all([
+    prisma.parentProfile.findMany({
     where: whereClause,
     include: {
       user: { select: { id: true, email: true, isActive: true } },
@@ -41,10 +55,20 @@ export const getAllParents = async (filters: { search?: string }) => {
         }
       }
     },
-    orderBy: { firstName: "asc" }
-  });
+    orderBy: { firstName: "asc" },
+    skip,
+    take: limit,
+  }),
+    prisma.parentProfile.count({ where: whereClause }),
+  ]);
 
-  return parents;
+  return {
+    data: parentsData,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 };
 
 export const getParentById = async (id: string) => {

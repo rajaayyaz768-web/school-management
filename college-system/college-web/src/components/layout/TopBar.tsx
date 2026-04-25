@@ -202,23 +202,23 @@ export function TopBar({ title }: TopBarProps) {
                   </div>
 
                   {/* Options */}
-                  <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-secondary)] hover:text-[var(--text)]">
+                  <Button variant="ghost" size="sm" fullWidth className="justify-start gap-3 text-[var(--text-secondary)]">
                     <User className="h-4 w-4" />
                     My Profile
-                  </button>
+                  </Button>
 
                   <div className="my-1 border-t border-[var(--border)]" />
 
-                  <button
-                    onClick={() => {
-                      setDropdownOpen(false);
-                      logout();
-                    }}
-                    className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:hover:bg-red-950/30"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    fullWidth
+                    onClick={() => { setDropdownOpen(false); logout(); }}
+                    className="justify-start gap-3 text-red-600 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign Out
-                  </button>
+                  </Button>
                 </div>
               </Card>
             </div>

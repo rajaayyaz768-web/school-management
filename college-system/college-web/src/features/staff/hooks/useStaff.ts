@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as staffApi from '../api/staff.api';
 import { CreateStaffInput, UpdateStaffInput } from '../types/staff.types';
 import { useToast } from '@/hooks/useToast';
@@ -7,6 +7,15 @@ export const useStaff = (filters?: staffApi.StaffFilters) => {
   return useQuery({
     queryKey: ['staff', filters],
     queryFn: () => staffApi.fetchAllStaff(filters),
+  });
+};
+
+export const useInfiniteStaff = (filters: staffApi.StaffFilters = {}) => {
+  return useInfiniteQuery({
+    queryKey: ['staff', 'infinite', filters],
+    queryFn: ({ pageParam }) => staffApi.fetchStaffPage(filters, pageParam as number),
+    initialPageParam: 1,
+    getNextPageParam: (last) => last.page < last.totalPages ? last.page + 1 : undefined,
   });
 };
 

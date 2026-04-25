@@ -1,10 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/useToast';
 import {
   fetchFeeStructures,
   createFeeStructure,
   updateFeeStructure,
   fetchFeeRecords,
+  fetchFeeRecordsPage,
   fetchStudentFeeRecords,
   generateFeeRecords,
   markFeeAsPaid,
@@ -68,6 +69,15 @@ export const useFeeRecords = (filters: FeeRecordFilters) => {
     queryKey: ['fee-records', filters],
     queryFn: () => fetchFeeRecords(filters.campusId, filters.status, filters.academicYear),
     enabled: true,
+  });
+};
+
+export const useInfiniteFeeRecords = (filters: FeeRecordFilters) => {
+  return useInfiniteQuery({
+    queryKey: ['fee-records', 'infinite', filters],
+    queryFn: ({ pageParam }) => fetchFeeRecordsPage(filters.campusId, filters.status, filters.academicYear, pageParam as number),
+    initialPageParam: 1,
+    getNextPageParam: (last) => last.page < Math.ceil(last.total / last.limit) ? last.page + 1 : undefined,
   });
 };
 

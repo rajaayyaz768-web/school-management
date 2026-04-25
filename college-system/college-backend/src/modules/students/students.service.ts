@@ -36,7 +36,12 @@ export const getAllStudents = async (
       include: {
         user: { select: { id: true, email: true, isActive: true } },
         section: { select: { id: true, name: true } },
-        campus: { select: { id: true, name: true, code: true } }
+        campus: { select: { id: true, name: true, code: true } },
+        parentLinks: {
+          where: { isPrimary: true },
+          select: { parent: { select: { phone: true } } },
+          take: 1,
+        },
       },
       orderBy: { firstName: 'asc' },
       skip,
@@ -62,7 +67,12 @@ export const getStudentById = async (id: string, user?: RequestUser) => {
     include: {
       user: { select: { id: true, email: true, isActive: true } },
       section: { select: { id: true, name: true } },
-      campus: { select: { id: true, name: true, code: true } }
+      campus: { select: { id: true, name: true, code: true } },
+      parentLinks: {
+        where: { isPrimary: true },
+        select: { parent: { select: { phone: true } } },
+        take: 1,
+      },
     },
   });
 
@@ -234,6 +244,16 @@ export const getUnassignedStudents = async (gradeId: string) => {
 export const getStudentsBySection = async (sectionId: string, user?: RequestUser) => {
   if (user) await assertSectionCampus(sectionId, user)
 
+  // Teachers may only access sections they are assigned to teach
+  if (user && user.role === Role.TEACHER) {
+    const assignment = await prisma.sectionSubjectTeacher.findFirst({
+      where: { sectionId, staff: { userId: user.id } },
+    });
+    if (!assignment) {
+      throw Object.assign(new Error("You are not assigned to this section"), { statusCode: 403 });
+    }
+  }
+
   const section = await prisma.section.findUnique({ where: { id: sectionId } });
   if (!section) {
     throw Object.assign(new Error("Section not found"), { statusCode: 404 });
@@ -243,7 +263,12 @@ export const getStudentsBySection = async (sectionId: string, user?: RequestUser
     where: { sectionId, status: StudentStatus.ACTIVE },
     include: {
       user: { select: { id: true, email: true, isActive: true } },
-      campus: { select: { id: true, name: true, code: true } }
+      campus: { select: { id: true, name: true, code: true } },
+      parentLinks: {
+        where: { isPrimary: true },
+        select: { parent: { select: { phone: true } } },
+        take: 1,
+      },
     },
     orderBy: { rollNumber: 'asc' }
   });

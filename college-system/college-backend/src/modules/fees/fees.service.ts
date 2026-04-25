@@ -227,41 +227,25 @@ export const generateFeeRecordsForSection = async (
   }
 
   const students = await prisma.studentProfile.findMany({
-    where: {
-      sectionId,
-      status: 'ACTIVE',
-    },
+    where: { sectionId, status: 'ACTIVE' },
     select: { id: true },
   })
 
-  let created = 0
+  const result = await prisma.feeRecord.createMany({
+    data: students.map((s) => ({
+      studentId: s.id,
+      feeStructureId,
+      academicYear: feeStructure.academicYear,
+      dueDate: new Date(),
+      amountDue: feeStructure.totalFee,
+      amountPaid: 0,
+      discount: 0,
+      status: FeeStatus.PENDING,
+    })),
+    skipDuplicates: true,
+  })
 
-  for (const student of students) {
-    const existingRecord = await prisma.feeRecord.findFirst({
-      where: {
-        studentId: student.id,
-        feeStructureId,
-      },
-    })
-
-    if (!existingRecord) {
-      await prisma.feeRecord.create({
-        data: {
-          studentId: student.id,
-          feeStructureId,
-          academicYear: feeStructure.academicYear,
-          dueDate: new Date(),
-          amountDue: feeStructure.totalFee,
-          amountPaid: 0,
-          discount: 0,
-          status: FeeStatus.PENDING,
-        },
-      })
-      created++
-    }
-  }
-
-  return { created }
+  return { created: result.count }
 }
 
 export const getStudentFeeRecords = async (studentId: string, user?: RequestUser): Promise<FeeRecordResponse[]> => {
@@ -280,22 +264,30 @@ export const getAllFeeRecords = async (filters: {
   campusId?: string
   status?: FeeStatus
   academicYear?: string
-}): Promise<FeeRecordResponse[]> => {
+  page?: number
+  limit?: number
+}): Promise<{ records: FeeRecordResponse[]; total: number; page: number; limit: number }> => {
   const where: any = {}
-
   if (filters.academicYear) where.academicYear = filters.academicYear
   if (filters.status) where.status = filters.status
-  if (filters.campusId) {
-    where.student = { campusId: filters.campusId }
-  }
+  if (filters.campusId) where.student = { campusId: filters.campusId }
 
-  const records = await prisma.feeRecord.findMany({
-    where,
-    include: feeRecordInclude,
-    orderBy: { createdAt: 'desc' },
-  })
+  const page = Math.max(1, filters.page ?? 1)
+  const limit = Math.min(200, Math.max(1, filters.limit ?? 50))
+  const skip = (page - 1) * limit
 
-  return records.map(mapToFeeRecordResponse)
+  const [records, total] = await Promise.all([
+    prisma.feeRecord.findMany({
+      where,
+      include: feeRecordInclude,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.feeRecord.count({ where }),
+  ])
+
+  return { records: records.map(mapToFeeRecordResponse), total, page, limit }
 }
 
 export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: RequestUser): Promise<FeeRecordResponse> => {
@@ -356,7 +348,7 @@ export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: R
           section: {
             select: {
               name: true,
-              grade: { select: { name: true, program: { select: { name: true } } } },
+              grade: { select: { name: true, program: { select: { name: true, campus: { select: { name: true } } } } } },
             },
           },
           parentLinks: {
@@ -374,18 +366,24 @@ export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: R
       const grade = studentProfile?.section?.grade
       const className = [grade?.program?.name, grade?.name, studentProfile?.section?.name]
         .filter(Boolean).join(' ')
+      const campusName = grade?.program?.campus?.name
+      const classWithCampus = campusName ? `${className} | ${campusName}` : className
       const month = new Date(record.dueDate).toLocaleDateString('en-PK', { month: 'long', year: 'numeric' })
       const receiptNo = data.receiptNumber ?? updated.id.slice(-8).toUpperCase()
+      const dateTime = new Date().toLocaleString('en-PK', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: true,
+      })
 
       await sendFeePaidWhatsApp(
         phone,
         {
           parentName: parentLink?.parent.firstName ?? 'Parent',
           studentName: `${studentProfile?.firstName} ${studentProfile?.lastName}`,
-          className,
+          className: classWithCampus,
           month,
           amount: `PKR ${data.amountPaid.toLocaleString('en-PK', { maximumFractionDigits: 0 })}`,
-          date: new Date().toLocaleDateString('en-PK'),
+          date: dateTime,
           receiptNumber: receiptNo,
         },
         process.env.META_WHATSAPP_TEMPLATE_NAME ?? 'fee_paid_confirmation'

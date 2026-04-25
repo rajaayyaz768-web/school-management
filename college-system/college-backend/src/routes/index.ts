@@ -23,6 +23,8 @@ import { teacherDashboardRouter } from '../modules/dashboard/teacher/teacherDash
 import { parentDashboardRouter } from '../modules/dashboard/parent/parentDashboard.routes'
 import { studentDashboardRouter } from '../modules/dashboard/student/studentDashboard.routes'
 import { systemRouter } from '../modules/system/system.routes'
+import { adminManagementRouter } from '../modules/admin-management/admin-management.routes'
+import { promotionRouter } from '../modules/promotion/promotion.routes'
 
 const router = Router();
 
@@ -54,6 +56,12 @@ router.use('/reports', reportsRouter)
 
 // ─── System (backup management) ───────────────────────────────────────────
 router.use('/system', systemRouter)
+
+// ─── Admin management (principal-only) ────────────────────────────────────
+router.use('/admin-management', adminManagementRouter)
+
+// ─── Promotion (school academic year rollover) ────────────────────────────
+router.use('/promotion', promotionRouter)
 
 // ─── Dashboards ───────────────────────────────────────────────────────────
 router.use('/dashboard/principal', principalDashboardRouter)

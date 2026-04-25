@@ -405,9 +405,9 @@ export default function BackupsPage() {
             <p className="font-semibold text-sm">Database restored successfully</p>
             <p className="text-xs text-emerald-400/70 mt-0.5">All users have been signed out. Please refresh and log in again.</p>
           </div>
-          <button onClick={() => setRestoreResult(null)} className="ml-auto text-emerald-400/50 hover:text-emerald-400">
+          <Button variant="ghost" size="sm" onClick={() => setRestoreResult(null)} className="ml-auto !p-1 text-emerald-400/50 hover:text-emerald-400 hover:!bg-transparent">
             <XCircle className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       )}
       {restoreResult === 'error' && (
@@ -417,9 +417,9 @@ export default function BackupsPage() {
             <p className="font-semibold text-sm">Restore failed</p>
             <p className="text-xs text-red-400/70 mt-0.5">{restoreError}</p>
           </div>
-          <button onClick={() => setRestoreResult(null)} className="ml-auto text-red-400/50 hover:text-red-400">
+          <Button variant="ghost" size="sm" onClick={() => setRestoreResult(null)} className="ml-auto !p-1 text-red-400/50 hover:text-red-400 hover:!bg-transparent">
             <XCircle className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       )}
 

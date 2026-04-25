@@ -5,7 +5,10 @@ import { sendSuccess, sendCreated, sendError } from "../../utils/response";
 export const getAllParents = async (req: Request, res: Response) => {
   try {
     const search = req.query.search as string | undefined;
-    const parents = await parentsService.getAllParents({ search });
+    const campusId = req.query.campus_id as string | undefined;
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+    const parents = await parentsService.getAllParents({ search, campusId }, { page, limit });
     sendSuccess(res, "Parents retrieved successfully", parents);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };

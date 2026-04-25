@@ -1,18 +1,15 @@
-export interface BackupFile {
+export interface DriveBackupFile {
+  id: string
   filename: string
   createdAt: string
   sizeBytes: number
 }
 
-export interface LastBackupRun {
-  timestamp: string
-  success: boolean
-  error?: string
-}
-
-export interface BackupStatus {
-  configured: boolean
-  lastRun: LastBackupRun | null
+export interface GoogleDriveStatus {
+  connected: boolean
+  email: string | null
+  folderId: string | null
+  lastBackup: { timestamp: string; success: boolean; filename?: string; error?: string } | null
+  backupCount: number
   storageBytesUsed: number
-  backupDir: string | null
 }

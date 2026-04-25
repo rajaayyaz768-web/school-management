@@ -1,5 +1,16 @@
 import axios from '@/lib/axios';
-import { Program, CreateProgramInput, UpdateProgramInput } from '../types/programs.types';
+import { Program, CreateProgramInput, UpdateProgramInput, TeachingMode } from '../types/programs.types';
+
+export interface UpdateGradeInput {
+  name?: string;
+  teaching_mode?: TeachingMode;
+  is_transitional?: boolean;
+}
+
+export const updateGrade = async (gradeId: string, data: UpdateGradeInput) => {
+  const response = await axios.put(`/grades/${gradeId}`, data);
+  return response.data.data;
+};
 
 export const fetchAllPrograms = async (campusId?: string): Promise<Program[]> => {
   const url = campusId ? `/programs?campus_id=${campusId}` : '/programs';

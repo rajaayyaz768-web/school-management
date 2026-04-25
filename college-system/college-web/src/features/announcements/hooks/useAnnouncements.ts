@@ -1,7 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks/useToast'
 import {
   fetchAnnouncements,
+  fetchAnnouncementsPage,
   fetchAnnouncementsForMe,
   createAnnouncement,
   updateAnnouncement,
@@ -15,6 +16,15 @@ export const useAnnouncements = (filters?: AnnouncementFilters) => {
     queryKey: ['announcements', filters],
     queryFn: () => fetchAnnouncements(filters),
     enabled: true,
+  })
+}
+
+export const useInfiniteAnnouncements = (filters?: AnnouncementFilters) => {
+  return useInfiniteQuery({
+    queryKey: ['announcements', 'infinite', filters],
+    queryFn: ({ pageParam }) => fetchAnnouncementsPage(filters, pageParam as number),
+    initialPageParam: 1,
+    getNextPageParam: (last) => last.page < last.totalPages ? last.page + 1 : undefined,
   })
 }
 

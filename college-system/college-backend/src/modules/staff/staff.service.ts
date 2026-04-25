@@ -14,51 +14,58 @@ const extractNames = (fullName: string) => {
   return { firstName, lastName };
 };
 
-export const getAllStaff = async (filters: { campusId?: string; employmentType?: string; isActive?: boolean }) => {
+export const getAllStaff = async (
+  filters: { campusId?: string; employmentType?: string; isActive?: boolean },
+  pagination: { page?: number; limit?: number } = {}
+) => {
   const whereClause: Prisma.StaffProfileWhereInput = {};
 
   if (filters.campusId) {
     whereClause.campusAssignments = {
-      some: {
-        campusId: filters.campusId,
-        isPrimary: true,
-      },
+      some: { campusId: filters.campusId },
     };
   }
   if (filters.employmentType) {
     whereClause.employmentType = filters.employmentType as any;
   }
-  if (filters.isActive !== undefined) {
-    // Only fetch via associated user if provided
-    whereClause.user = {
-      isActive: filters.isActive,
-    };
-  }
 
-  const staffList = await prisma.staffProfile.findMany({
-    where: whereClause,
-    include: {
-      user: {
-        select: { id: true, email: true, role: true, isActive: true },
-      },
-      campusAssignments: {
-        where: { isPrimary: true },
-        include: {
-          campus: true,
+  whereClause.user = {
+    ...(filters.isActive !== undefined ? { isActive: filters.isActive } : {}),
+    role: { notIn: [Role.SUPER_ADMIN, Role.ADMIN] },
+  };
+
+  const page = Math.max(1, pagination.page ?? 1);
+  const limit = Math.min(100, Math.max(1, pagination.limit ?? 20));
+  const skip = (page - 1) * limit;
+
+  const [staffList, total] = await Promise.all([
+    prisma.staffProfile.findMany({
+      where: whereClause,
+      include: {
+        user: { select: { id: true, email: true, role: true, isActive: true } },
+        campusAssignments: {
+          where: { isPrimary: true },
+          include: { campus: true },
         },
       },
-    },
-    orderBy: [
-      { firstName: "asc" },
-      { lastName: "asc" },
-    ],
-  });
+      orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
+      skip,
+      take: limit,
+    }),
+    prisma.staffProfile.count({ where: whereClause }),
+  ]);
 
-  return staffList.map((staff) => ({
-    ...staff,
-    campus: staff.campusAssignments[0]?.campus || null,
-    campusAssignments: undefined,
-  }));
+  return {
+    data: staffList.map((staff) => ({
+      ...staff,
+      campus: staff.campusAssignments[0]?.campus || null,
+      campusAssignments: undefined,
+    })),
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 };
 
 export const getStaffById = async (id: string, user?: RequestUser) => {
@@ -255,7 +262,7 @@ export const toggleStaffStatus = async (id: string, user?: RequestUser) => {
 export const getStaffByCampus = async (campusId: string) => {
   const staffList = await prisma.staffProfile.findMany({
     where: {
-      user: { isActive: true },
+      user: { isActive: true, role: { notIn: [Role.SUPER_ADMIN, Role.ADMIN] } },
       campusAssignments: {
         some: { campusId },
       },

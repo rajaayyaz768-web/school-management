@@ -10,13 +10,13 @@ import {
   EmptyState,
   Tooltip,
 } from '@/components/ui';
-import { Eye, Edit2 } from 'lucide-react';
+import { Eye, Edit2, MessageCircle } from 'lucide-react';
 
 interface StudentTableProps {
   students: Student[];
   isLoading: boolean;
   onView: (student: Student) => void;
-  onEdit: (student: Student) => void;
+  onEdit?: (student: Student) => void;
 }
 
 export function StudentTable({ students, isLoading, onView, onEdit }: StudentTableProps) {
@@ -90,31 +90,47 @@ export function StudentTable({ students, isLoading, onView, onEdit }: StudentTab
         {student.status.charAt(0) + student.status.slice(1).toLowerCase()}
       </Badge>
     ) },
-    { key: 'actions', header: '', className: 'text-right', render: (student: Student) => (
-      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Tooltip content="View Details">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onView(student)}
-            className="h-8 w-8 p-0"
-          >
-            <Eye className="w-4 h-4" />
-          </Button>
-        </Tooltip>
-        
-        <Tooltip content="Edit Student">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onEdit(student)}
-            className="h-8 w-8 p-0"
-          >
-            <Edit2 className="w-4 h-4" />
-          </Button>
-        </Tooltip>
-      </div>
-    ) },
+    { key: 'actions', header: '', className: 'text-right', render: (student: Student) => {
+      const parentPhone = student.parentLinks?.[0]?.parent?.phone;
+      return (
+        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          {parentPhone && (
+            <Tooltip content="WhatsApp Parent">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.open(`https://wa.me/${parentPhone.replace(/\D/g, '')}`, '_blank')}
+                className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </Button>
+            </Tooltip>
+          )}
+          <Tooltip content="View Details">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onView(student)}
+              className="h-8 w-8 p-0"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+          </Tooltip>
+          {onEdit && (
+            <Tooltip content="Edit Student">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => onEdit(student)}
+                className="h-8 w-8 p-0"
+              >
+                <Edit2 className="w-4 h-4" />
+              </Button>
+            </Tooltip>
+          )}
+        </div>
+      );
+    } },
   ];
 
   return (

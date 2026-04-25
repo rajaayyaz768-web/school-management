@@ -75,15 +75,19 @@ export const getStudentFeeRecords = async (req: Request, res: Response) => {
 
 export const getAllFeeRecords = async (req: Request, res: Response) => {
   try {
-    const { campusId, status, academicYear } = req.query as {
+    const { campusId, status, academicYear, page, limit } = req.query as {
       campusId?: string
       status?: string
       academicYear?: string
+      page?: string
+      limit?: string
     }
     const result = await service.getAllFeeRecords({
       campusId,
       status: status as any,
       academicYear,
+      page: page ? parseInt(page) : undefined,
+      limit: limit ? parseInt(limit) : undefined,
     })
     return sendSuccess(res, 'Fee records fetched successfully', result)
   } catch (error: unknown) {

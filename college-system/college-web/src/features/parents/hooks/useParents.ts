@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as parentsApi from '../api/parents.api';
 import { CreateParentInput, UpdateParentInput, LinkStudentInput } from '../types/parents.types';
 import { useToast } from '@/hooks/useToast';
@@ -7,6 +7,15 @@ export const useParents = (search?: string) => {
   return useQuery({
     queryKey: ['parents', search],
     queryFn: () => parentsApi.fetchAllParents(search),
+  });
+};
+
+export const useInfiniteParents = (search?: string) => {
+  return useInfiniteQuery({
+    queryKey: ['parents', 'infinite', search],
+    queryFn: ({ pageParam }) => parentsApi.fetchParentsPage(search, pageParam as number),
+    initialPageParam: 1,
+    getNextPageParam: (last) => last.page < last.totalPages ? last.page + 1 : undefined,
   });
 };
 

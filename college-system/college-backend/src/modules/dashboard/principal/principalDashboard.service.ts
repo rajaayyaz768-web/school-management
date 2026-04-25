@@ -1,5 +1,6 @@
 import prisma from '../../../config/database'
 import { StaffAttendanceStatus, FeeStatus, ExamStatus } from '@prisma/client'
+import { cacheGet, cacheSet, TTL } from '../../../utils/cache'
 
 // ─── Per-campus breakdown helper ──────────────────────────────────────────────
 
@@ -81,6 +82,15 @@ function getMonthRange() {
 }
 
 export async function getPrincipalDashboardData(campusId?: string) {
+  const cacheKey = `dashboard:principal:${campusId ?? 'all'}`;
+  const cached = cacheGet<ReturnType<typeof _getPrincipalDashboardData>>(cacheKey);
+  if (cached) return cached;
+  const result = await _getPrincipalDashboardData(campusId);
+  cacheSet(cacheKey, result, TTL.DASHBOARD);
+  return result;
+}
+
+async function _getPrincipalDashboardData(campusId?: string) {
   // Build per-campus breakdown when no specific campus is selected
   let campusBreakdown: Awaited<ReturnType<typeof getCampusSnapshot>>[] = []
   if (!campusId) {

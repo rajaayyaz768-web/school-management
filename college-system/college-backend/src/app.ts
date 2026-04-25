@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 
 import { corsOptions } from "./config/cors";
@@ -15,6 +16,9 @@ const app: Application = express();
 // Trust the first proxy (Nginx on VPS) — required for correct req.ip,
 // rate-limiter per-client enforcement, and Secure cookies behind HTTPS.
 app.set("trust proxy", 1);
+
+// ─── 0. Gzip compression ──────────────────────────────────────────────────────────
+app.use(compression());
 
 // ─── 1. Security headers ───────────────────────────────────────────────────────────
 app.use(helmet());

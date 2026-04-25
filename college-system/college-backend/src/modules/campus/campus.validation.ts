@@ -3,6 +3,7 @@ import { z } from "zod";
 const campusBodySchema = z.object({
   name: z.string().min(3).max(100),
   campus_code: z.string().max(10).regex(/^[A-Z]+$/, "Uppercase letters only"),
+  campus_type: z.enum(["SCHOOL", "COLLEGE"]).optional().default("COLLEGE"),
   address: z.string().optional(),
   contact_number: z.string()
     .length(11, "Must be exactly 11 digits")

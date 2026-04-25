@@ -7,9 +7,26 @@ import {
   LinkStudentInput,
 } from '../types/parents.types';
 
+export interface ParentPage {
+  data: Parent[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export const fetchAllParents = async (search?: string): Promise<Parent[]> => {
   const url = search ? `/parents?search=${encodeURIComponent(search)}` : '/parents';
-  const response = await axios.get<{ success: boolean; data: Parent[] }>(url);
+  const response = await axios.get<{ success: boolean; data: ParentPage }>(url);
+  return response.data.data?.data ?? (response.data.data as unknown as Parent[]);
+};
+
+export const fetchParentsPage = async (search: string | undefined, page: number): Promise<ParentPage> => {
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  params.append('page', String(page));
+  params.append('limit', '20');
+  const response = await axios.get(`/parents?${params.toString()}`);
   return response.data.data;
 };
 

@@ -60,10 +60,14 @@ export const updateGrade = async (id: string, data: UpdateGradeDto) => {
   const updateData: {
     name?: string;
     isActive?: boolean;
+    teachingMode?: any;
+    isTransitional?: boolean;
   } = {};
 
   if (data.name !== undefined) updateData.name = data.name;
   if (data.is_active !== undefined) updateData.isActive = data.is_active;
+  if (data.teaching_mode !== undefined) updateData.teachingMode = data.teaching_mode;
+  if (data.is_transitional !== undefined) updateData.isTransitional = data.is_transitional;
 
   return await prisma.grade.update({
     where: { id },

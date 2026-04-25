@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRole } from '@/store/authStore';
-import { useStaff, useToggleStaffStatus } from '@/features/staff/hooks/useStaff';
+import { useInfiniteStaff, useToggleStaffStatus } from '@/features/staff/hooks/useStaff';
 import { Staff } from '@/features/staff/types/staff.types';
 import { StaffTable } from '@/features/staff/components/StaffTable';
 import { StaffProfileDrawer } from '@/features/staff/components/StaffProfileDrawer';
@@ -17,6 +17,7 @@ import {
   SearchInput,
   Modal,
 } from '@/components/ui';
+import { InfiniteScrollSentinel } from '@/components/ui/InfiniteScrollSentinel';
 
 interface StaffPageProps {
   campusId?: string
@@ -38,7 +39,8 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
     isActive: selectedStatus !== 'ALL' ? (selectedStatus === 'ACTIVE') : undefined,
   };
 
-  const { data: staffList = [], isLoading } = useStaff(apiFilters);
+  const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteStaff(apiFilters);
+  const staffList = data?.pages.flatMap((p) => p.data) ?? [];
   const toggleMutation = useToggleStaffStatus();
 
   // Drawers and Modals
@@ -157,6 +159,8 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
           if (s) setStaffToToggle(s);
         }}
       />
+
+      <InfiniteScrollSentinel onVisible={fetchNextPage} hasMore={!!hasNextPage} isFetching={isFetchingNextPage} />
 
       <StaffProfileDrawer
         staffId={drawerStaffId}

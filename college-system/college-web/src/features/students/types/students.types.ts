@@ -33,6 +33,11 @@ export interface Student {
     name: string;
     code: string;
   };
+  parentLinks: Array<{
+    parent: {
+      phone: string | null;
+    };
+  }>;
 }
 
 export interface PaginatedStudents {

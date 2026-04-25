@@ -1,8 +1,12 @@
+export type TeachingMode = 'SUBJECT_WISE' | 'CLASS_TEACHER' | 'DUAL_TEACHER';
+
 export interface Grade {
   id: string;
   name: string;
   displayOrder: number;
   is_active: boolean;
+  teachingMode: TeachingMode | null;
+  isTransitional: boolean;
 }
 
 export interface ProgramListItem {
@@ -25,10 +29,7 @@ export interface Program {
     name: string;
     code: string;
   };
-  grades: [
-    { id: string; name: string; displayOrder: number; is_active: boolean },
-    { id: string; name: string; displayOrder: number; is_active: boolean }
-  ];
+  grades: Grade[];
 }
 
 export interface CreateProgramInput {

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as studentsApi from '../api/students.api';
 import { CreateStudentInput, UpdateStudentInput } from '../types/students.types';
 import { useToast } from '@/hooks/useToast';
@@ -7,6 +7,15 @@ export const useStudents = (filters?: studentsApi.StudentFilters) => {
   return useQuery({
     queryKey: ['students', filters],
     queryFn: () => studentsApi.fetchAllStudents(filters),
+  });
+};
+
+export const useInfiniteStudents = (filters: Omit<studentsApi.StudentFilters, 'page' | 'limit'> = {}) => {
+  return useInfiniteQuery({
+    queryKey: ['students', 'infinite', filters],
+    queryFn: ({ pageParam }) => studentsApi.fetchAllStudents({ ...filters, page: pageParam as number, limit: 20 }),
+    initialPageParam: 1,
+    getNextPageParam: (last) => last.page < last.totalPages ? last.page + 1 : undefined,
   });
 };
 
