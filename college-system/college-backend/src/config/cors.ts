@@ -20,5 +20,5 @@ export const corsOptions: CorsOptions = {
   },
   credentials: true, // Required for HttpOnly cookies
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Device-Token"],
 };

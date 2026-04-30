@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Section } from '../types/sections.types';
-import { useCreateSection, useUpdateSection, useProgramGrades } from '../hooks/useSections';
+import { useCreateSection, useUpdateSection, useProgramGrades, useSections } from '../hooks/useSections';
 import { useCampuses } from '@/features/campus/hooks/useCampus';
+import { useCampusStore } from '@/store/campusStore';
+import { useRole } from '@/store/authStore';
 import { usePrograms } from '@/features/programs/hooks/usePrograms';
 import { Button, Input, Select } from '@/components/ui';
 
@@ -16,16 +18,35 @@ export interface SectionFormProps {
 export function SectionForm({ section, onSuccess, onCancel }: SectionFormProps) {
   const isEdit = !!section;
 
-  const [campusId, setCampusId] = useState(section?.grade?.program?.campus?.id || '');
+  const role = useRole();
+  const { activeCampusId } = useCampusStore();
+  const { data: campuses = [], isLoading: loadingCampuses } = useCampuses();
+
+  const defaultCampusId = section?.grade?.program?.campus?.id
+    || (role === 'SUPER_ADMIN' ? (activeCampusId ?? '') : '');
+
+  const [campusId, setCampusId] = useState(defaultCampusId);
   const [programId, setProgramId] = useState(section?.grade?.program?.id || '');
   const [gradeId, setGradeId] = useState(section?.gradeId || '');
   const [name, setName] = useState(section?.name || '');
   const [roomNumber, setRoomNumber] = useState(section?.roomNumber || '');
   const [capacity, setCapacity] = useState(section?.capacity?.toString() || '40');
 
-  const { data: campuses = [], isLoading: loadingCampuses } = useCampuses();
   const { data: programs = [], isLoading: loadingPrograms } = usePrograms(campusId || undefined);
   const { data: grades = [], isLoading: loadingGrades } = useProgramGrades(programId || undefined);
+
+  // Fetch all sections for this campus to check room conflicts
+  const { data: campusSections = [] } = useSections(undefined, campusId || undefined);
+
+  const roomConflict = useMemo(() => {
+    const trimmed = roomNumber.trim();
+    if (!trimmed) return null;
+    return campusSections.find(
+      s => s.roomNumber === trimmed && s.id !== section?.id
+    ) ?? null;
+  }, [roomNumber, campusSections, section?.id]);
+
+  const isSchool = campuses.find(c => c.id === campusId)?.campus_type === 'SCHOOL';
 
   // Cascading reset logic
   const handleCampusChange = (val: string) => {
@@ -76,23 +97,23 @@ export function SectionForm({ section, onSuccess, onCancel }: SectionFormProps) 
       />
 
       <Select
-        label="Program"
+        label={isSchool ? 'Class Group' : 'Program'}
         value={programId}
         onChange={(e) => handleProgramChange(e.target.value)}
         options={programs.map((p) => ({ label: p.name, value: p.id }))}
         required
         disabled={!campusId || loadingPrograms || isPending}
-        placeholder={!campusId ? 'Select campus first' : loadingPrograms ? 'Loading programs...' : 'Select a program'}
+        placeholder={!campusId ? 'Select campus first' : loadingPrograms ? 'Loading...' : isSchool ? 'Select a class group' : 'Select a program'}
       />
 
       <Select
-        label="Grade"
+        label={isSchool ? 'Class' : 'Grade'}
         value={gradeId}
         onChange={(e) => setGradeId(e.target.value)}
         options={grades.map((g) => ({ label: g.name, value: g.id }))}
         required
         disabled={!programId || loadingGrades || isPending}
-        placeholder={!programId ? 'Select program first' : loadingGrades ? 'Loading grades...' : 'Select a grade'}
+        placeholder={!programId ? (isSchool ? 'Select class group first' : 'Select program first') : loadingGrades ? 'Loading...' : isSchool ? 'Select a class' : 'Select a grade'}
       />
 
       <Input
@@ -106,13 +127,28 @@ export function SectionForm({ section, onSuccess, onCancel }: SectionFormProps) 
         disabled={isPending}
       />
 
-      <Input
-        label="Room Number"
-        value={roomNumber}
-        onChange={(e) => setRoomNumber(e.target.value)}
-        placeholder="e.g. 101"
-        disabled={isPending}
-      />
+      <div className="space-y-1">
+        <Input
+          label="Room Number"
+          value={roomNumber}
+          onChange={(e) => setRoomNumber(e.target.value)}
+          placeholder="e.g. 101"
+          disabled={isPending}
+        />
+        {roomConflict && (
+          <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700 px-3 py-2 text-xs">
+            <span className="mt-0.5 text-amber-500">⚠</span>
+            <span className="text-amber-700 dark:text-amber-400">
+              Room <strong>{roomNumber.trim()}</strong> is already reserved by{' '}
+              <strong>
+                Section {roomConflict.name}
+                {roomConflict.grade?.program?.name ? ` · ${roomConflict.grade.program.name}` : ''}
+                {roomConflict.grade?.name ? ` · ${roomConflict.grade.name}` : ''}
+              </strong>
+            </span>
+          </div>
+        )}
+      </div>
 
       <Input
         label="Capacity"

@@ -2,6 +2,7 @@ import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tansta
 import * as parentsApi from '../api/parents.api';
 import { CreateParentInput, UpdateParentInput, LinkStudentInput } from '../types/parents.types';
 import { useToast } from '@/hooks/useToast';
+import { extractApiError } from '@/lib/apiError';
 
 export const useParents = (search?: string) => {
   return useQuery({
@@ -33,12 +34,16 @@ export const useCreateParent = () => {
 
   return useMutation({
     mutationFn: (data: CreateParentInput) => parentsApi.createParent(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['parents'] });
-      success('Parent account created');
+      const n = data.autoLinkedStudents;
+      success(n > 0
+        ? `Parent created and auto-linked to ${n} student${n > 1 ? 's' : ''}`
+        : 'Parent account created successfully'
+      );
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to create parent';
+      const msg = extractApiError(err, 'Failed to create parent');
       error(msg);
     }
   });
@@ -57,7 +62,7 @@ export const useUpdateParent = () => {
       success('Parent updated');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to update parent';
+      const msg = extractApiError(err, 'Failed to update parent');
       error(msg);
     }
   });
@@ -76,7 +81,7 @@ export const useLinkStudent = () => {
       success('Student linked successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to link student';
+      const msg = extractApiError(err, 'Failed to link student');
       error(msg);
     }
   });
@@ -103,7 +108,7 @@ export const useUnlinkStudent = () => {
       success('Student unlinked');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to unlink student';
+      const msg = extractApiError(err, 'Failed to unlink student');
       error(msg);
     }
   });

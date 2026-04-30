@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as campusApi from '../api/campus.api';
 import { CreateCampusInput, UpdateCampusInput } from '../types/campus.types';
 import { useToast } from '@/hooks/useToast';
+import { extractApiError } from '@/lib/apiError';
 
 export const useCampuses = () => {
   return useQuery({
@@ -21,7 +22,7 @@ export const useCreateCampus = () => {
       success('Campus created successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to create campus';
+      const msg = extractApiError(err, 'Failed to create campus');
       error(msg);
     }
   });
@@ -39,7 +40,7 @@ export const useUpdateCampus = () => {
       success('Campus updated successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to update campus';
+      const msg = extractApiError(err, 'Failed to update campus');
       error(msg);
     }
   });
@@ -56,7 +57,7 @@ export const useToggleCampusStatus = () => {
       success('Campus status toggled successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to toggle status';
+      const msg = extractApiError(err, 'Failed to toggle status');
       error(msg);
     }
   });

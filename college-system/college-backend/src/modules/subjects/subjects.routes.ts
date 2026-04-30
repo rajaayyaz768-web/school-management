@@ -10,6 +10,7 @@ import {
   updateSubject,
   toggleSubjectStatus,
   getAssignmentsRoot,
+  getMyTeachingAssignments,
   createAssignment,
   updateAssignment,
   deleteAssignment,
@@ -24,6 +25,13 @@ import {
 const router = Router();
 
 // ─── ASSIGNMENT ROUTES (Nested) ──────────────────────────────────────────────────
+router.get(
+  "/assignments/mine",
+  authenticate,
+  authorize(Role.TEACHER),
+  getMyTeachingAssignments
+);
+
 router.get(
   "/assignments",
   authenticate,

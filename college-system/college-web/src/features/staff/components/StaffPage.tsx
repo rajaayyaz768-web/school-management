@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRole } from '@/store/authStore';
-import { useInfiniteStaff, useToggleStaffStatus } from '@/features/staff/hooks/useStaff';
+import { useInfiniteStaff, useToggleStaffStatus, useDeleteStaff } from '@/features/staff/hooks/useStaff';
 import { Staff } from '@/features/staff/types/staff.types';
 import { StaffTable } from '@/features/staff/components/StaffTable';
 import { StaffProfileDrawer } from '@/features/staff/components/StaffProfileDrawer';
@@ -42,6 +42,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteStaff(apiFilters);
   const staffList = data?.pages.flatMap((p) => p.data) ?? [];
   const toggleMutation = useToggleStaffStatus();
+  const deleteMutation = useDeleteStaff();
 
   // Drawers and Modals
   const [drawerStaffId, setDrawerStaffId] = useState<string | null>(null);
@@ -57,7 +58,12 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
   // Password sharing state
   const [showTempPasswordModal, setShowTempPasswordModal] = useState(false);
   const [tempPassword, setTempPassword] = useState('');
+  const [emailSentOk, setEmailSentOk] = useState(true);
+  const [emailErrMsg, setEmailErrMsg] = useState<string | null>(null);
   const { success } = useToast();
+
+  // Delete state
+  const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
 
   const handleToggleConfirm = () => {
     if (staffToToggle) {
@@ -77,10 +83,12 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
     setIsFormModalOpen(true);
   };
 
-  const handleFormSuccess = (pw?: string) => {
+  const handleFormSuccess = (pw?: string, sent?: boolean, emailErr?: string | null) => {
     setIsFormModalOpen(false);
     if (pw) {
       setTempPassword(pw);
+      setEmailSentOk(sent ?? true);
+      setEmailErrMsg(emailErr ?? null);
       setShowTempPasswordModal(true);
     }
   };
@@ -158,6 +166,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
           const s = staffList.find(x => x.id === id);
           if (s) setStaffToToggle(s);
         }}
+        onDelete={(staff) => setStaffToDelete(staff)}
       />
 
       <InfiniteScrollSentinel onVisible={fetchNextPage} hasMore={!!hasNextPage} isFetching={isFetchingNextPage} />
@@ -214,9 +223,21 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
               Copy
             </Button>
           </div>
-          <p className="text-sm font-semibold text-[var(--danger)]">
-            Save this password — it will not be shown again.
-          </p>
+          {emailSentOk ? (
+            <div className="flex items-start gap-2 rounded-md border border-green-300 bg-green-50 dark:bg-green-950/30 dark:border-green-700 px-3 py-2 text-sm text-green-700 dark:text-green-400">
+              <span className="mt-0.5">✓</span>
+              <span>Welcome email sent successfully. You can always view the password later in their profile → Account tab.</span>
+            </div>
+          ) : (
+            <div className="flex items-start gap-2 rounded-md border border-red-300 bg-red-50 dark:bg-red-950/30 dark:border-red-700 px-3 py-2 text-sm text-red-700 dark:text-red-400">
+              <span className="mt-0.5 font-bold">!</span>
+              <div>
+                <p className="font-semibold">Email delivery failed — please share credentials manually.</p>
+                {emailErrMsg && <p className="text-xs mt-0.5 opacity-75">{emailErrMsg}</p>}
+                <p className="text-xs mt-1 opacity-75">The password is saved and visible in the staff profile → Account tab anytime.</p>
+              </div>
+            </div>
+          )}
           <div className="flex justify-end pt-4">
             <Button variant="primary" onClick={() => setShowTempPasswordModal(false)}>
               Done
@@ -224,6 +245,23 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
           </div>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!staffToDelete}
+        onClose={() => setStaffToDelete(null)}
+        onConfirm={() => {
+          if (staffToDelete) {
+            deleteMutation.mutate(staffToDelete.id, {
+              onSuccess: () => setStaffToDelete(null),
+            });
+          }
+        }}
+        title={`Delete ${staffToDelete?.firstName} ${staffToDelete?.lastName}?`}
+        message="This will permanently delete the staff member and their login account. This cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        loading={deleteMutation.isPending}
+      />
 
     </div>
   );

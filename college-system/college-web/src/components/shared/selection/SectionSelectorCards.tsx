@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import type { SectionCardData } from './types'
 
 interface SectionSelectorCardsProps {
-  campusId: string
+  campusId?: string
   onSelect: (section: SectionCardData) => void
   selectedId?: string | null
 }

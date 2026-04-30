@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRole } from '@/store/authStore';
+import { useRole, useCurrentUser } from '@/store/authStore';
+import { useCampusStore } from '@/store/campusStore';
 import { useCampuses, useToggleCampusStatus } from '@/features/campus/hooks/useCampus';
 import { Campus } from '@/features/campus/types/campus.types';
 import { CampusForm } from '@/features/campus/components/CampusForm';
@@ -18,7 +19,15 @@ import {
 
 export default function CampusPage() {
   const role = useRole();
+  const user = useCurrentUser();
+  const activeCampusId = useCampusStore((s) => s.activeCampusId);
   const { data: campuses = [], isLoading, isError, refetch } = useCampuses();
+
+  const resolvedCampusId =
+    role === 'ADMIN' ? user?.campusId : activeCampusId;
+
+  const pageTitle =
+    campuses.find((c) => c.id === resolvedCampusId)?.name ?? 'Campus Management';
   const toggleMutation = useToggleCampusStatus();
 
   // Modal states
@@ -39,10 +48,10 @@ export default function CampusPage() {
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <PageHeader
-        title="Campus Management"
+        title={pageTitle}
         breadcrumb={[
           { label: 'Home', href: '/' },
-          { label: 'Campus Management' }
+          { label: pageTitle }
         ]}
         actions={
           role === 'SUPER_ADMIN' ? (

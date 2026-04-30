@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useLogin } from "@/features/auth/hooks/useAuth";
-import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Lock, User, Loader2 } from "lucide-react";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -19,7 +19,7 @@ export default function LoginForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login({ email: email.trim(), password });
+    login({ identifier: identifier.trim(), password });
   };
 
   return (
@@ -34,27 +34,30 @@ export default function LoginForm() {
         </div>
       )}
 
-      {/* Email */}
+      {/* Identifier */}
       <div className="space-y-1.5">
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email Address
+        <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
+          Email / Roll Number / CNIC
         </label>
         <div className="relative">
           <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Mail className="h-4 w-4 text-gray-400" />
+            <User className="h-4 w-4 text-gray-400" />
           </span>
           <input
-            id="email"
-            type="email"
-            autoComplete="email"
+            id="identifier"
+            type="text"
+            autoComplete="username"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
             disabled={isPending}
-            placeholder="you@college.edu.pk"
+            placeholder="Email, roll number, or CNIC"
             className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#003366] focus:outline-none focus:ring-2 focus:ring-[#003366]/20 disabled:cursor-not-allowed disabled:opacity-60 transition"
           />
         </div>
+        <p className="text-xs text-gray-400">
+          Staff &amp; parents: use email &nbsp;·&nbsp; Students: use roll number &nbsp;·&nbsp; Parents (alternative): CNIC
+        </p>
       </div>
 
       {/* Password */}
@@ -91,7 +94,7 @@ export default function LoginForm() {
       {/* Submit */}
       <button
         type="submit"
-        disabled={isPending || !email || !password}
+        disabled={isPending || !identifier || !password}
         className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#003366] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#002244] focus:outline-none focus:ring-2 focus:ring-[#003366]/40 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? (

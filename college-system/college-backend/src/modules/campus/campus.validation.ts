@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const campusBodySchema = z.object({
   name: z.string().min(3).max(100),
-  campus_code: z.string().max(10).regex(/^[A-Z]+$/, "Uppercase letters only"),
+  campus_code: z.string().max(15).regex(/^[A-Z0-9-]+$/, "Uppercase letters, numbers, and hyphens only (e.g. BOYS, GIRLS-1)").optional(),
   campus_type: z.enum(["SCHOOL", "COLLEGE"]).optional().default("COLLEGE"),
   address: z.string().optional(),
   contact_number: z.string()

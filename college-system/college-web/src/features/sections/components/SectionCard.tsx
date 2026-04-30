@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Section } from '../types/sections.types';
 import { Card, Badge, Button, Tooltip } from '@/components/ui';
 
@@ -43,6 +44,12 @@ export function SectionCard({ section, onEdit, onToggle }: SectionCardProps) {
       </div>
 
       <div className="flex justify-end gap-2 mt-auto pt-4 border-t border-[var(--border)]">
+        <Link href={`/admin/sections/${section.id}`}>
+          <Button variant="secondary" size="sm">
+            View Details
+          </Button>
+        </Link>
+
         <Tooltip content="Edit section details">
           <Button variant="secondary" size="sm" onClick={() => onEdit(section)}>
             Edit

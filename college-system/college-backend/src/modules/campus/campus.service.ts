@@ -84,11 +84,29 @@ export const getCampusById = async (id: string) => {
   return mapToResponse(campus);
 };
 
-export const createCampus = async (data: CreateCampusDto) => {
-  const existing = await prisma.campus.findUnique({
-    where: { code: data.campus_code },
-  });
+async function generateUniqueCode(baseName: string): Promise<string> {
+  const base = baseName
+    .trim()
+    .split(/\s+/)[0]
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .slice(0, 8);
 
+  const taken = await prisma.campus.findUnique({ where: { code: base } });
+  if (!taken) return base;
+
+  for (let i = 2; i <= 99; i++) {
+    const candidate = `${base}-${i}`;
+    const conflict = await prisma.campus.findUnique({ where: { code: candidate } });
+    if (!conflict) return candidate;
+  }
+  return `${base}-${Date.now()}`;
+}
+
+export const createCampus = async (data: CreateCampusDto) => {
+  const code = data.campus_code ?? await generateUniqueCode(data.name);
+
+  const existing = await prisma.campus.findUnique({ where: { code } });
   if (existing) {
     throw Object.assign(new Error("Campus code already exists"), { statusCode: 409 });
   }
@@ -96,13 +114,13 @@ export const createCampus = async (data: CreateCampusDto) => {
   const campus = await prisma.campus.create({
     data: {
       name: data.name,
-      code: data.campus_code,
+      code,
       campusType: (data.campus_type as any) ?? "COLLEGE",
       address: data.address,
       phone: data.contact_number,
     },
   });
-  
+
   return mapToResponse(campus);
 };
 

@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useToast } from '@/hooks/useToast'
+import { extractApiError } from '@/lib/apiError'
 import {
   downloadAttendanceExcel,
   printAttendanceReport,
@@ -22,10 +23,7 @@ export const useAcademicYears = (campusId?: string) => {
 function useErrorHandler() {
   const toast = useToast()
   return (error: unknown) => {
-    const msg =
-      (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-      (error instanceof Error ? error.message : 'Something went wrong')
-    toast.error(msg)
+    toast.error(extractApiError(error, 'Something went wrong'))
   }
 }
 

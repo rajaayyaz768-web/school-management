@@ -9,7 +9,9 @@ import {
   createStaff,
   updateStaff,
   toggleStaffStatus,
+  deleteStaff,
   getStaffByCampus,
+  resendStaffCredentials,
 } from "./staff.controller";
 import {
   createStaffSchema,
@@ -60,6 +62,20 @@ router.patch(
   authenticate,
   authorize(Role.SUPER_ADMIN, Role.ADMIN),
   toggleStaffStatus
+);
+
+router.delete(
+  "/:id",
+  authenticate,
+  authorize(Role.SUPER_ADMIN, Role.ADMIN),
+  deleteStaff
+);
+
+router.post(
+  "/:id/resend-credentials",
+  authenticate,
+  authorize(Role.SUPER_ADMIN, Role.ADMIN),
+  resendStaffCredentials
 );
 
 export const staffRouter = router;

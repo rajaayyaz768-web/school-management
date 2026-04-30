@@ -28,6 +28,7 @@ export interface Program {
     id: string;
     name: string;
     code: string;
+    campus_type: 'SCHOOL' | 'COLLEGE';
   };
   grades: Grade[];
 }

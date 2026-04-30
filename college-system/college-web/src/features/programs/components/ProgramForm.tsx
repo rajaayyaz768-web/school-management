@@ -14,13 +14,16 @@ export interface ProgramFormProps {
 
 export function ProgramForm({ program, onSuccess, onCancel }: ProgramFormProps) {
   const isEdit = !!program;
-  
+
   const [campusId, setCampusId] = useState(program?.campus_id || '');
   const [name, setName] = useState(program?.name || '');
   const [code, setCode] = useState(program?.code || '');
   const [durationYears, setDurationYears] = useState(program?.durationYears?.toString() || '2');
 
   const { data: campuses = [], isLoading: isLoadingCampuses } = useCampuses();
+
+  const selectedCampus = campuses.find(c => c.id === campusId);
+  const isSchool = selectedCampus?.campus_type === 'SCHOOL';
   
   const createMutation = useCreateProgram();
   const updateMutation = useUpdateProgram();
@@ -86,39 +89,41 @@ export function ProgramForm({ program, onSuccess, onCancel }: ProgramFormProps) 
       />
 
       <Input
-        label="Program Name"
+        label={isSchool ? 'Group Name' : 'Program Name'}
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
-        placeholder="e.g. FSc Pre-Medical"
+        placeholder={isSchool ? 'e.g. Primary, Middle, Matric' : 'e.g. FSc Pre-Medical'}
         disabled={isPending}
       />
 
       <Input
-        label="Program Code"
+        label={isSchool ? 'Group Code' : 'Program Code'}
         value={code}
         onChange={(e) => setCode(e.target.value.toUpperCase())}
         required
-        hint="Short uppercase code e.g. FSPM, ICS, FA"
-        placeholder="e.g. FSPM"
+        hint={isSchool ? 'Short uppercase code e.g. PRIMARY, MIDDLE' : 'Short uppercase code e.g. FSPM, ICS, FA'}
+        placeholder={isSchool ? 'e.g. PRIMARY' : 'e.g. FSPM'}
         disabled={isPending}
       />
 
-      <Select
-        label="Duration (Years)"
-        value={durationYears}
-        onChange={(e) => setDurationYears(e.target.value)}
-        options={durationOptions}
-        required
-        disabled={isPending}
-      />
+      {!isSchool && (
+        <Select
+          label="Duration (Years)"
+          value={durationYears}
+          onChange={(e) => setDurationYears(e.target.value)}
+          options={durationOptions}
+          required
+          disabled={isPending}
+        />
+      )}
 
       <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)] mt-6">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>
         <Button type="submit" variant="primary" loading={isPending}>
-          {isEdit ? 'Save Changes' : 'Create Program'}
+          {isEdit ? 'Save Changes' : isSchool ? 'Create Class Group' : 'Create Program'}
         </Button>
       </div>
     </form>

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as assignmentApi from '../api/section-assignment.api';
 import { ConfirmAssignmentInput } from '../types/section-assignment.types';
 import { useToast } from '@/hooks/useToast';
+import { extractApiError } from '@/lib/apiError';
 
 export const useAssignmentData = (gradeId: string) => {
   return useQuery({
@@ -31,7 +32,7 @@ export const useConfirmAssignment = () => {
       success('Students assigned successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to confirm assignments';
+      const msg = extractApiError(err, 'Failed to confirm assignments');
       error(msg);
     }
   });

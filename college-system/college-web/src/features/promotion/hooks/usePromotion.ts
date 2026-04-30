@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from '../api/promotion.api';
 import { RunAnnualInput, RunTransitionalInput } from '../types/promotion.types';
 import { useToast } from '@/hooks/useToast';
+import { extractApiError } from '@/lib/apiError';
 
 export const usePromotionStatus = () =>
   useQuery({ queryKey: ['promotion', 'status'], queryFn: api.fetchPromotionStatus });
@@ -21,7 +22,7 @@ export const useCreateAcademicYear = () => {
       queryClient.invalidateQueries({ queryKey: ['promotion', 'years'] });
       success('Academic year created and activated');
     },
-    onError: (err: unknown) => error(err instanceof Error ? err.message : 'Failed to create academic year'),
+    onError: (err: unknown) => error(extractApiError(err, 'Failed to create academic year')),
   });
 };
 
@@ -35,7 +36,7 @@ export const useRunTransitional = () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
       success(`Transitional promotion done — ${result.promoted} promoted, ${result.detained} detained, ${result.withdrawn} withdrawn`);
     },
-    onError: (err: unknown) => error(err instanceof Error ? err.message : 'Promotion failed'),
+    onError: (err: unknown) => error(extractApiError(err, 'Promotion failed')),
   });
 };
 
@@ -49,6 +50,6 @@ export const useRunAnnual = () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
       success(`Annual promotion done — ${result.graduated} graduated, ${result.promoted} promoted, ${result.detained} detained, ${result.withdrawn} withdrawn`);
     },
-    onError: (err: unknown) => error(err instanceof Error ? err.message : 'Promotion failed'),
+    onError: (err: unknown) => error(extractApiError(err, 'Promotion failed')),
   });
 };

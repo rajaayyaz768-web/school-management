@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useCampuses } from '@/features/campus/hooks/useCampus'
+import { useCampusStore } from '@/store/campusStore'
+import { useRole } from '@/store/authStore'
 import { SectionSelectorCards } from '@/components/shared/selection/SectionSelectorCards'
 import {
   useSectionTimetable,
@@ -35,8 +37,12 @@ export default function TimetablePage() {
   const [showConfigModal, setShowConfigModal] = useState(false)
   const [configForm, setConfigForm] = useState({ totalPeriods: 8, periodDurationMins: 45, breakAfterPeriod: 4 })
 
+  const role = useRole()
+  const { activeCampusId } = useCampusStore()
   const { data: campuses } = useCampuses()
-  const campusId = campuses?.[0]?.id ?? ''
+  const campusId = role === 'SUPER_ADMIN'
+    ? (activeCampusId ?? campuses?.[0]?.id ?? '')
+    : (campuses?.[0]?.id ?? '')
 
   const sectionId = selectedSection?.id ?? ''
   const gradeId = selectedSection?.gradeId ?? ''

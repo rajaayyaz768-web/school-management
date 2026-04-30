@@ -44,7 +44,7 @@ export const getAssignmentData = async (gradeId: string) => {
   const unassignedStudents = await prisma.studentProfile.findMany({
     where: {
       status: StudentStatus.UNASSIGNED,
-      campusId: grade.program.campusId, // Students belong to the campus of this grade's program
+      gradeId,
     },
     orderBy: {
       rankingMarks: { sort: "desc", nulls: "last" },
@@ -131,109 +131,93 @@ export const autoAssign = async (
 
 export const confirmAssignment = async (data: ConfirmAssignmentDto) => {
   return await prisma.$transaction(async (tx) => {
-    // Collect sequence states securely ensuring cross-request overlaps lock successfully explicitly
-    const sectionCaches: Record<string, {
-      id: string;
-      name: string;
-      currentCount: number;
-      grade: {
-        displayOrder: number;
-        program: { code: string; campus: { code: string } };
-      };
+    const skippedSummary: Array<{ studentId: string; reason: string }> = [];
+
+    // Phase 1: validate every assignment and group valid ones by sectionId
+    type ValidAssignment = { studentId: string; firstName: string; lastName: string; sectionId: string };
+    const bySection: Record<string, ValidAssignment[]> = {};
+
+    for (const assignment of data.assignments) {
+      const student = await tx.studentProfile.findUnique({ where: { id: assignment.studentId } });
+      if (!student) { skippedSummary.push({ studentId: assignment.studentId, reason: "Student not found" }); continue; }
+      if (student.status === StudentStatus.ACTIVE) { skippedSummary.push({ studentId: student.id, reason: "Student already ACTIVE" }); continue; }
+
+      if (!bySection[assignment.sectionId]) bySection[assignment.sectionId] = [];
+      bySection[assignment.sectionId].push({
+        studentId: student.id,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        sectionId: assignment.sectionId,
+      });
+    }
+
+    // Phase 2: for each section, sort alphabetically then assign roll numbers in that order
+    const sectionMeta: Record<string, {
+      id: string; name: string; gradeId: string; currentCount: number;
+      grade: { displayOrder: number; program: { code: string; campus: { code: string } } };
     }> = {};
 
     let totalAssigned = 0;
-    const assignmentsSummary: Array<{
-      studentId: string;
-      studentName: string;
-      sectionName: string;
-      rollNumber: string;
-    }> = [];
-    const skippedSummary: Array<{
-      studentId: string;
-      reason: string;
-    }> = [];
+    const assignmentsSummary: Array<{ studentId: string; studentName: string; sectionName: string; rollNumber: string }> = [];
 
-    for (const assignment of data.assignments) {
-      const student = await tx.studentProfile.findUnique({
-        where: { id: assignment.studentId },
-      });
-
-      if (!student) {
-        skippedSummary.push({ studentId: assignment.studentId, reason: "Student not found" });
-        continue;
-      }
-
-      if (student.status === StudentStatus.ACTIVE) {
-        skippedSummary.push({ studentId: student.id, reason: "Student already ACTIVE" });
-        continue;
-      }
-
-      // Pre-fetch explicit section paths caching structurally strictly avoiding repetitive database edges natively
-      if (!sectionCaches[assignment.sectionId]) {
+    for (const [sectionId, students] of Object.entries(bySection)) {
+      // Fetch section metadata once per section
+      if (!sectionMeta[sectionId]) {
         const sec = await tx.section.findUnique({
-          where: { id: assignment.sectionId },
+          where: { id: sectionId },
           include: {
-            grade: {
-              include: {
-                program: { include: { campus: true } },
-              },
-            },
-            students: {
-              where: { status: StudentStatus.ACTIVE },
-              select: { id: true },
-            },
+            grade: { include: { program: { include: { campus: true } } } },
+            students: { where: { status: StudentStatus.ACTIVE }, select: { id: true } },
           },
         });
-
         if (!sec || sec.gradeId !== data.gradeId) {
-          throw Object.assign(new Error(`Invalid section ID: ${assignment.sectionId}`), { statusCode: 400 });
+          throw Object.assign(new Error(`Invalid section ID: ${sectionId}`), { statusCode: 400 });
         }
-
-        sectionCaches[assignment.sectionId] = {
-          id: sec.id,
-          name: sec.name,
-          currentCount: sec.students.length, // Local memory counting correctly tracks sequence offsets directly inherently
+        sectionMeta[sectionId] = {
+          id: sec.id, name: sec.name, gradeId: sec.gradeId,
+          currentCount: sec.students.length,
           grade: {
             displayOrder: sec.grade.displayOrder,
-            program: {
-              code: sec.grade.program.code,
-              campus: { code: sec.grade.program.campus.code },
-            },
+            program: { code: sec.grade.program.code, campus: { code: sec.grade.program.campus.code } },
           },
         };
       }
 
-      const cs = sectionCaches[assignment.sectionId];
-      cs.currentCount++; // Increment native sequence inherently
-
-      // Format: {campus.code}-{program.code}-{grade.displayOrder}-{section.name}-{padded_sequence}
-      const seqStr = String(cs.currentCount).padStart(3, "0");
-      const rollNumber = `${cs.grade.program.campus.code}-${cs.grade.program.code}-${cs.grade.displayOrder}-${cs.name}-${seqStr}`;
-
-      const updated = await tx.studentProfile.update({
-        where: { id: student.id },
-        data: {
-          sectionId: cs.id,
-          rollNumber: rollNumber,
-          status: StudentStatus.ACTIVE,
-        },
+      // Sort alphabetically within this section (ranking marks already used for placement)
+      students.sort((a, b) => {
+        const fa = a.firstName.toLowerCase(), fb = b.firstName.toLowerCase();
+        if (fa !== fb) return fa < fb ? -1 : 1;
+        return a.lastName.toLowerCase() < b.lastName.toLowerCase() ? -1 : 1;
       });
 
-      totalAssigned++;
-      assignmentsSummary.push({
-        studentId: updated.id,
-        studentName: `${updated.firstName} ${updated.lastName}`,
-        sectionName: cs.name,
-        rollNumber: updated.rollNumber || rollNumber,
-      });
+      const cs = sectionMeta[sectionId];
+
+      for (const s of students) {
+        cs.currentCount++;
+        const seqStr = String(cs.currentCount).padStart(3, "0");
+        const rollNumber = `${cs.grade.program.campus.code}-${cs.grade.program.code}-${cs.grade.displayOrder}-${cs.name}-${seqStr}`;
+
+        await tx.studentProfile.update({
+          where: { id: s.studentId },
+          data: {
+            sectionId: cs.id,
+            gradeId: cs.gradeId,
+            rollNumber,
+            status: StudentStatus.ACTIVE,
+          },
+        });
+
+        totalAssigned++;
+        assignmentsSummary.push({
+          studentId: s.studentId,
+          studentName: `${s.firstName} ${s.lastName}`,
+          sectionName: cs.name,
+          rollNumber,
+        });
+      }
     }
 
-    return {
-      totalAssigned,
-      assignments: assignmentsSummary,
-      skipped: skippedSummary,
-    };
+    return { totalAssigned, assignments: assignmentsSummary, skipped: skippedSummary };
   });
 };
 

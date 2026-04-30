@@ -199,10 +199,31 @@ export const createParent = async (data: CreateParentDto) => {
       }
     });
 
-    return {
-      parent: parentProfile,
-      temporaryPassword: tempPassword,
-    };
+    // Auto-link all students whose fatherCnic matches this parent's CNIC
+    let autoLinkedStudents = 0;
+    if (data.cnic) {
+      const matchingStudents = await tx.studentProfile.findMany({
+        where: { fatherCnic: data.cnic },
+        select: { id: true },
+      });
+      for (const s of matchingStudents) {
+        const linkExists = await tx.studentParentLink.findUnique({
+          where: { studentId_parentId: { studentId: s.id, parentId: parentProfile.id } },
+        });
+        if (!linkExists) {
+          await tx.studentParentLink.updateMany({
+            where: { studentId: s.id, isPrimary: true },
+            data: { isPrimary: false },
+          });
+          await tx.studentParentLink.create({
+            data: { studentId: s.id, parentId: parentProfile.id, relationship: 'FATHER', isPrimary: true },
+          });
+          autoLinkedStudents++;
+        }
+      }
+    }
+
+    return { parent: parentProfile, temporaryPassword: tempPassword, autoLinkedStudents };
   });
 };
 

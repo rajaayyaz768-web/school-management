@@ -137,6 +137,17 @@ export const createAssignment = async (data: CreateSectionSubjectTeacherDto, use
   const subject = await prisma.subject.findUnique({ where: { id: data.subjectId } });
   if (!subject) throw Object.assign(new Error("Subject not found"), { statusCode: 404 });
 
+  // Enforce curriculum: subject must be linked to this section's grade
+  const curriculumLink = await prisma.gradeSubject.findUnique({
+    where: { gradeId_subjectId: { gradeId: section.gradeId, subjectId: data.subjectId } },
+  });
+  if (!curriculumLink) {
+    throw Object.assign(
+      new Error("Subject is not part of this grade's curriculum. Add it to the grade first."),
+      { statusCode: 400 }
+    );
+  }
+
   const staff = await prisma.staffProfile.findUnique({ where: { id: data.staffId } });
   if (!staff) throw Object.assign(new Error("Staff not found"), { statusCode: 404 });
 

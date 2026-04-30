@@ -11,6 +11,7 @@ import {
 } from './fees.types'
 import { requireOwnCampus, assertSectionCampus, assertStudentCampus } from '../../utils/campusGuard'
 import { sendFeePaidWhatsApp } from '../notifications/notifications.service'
+import { logger } from '../../utils/logger'
 
 interface RequestUser { id: string; role: Role; campusId: string | null }
 
@@ -345,23 +346,31 @@ export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: R
         select: {
           firstName: true,
           lastName: true,
+          guardianPhone: true,
           section: {
             select: {
               name: true,
               grade: { select: { name: true, program: { select: { name: true, campus: { select: { name: true } } } } } },
             },
           },
+          // Fetch all parent links — primary first, then any fallback
           parentLinks: {
-            where: { isPrimary: true },
+            orderBy: { isPrimary: 'desc' },
             select: { parent: { select: { firstName: true, phone: true } } },
-            take: 1,
           },
         },
       })
 
-      const parentLink = studentProfile?.parentLinks?.[0]
-      const phone = parentLink?.parent.phone
-      if (!phone) return
+      // Resolve phone: primary parent → any linked parent → student's guardian phone
+      const parentLink = studentProfile?.parentLinks?.find(l => l.parent.phone) ?? null
+      const phone = parentLink?.parent.phone ?? studentProfile?.guardianPhone ?? null
+
+      if (!phone) {
+        logger.warn('[WhatsApp] Fee paid — no parent phone found, skipping notification', {
+          studentId: record.studentId,
+        })
+        return
+      }
 
       const grade = studentProfile?.section?.grade
       const className = [grade?.program?.name, grade?.name, studentProfile?.section?.name]
@@ -388,8 +397,8 @@ export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: R
         },
         process.env.META_WHATSAPP_TEMPLATE_NAME ?? 'fee_paid_confirmation'
       )
-    } catch {
-      // Notification failure is non-fatal
+    } catch (err) {
+      logger.error('[WhatsApp] Fee notification failed', { error: err instanceof Error ? err.message : String(err) })
     }
   })()
 

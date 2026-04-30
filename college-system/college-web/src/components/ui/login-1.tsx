@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
-import { useLogin } from '@/features/auth/hooks/useAuth'
+import { useLogin, useSendPasswordResetOtp, useResetPassword } from '@/features/auth/hooks/useAuth'
 import { FalconEagleLogo } from '@/components/landing/FalconEagleLogo'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cn } from '@/lib/utils'
@@ -100,12 +100,63 @@ const STATS = [
 ]
 
 /* ─── Main Component ──────────────────────────────────────────────── */
+type ForgotStep = 'email' | 'recovery' | 'otp' | 'reset' | 'done'
+
 export default function Login1() {
   const { mutate: login, isPending, error } = useLogin()
-  const [email, setEmail] = useState('')
+  const sendResetOtp = useSendPasswordResetOtp()
+  const resetPassword = useResetPassword()
+
+  const [identifier, setIdentifier] = useState('')
+  const [email, setEmail] = useState('') // used only for forgot-password flow
   const [password, setPassword] = useState('')
   const [showPwd, setShowPwd] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+
+  /* ── forgot password state ── */
+  const [forgotOpen, setForgotOpen] = useState(false)
+  const [forgotStep, setForgotStep] = useState<ForgotStep>('email')
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotRecoveryEmail, setForgotRecoveryEmail] = useState('')
+  const [forgotOtp, setForgotOtp] = useState('')
+  const [newPwd, setNewPwd] = useState('')
+  const [confirmPwd, setConfirmPwd] = useState('')
+  const [showNewPwd, setShowNewPwd] = useState(false)
+  const [resetError, setResetError] = useState<string | null>(null)
+
+  const openForgot = () => { setForgotOpen(true); setForgotStep('email'); setForgotEmail(''); setForgotRecoveryEmail(''); setForgotOtp(''); setNewPwd(''); setConfirmPwd(''); setResetError(null) }
+  const closeForgot = () => setForgotOpen(false)
+
+  const handleLoginEmailNext = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!forgotEmail) return
+    setForgotStep('recovery')
+  }
+
+  const handleSendResetOtp = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!forgotRecoveryEmail) return
+    sendResetOtp.mutate(
+      { email: forgotEmail, recoveryEmail: forgotRecoveryEmail },
+      { onSuccess: () => setForgotStep('otp') }
+    )
+  }
+
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (forgotOtp.length === 6) setForgotStep('reset')
+  }
+
+  const handleResetPassword = (e: React.FormEvent) => {
+    e.preventDefault()
+    setResetError(null)
+    if (newPwd !== confirmPwd) { setResetError('Passwords do not match'); return }
+    if (newPwd.length < 8) { setResetError('Password must be at least 8 characters'); return }
+    resetPassword.mutate(
+      { email: forgotEmail, otp: forgotOtp, newPassword: newPwd },
+      { onSuccess: () => setForgotStep('done') }
+    )
+  }
 
   /* cursor spotlight state */
   const [spot, setSpot] = useState({ x: 0, y: 0 })
@@ -114,8 +165,8 @@ export default function Login1() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setFormError(null)
-    if (!email || !password) { setFormError('Please fill in all fields'); return }
-    login({ email: email.trim(), password })
+    if (!identifier || !password) { setFormError('Please fill in all fields'); return }
+    login({ identifier: identifier.trim(), password })
   }
 
   const errMsg = (() => {
@@ -206,11 +257,12 @@ export default function Login1() {
               className="mb-4"
             >
               <MagneticInput
-                label="Email address"
-                placeholder="name@college.edu"
-                type="email"
-                value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                label="Email / Roll Number / CNIC"
+                placeholder="Email, roll number, or CNIC"
+                type="text"
+                autoComplete="username"
+                value={identifier}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIdentifier(e.target.value)}
                 disabled={isPending}
                 error={!!errMsg}
               />
@@ -269,12 +321,14 @@ export default function Login1() {
               transition={{ delay: 0.40 }}
               className="mt-3 text-right"
             >
-              <span
-                className="cursor-pointer text-[12px] text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors"
+              <button
+                type="button"
+                onClick={openForgot}
+                className="cursor-pointer text-[12px] text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors focus:outline-none"
                 style={{ fontFamily: 'var(--font-body)' }}
               >
                 Forgot your password?
-              </span>
+              </button>
             </motion.div>
 
             {/* sign in button — shiny sweep */}
@@ -449,6 +503,157 @@ export default function Login1() {
         </div>
 
       </motion.div>
+
+      {/* ══════════════════════════════════════════════
+          FORGOT PASSWORD OVERLAY
+          ══════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {forgotOpen && (
+          <motion.div
+            key="forgot-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+            onClick={(e) => { if (e.target === e.currentTarget) closeForgot() }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full max-w-[380px] rounded-[20px] p-8"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-lg)' }}
+            >
+              <AnimatePresence mode="wait">
+
+                {/* Step 1 — enter login email */}
+                {forgotStep === 'email' && (
+                  <motion.div key="s1" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.2 }}>
+                    <h3 className="text-lg font-bold text-[var(--text)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>Reset password</h3>
+                    <p className="text-xs text-[var(--text-muted)] mb-6">Enter your login email to begin. You will need your recovery email in the next step.</p>
+                    <form onSubmit={handleLoginEmailNext} className="flex flex-col gap-4">
+                      <MagneticInput label="Login email" type="email" placeholder="name@college.edu" value={forgotEmail} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForgotEmail(e.target.value)} />
+                      <div className="flex items-center justify-between pt-1">
+                        <button type="button" onClick={closeForgot} className="cursor-pointer text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">Cancel</button>
+                        <motion.button type="submit" disabled={!forgotEmail} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                          style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}>
+                          Next
+                        </motion.button>
+                      </div>
+                    </form>
+                  </motion.div>
+                )}
+
+                {/* Step 2 — verify recovery email */}
+                {forgotStep === 'recovery' && (
+                  <motion.div key="s2" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.2 }}>
+                    <h3 className="text-lg font-bold text-[var(--text)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>Verify your identity</h3>
+                    <p className="text-xs text-[var(--text-muted)] mb-6">Enter the recovery email registered on your account. If it matches, a reset code will be sent there.</p>
+                    <form onSubmit={handleSendResetOtp} className="flex flex-col gap-4">
+                      <MagneticInput label="Recovery email" type="email" placeholder="your.recovery@gmail.com" value={forgotRecoveryEmail} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForgotRecoveryEmail(e.target.value)} disabled={sendResetOtp.isPending} />
+                      <div className="flex items-center justify-between pt-1">
+                        <button type="button" onClick={() => setForgotStep('email')} className="cursor-pointer text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">← Back</button>
+                        <motion.button type="submit" disabled={sendResetOtp.isPending || !forgotRecoveryEmail} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                          style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}>
+                          {sendResetOtp.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                          Send code
+                        </motion.button>
+                      </div>
+                    </form>
+                  </motion.div>
+                )}
+
+                {/* Step 3 — enter OTP */}
+                {forgotStep === 'otp' && (
+                  <motion.div key="s3" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.2 }}>
+                    <h3 className="text-lg font-bold text-[var(--text)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>Enter reset code</h3>
+                    <p className="text-xs text-[var(--text-muted)] mb-6">A 6-digit code was sent to <span className="text-[var(--text)] font-medium">{forgotRecoveryEmail}</span>. It expires in 10 minutes.</p>
+                    <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
+                      <div>
+                        <label className="block text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)] mb-1.5">6-digit code</label>
+                        <input
+                          type="text" inputMode="numeric" maxLength={6}
+                          className="w-full rounded-[10px] border border-[var(--border)] bg-[var(--bg)] px-3.5 py-2.5 text-center text-xl font-mono tracking-[0.4em] text-[var(--text)] outline-none transition-all focus:border-[var(--border-focus)] focus:shadow-[var(--shadow-glow)]"
+                          placeholder="000000"
+                          value={forgotOtp}
+                          onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between pt-1">
+                        <button type="button" onClick={() => setForgotStep('recovery')} className="cursor-pointer text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">← Back</button>
+                        <motion.button type="submit" disabled={forgotOtp.length !== 6} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                          style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}>
+                          Continue
+                        </motion.button>
+                      </div>
+                    </form>
+                  </motion.div>
+                )}
+
+                {/* Step 4 — new password */}
+                {forgotStep === 'reset' && (
+                  <motion.div key="s4" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.2 }}>
+                    <h3 className="text-lg font-bold text-[var(--text)] mb-1" style={{ fontFamily: 'var(--font-display)' }}>New password</h3>
+                    <p className="text-xs text-[var(--text-muted)] mb-6">Choose a strong password of at least 8 characters.</p>
+                    <form onSubmit={handleResetPassword} className="flex flex-col gap-4">
+                      <MagneticInput
+                        label="New password"
+                        type={showNewPwd ? 'text' : 'password'}
+                        placeholder="Minimum 8 characters"
+                        value={newPwd}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewPwd(e.target.value)}
+                        disabled={resetPassword.isPending}
+                        icon={
+                          <button type="button" onClick={() => setShowNewPwd(!showNewPwd)} className="cursor-pointer text-[var(--text-disabled)] hover:text-[var(--text-muted)] transition-colors focus:outline-none">
+                            {showNewPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+                          </button>
+                        }
+                      />
+                      <MagneticInput label="Confirm password" type="password" placeholder="Repeat new password" value={confirmPwd} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPwd(e.target.value)} disabled={resetPassword.isPending} />
+                      {resetError && <p className="text-xs text-red-500">{resetError}</p>}
+                      <div className="flex items-center justify-between pt-1">
+                        <button type="button" onClick={() => setForgotStep('otp')} className="cursor-pointer text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">← Back</button>
+                        <motion.button type="submit" disabled={resetPassword.isPending || !newPwd || !confirmPwd} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                          style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}>
+                          {resetPassword.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                          Reset password
+                        </motion.button>
+                      </div>
+                    </form>
+                  </motion.div>
+                )}
+
+                {/* Step 5 — done */}
+                {forgotStep === 'done' && (
+                  <motion.div key="s5" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.25 }} className="text-center py-4">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'rgba(16,185,129,0.12)' }}>
+                      <svg className="h-7 w-7 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-[var(--text)] mb-2" style={{ fontFamily: 'var(--font-display)' }}>Password reset!</h3>
+                    <p className="text-xs text-[var(--text-muted)] mb-6">Your password has been updated. Sign in with your new password.</p>
+                    <motion.button type="button" onClick={closeForgot} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+                      className="w-full cursor-pointer rounded-[var(--radius-sm)] py-2.5 text-sm font-medium text-white"
+                      style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}>
+                      Back to sign in
+                    </motion.button>
+                  </motion.div>
+                )}
+
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   )
 }

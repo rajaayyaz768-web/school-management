@@ -59,20 +59,19 @@ const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { label: "Chat", href: "/principal/chat", icon: MessageSquare },
     { label: "Announcements", href: "/announcements", icon: Megaphone },
     { label: "Settings", href: "/principal/settings/backups", icon: Settings },
-    { label: "Campus", href: "/admin/campus", icon: Building2, section: "Campus Operations" },
-    { label: "Promotion", href: "/admin/promotion", icon: ArrowUpCircle },
-    { label: "Programs", href: "/admin/programs", icon: BookOpen },
-    { label: "Sections", href: "/admin/sections", icon: Layers },
-    { label: "Subjects", href: "/admin/subjects", icon: BookMarked },
-    { label: "Parents", href: "/admin/parents", icon: Heart },
-    { label: "Section Assignment", href: "/admin/section-assignment", icon: Shuffle },
+    { label: "Campus", href: "/principal/campus-management", icon: Building2, section: "Campus Operations" },
+    { label: "Promotion", href: "/principal/promotion", icon: ArrowUpCircle },
+    { label: "Programs", href: "/principal/programs", icon: BookOpen },
+    { label: "Sections", href: "/principal/sections", icon: Layers },
+    { label: "Subjects", href: "/principal/subjects", icon: BookMarked },
+    { label: "Parents", href: "/principal/parents", icon: Heart },
+    { label: "Section Assignment", href: "/principal/section-assignment", icon: Shuffle },
     { label: "Staff Attendance", href: "/attendance/staff", icon: ClipboardCheck },
     { label: "Student Attendance", href: "/attendance/students", icon: UserCheck },
-    { label: "Timetable", href: "/admin/timetable", icon: Clock },
+    { label: "Timetable", href: "/principal/timetable", icon: Clock },
     { label: "Fees", href: "/fees", icon: CreditCard },
     { label: "Exams", href: "/exams", icon: FileText },
     { label: "Results", href: "/results", icon: BarChart2 },
-    { label: "Admin Settings", href: "/admin/settings", icon: Settings },
   ],
   ADMIN: [
     { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -97,8 +96,9 @@ const NAV_ITEMS: Record<UserRole, NavItem[]> = {
   ],
   TEACHER: [
     { label: "My Day", href: "/teacher/dashboard", icon: LayoutDashboard },
-    { label: "Attendance", href: "/attendance/students", icon: CalendarCheck },
+    { label: "My Teaching", href: "/teacher/teaching", icon: BookMarked },
     { label: "My Classes", href: "/teacher/my-classes", icon: Users },
+    { label: "Attendance", href: "/attendance/students", icon: CalendarCheck },
     { label: "Enter Results", href: "/results", icon: BookOpen },
     { label: "Timetable", href: "/teacher/timetable", icon: Clock },
     { label: "Exams", href: "/exams", icon: FileText },
@@ -228,7 +228,7 @@ export default function Sidebar() {
       {!collapsed && (
         <div className="shrink-0 border-t border-white/[0.07] p-4 font-[var(--font-body)]">
           <p className="text-xs text-white/50 mb-0.5">Signed in as</p>
-          <p className="truncate text-sm font-medium">{roleName}</p>
+          <p className="truncate text-sm font-medium">{user.fullName || roleName}</p>
         </div>
       )}
 

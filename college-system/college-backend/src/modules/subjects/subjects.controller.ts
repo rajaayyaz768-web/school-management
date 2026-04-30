@@ -85,6 +85,41 @@ export const getAssignmentsRoot = async (req: Request, res: Response) => {
   sendError(res, "Please provide section_id or teacher_id query parameter", 400);
 };
 
+export const getMyTeachingAssignments = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const staffProfile = await import("../../config/database").then(m =>
+      m.default.staffProfile.findUnique({ where: { userId }, select: { id: true } })
+    );
+    if (!staffProfile) throw Object.assign(new Error("Staff profile not found"), { statusCode: 404 });
+
+    const assignments = await import("../../config/database").then(m =>
+      m.default.sectionSubjectTeacher.findMany({
+        where: { staffId: staffProfile.id },
+        include: {
+          subject: true,
+          section: {
+            include: {
+              grade: {
+                include: { program: { include: { campus: true } } },
+              },
+            },
+          },
+        },
+        orderBy: [
+          { section: { grade: { displayOrder: "asc" } } },
+          { section: { name: "asc" } },
+          { subject: { name: "asc" } },
+        ],
+      })
+    );
+    sendSuccess(res, "Teaching assignments retrieved", assignments);
+  } catch (error: unknown) {
+    const err = error as Error & { statusCode?: number };
+    sendError(res, err.message || "Internal Server Error", err.statusCode || 500);
+  }
+};
+
 export const createAssignment = async (req: Request, res: Response) => {
   try {
     const assignment = await subjectService.createAssignment(req.body, (req as any).user);

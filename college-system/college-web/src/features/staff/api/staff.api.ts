@@ -47,7 +47,7 @@ export const fetchStaffByCampus = async (campusId: string): Promise<Staff[]> => 
   return response.data.data;
 };
 
-export const createStaff = async (data: CreateStaffInput): Promise<{ staff: Staff; temporaryPassword: string }> => {
+export const createStaff = async (data: CreateStaffInput): Promise<{ staff: Staff; temporaryPassword: string; emailSent: boolean; emailError: string | null }> => {
   const response = await axios.post('/staff', data);
   return response.data.data;
 };
@@ -60,4 +60,12 @@ export const updateStaff = async (id: string, data: UpdateStaffInput): Promise<S
 export const toggleStaffStatus = async (id: string): Promise<Staff> => {
   const response = await axios.patch(`/staff/${id}/toggle`);
   return response.data.data;
+};
+
+export const resendStaffCredentials = async (id: string): Promise<void> => {
+  await axios.post(`/staff/${id}/resend-credentials`);
+};
+
+export const deleteStaff = async (id: string): Promise<void> => {
+  await axios.delete(`/staff/${id}`);
 };

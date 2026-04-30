@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as subjectsApi from '../api/subjects.api';
 import { CreateSubjectInput, UpdateSubjectInput, CreateAssignmentInput, UpdateAssignmentInput } from '../types/subjects.types';
 import { useToast } from '@/hooks/useToast';
+import { extractApiError } from '@/lib/apiError';
 
 export const useSubjects = () => {
   return useQuery({
@@ -21,7 +22,7 @@ export const useCreateSubject = () => {
       success('Subject created successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to create subject';
+      const msg = extractApiError(err, 'Failed to create subject');
       error(msg);
     }
   });
@@ -39,7 +40,7 @@ export const useUpdateSubject = () => {
       success('Subject updated successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to update subject';
+      const msg = extractApiError(err, 'Failed to update subject');
       error(msg);
     }
   });
@@ -56,7 +57,7 @@ export const useToggleSubjectStatus = () => {
       success('Subject status toggled successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to toggle status';
+      const msg = extractApiError(err, 'Failed to toggle status');
       error(msg);
     }
   });
@@ -83,7 +84,7 @@ export const useCreateAssignment = () => {
       success('Assignment created successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to create assignment';
+      const msg = extractApiError(err, 'Failed to create assignment');
       error(msg);
     }
   });
@@ -101,9 +102,16 @@ export const useUpdateAssignment = () => {
       success('Assignment updated successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to update assignment';
+      const msg = extractApiError(err, 'Failed to update assignment');
       error(msg);
     }
+  });
+};
+
+export const useMyTeachingAssignments = () => {
+  return useQuery({
+    queryKey: ['my-teaching-assignments'],
+    queryFn: () => subjectsApi.fetchMyTeachingAssignments(),
   });
 };
 
@@ -118,7 +126,7 @@ export const useDeleteAssignment = () => {
       success('Assignment deleted successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to delete assignment';
+      const msg = extractApiError(err, 'Failed to delete assignment');
       error(msg);
     }
   });

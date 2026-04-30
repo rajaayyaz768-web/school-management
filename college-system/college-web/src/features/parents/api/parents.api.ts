@@ -44,10 +44,10 @@ export const fetchParentsByStudent = async (studentId: string): Promise<Parent[]
 
 export const createParent = async (
   data: CreateParentInput
-): Promise<{ parent: Parent; temporaryPassword: string }> => {
+): Promise<{ parent: Parent; temporaryPassword: string; autoLinkedStudents: number }> => {
   const response = await axios.post<{
     success: boolean;
-    data: { parent: Parent; temporaryPassword: string };
+    data: { parent: Parent; temporaryPassword: string; autoLinkedStudents: number };
   }>('/parents', data);
   return response.data.data;
 };

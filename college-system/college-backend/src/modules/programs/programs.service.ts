@@ -3,18 +3,23 @@ import { CreateProgramDto, UpdateProgramDto } from "./programs.types";
 
 const mapToResponse = (program: any) => {
   if (!program) return program;
-  const { campusId, isActive, grades, ...rest } = program;
-  
+  const { campusId, isActive, grades, campus, ...rest } = program;
+
   const mappedGrades = grades?.map((g: any) => {
     const { isActive: gIsActive, ...gRest } = g;
     return { ...gRest, is_active: gIsActive };
   });
+
+  const mappedCampus = campus
+    ? { ...campus, campus_type: campus.campusType ?? campus.campus_type }
+    : undefined;
 
   return {
     ...rest,
     campus_id: campusId,
     is_active: isActive,
     ...(mappedGrades ? { grades: mappedGrades } : {}),
+    ...(mappedCampus ? { campus: mappedCampus } : {}),
   };
 };
 
@@ -23,6 +28,9 @@ export const getAllPrograms = async (campusId?: string) => {
     where: campusId ? { campusId } : undefined,
     include: {
       campus: true,
+      grades: {
+        orderBy: { displayOrder: "asc" },
+      },
     },
     orderBy: {
       name: "asc",
@@ -65,18 +73,23 @@ export const createProgram = async (data: CreateProgramDto) => {
       });
     }
 
+    const durationYears = data.durationYears ?? 2;
+
+    // For COLLEGE campuses, auto-create one grade per year based on durationYears
+    const autoGrades = campus.campusType === "COLLEGE"
+      ? Array.from({ length: durationYears }, (_, i) => ({
+          name: `Part ${i + 1}`,
+          displayOrder: i + 1,
+        }))
+      : [];
+
     const program = await tx.program.create({
       data: {
         campusId: data.campus_id,
         name: data.name,
         code: data.code,
-        durationYears: data.durationYears ?? 2,
-        grades: {
-          create: [
-            { name: "Part 1", displayOrder: 1 },
-            { name: "Part 2", displayOrder: 2 },
-          ],
-        },
+        durationYears,
+        ...(autoGrades.length > 0 ? { grades: { create: autoGrades } } : {}),
       },
       include: {
         grades: true,
@@ -135,19 +148,32 @@ export const updateProgram = async (id: string, data: UpdateProgramDto) => {
 };
 
 export const toggleProgramStatus = async (id: string) => {
-  const existing = await prisma.program.findUnique({
-    where: { id },
-  });
-
-  if (!existing) {
-    throw Object.assign(new Error("Program not found"), { statusCode: 404 });
-  }
+  const existing = await prisma.program.findUnique({ where: { id } });
+  if (!existing) throw Object.assign(new Error("Program not found"), { statusCode: 404 });
 
   const program = await prisma.program.update({
     where: { id },
-    data: {
-      isActive: !existing.isActive,
-    },
+    data: { isActive: !existing.isActive },
   });
   return mapToResponse(program);
+};
+
+export const deleteProgram = async (id: string) => {
+  const existing = await prisma.program.findUnique({
+    where: { id },
+    include: {
+      grades: { include: { sections: { select: { id: true }, take: 1 } } },
+    },
+  });
+  if (!existing) throw Object.assign(new Error("Program not found"), { statusCode: 404 });
+
+  const hasSections = existing.grades.some(g => g.sections.length > 0);
+  if (hasSections)
+    throw Object.assign(
+      new Error("Cannot delete a program that has sections. Remove all sections first."),
+      { statusCode: 409 }
+    );
+
+  await prisma.program.delete({ where: { id } });
+  return { message: "Program deleted" };
 };

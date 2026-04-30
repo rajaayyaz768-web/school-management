@@ -4,6 +4,8 @@ import { CreateStaffDto, UpdateStaffDto } from "./staff.types";
 import { Gender, Role, Prisma } from "@prisma/client";
 import crypto from "crypto";
 import { assertStaffCampus } from "../../utils/campusGuard";
+import { sendStaffWelcomeEmail } from "../../services/email.service";
+import logger from "../../utils/logger";
 
 interface RequestUser { id: string; role: Role; campusId: string | null }
 
@@ -97,18 +99,56 @@ export const getStaffById = async (id: string, user?: RequestUser) => {
   };
 };
 
+const generateUniqueStaffCode = async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">): Promise<string> => {
+  const total = await tx.staffProfile.count();
+  let seq = total + 1;
+  while (true) {
+    const code = `EMP-${String(seq).padStart(3, "0")}`;
+    const exists = await tx.staffProfile.findUnique({ where: { staffCode: code } });
+    if (!exists) return code;
+    seq++;
+  }
+};
+
 export const createStaff = async (data: CreateStaffDto) => {
+  // ── Pre-flight checks (outside transaction) ──────────────────────────────
+  const campus = await prisma.campus.findUnique({ where: { id: data.primaryCampusId } });
+  if (!campus) throw Object.assign(new Error("Campus not found"), { statusCode: 404 });
+
+  const duplicateEmail = await prisma.user.findUnique({ where: { email: data.email } });
+  if (duplicateEmail) throw Object.assign(new Error("Email already registered in the system"), { statusCode: 409 });
+
+  // Generate credentials before touching the DB so we can test email delivery first
+  const tempPassword = crypto.randomBytes(4).toString("hex").toUpperCase();
+  const staffCode = data.staffCode?.trim() || await generateUniqueStaffCode(prisma);
+
+  const duplicateCode = await prisma.staffProfile.findUnique({ where: { staffCode } });
+  if (duplicateCode) throw Object.assign(new Error("Staff code already exists"), { statusCode: 409 });
+
+  // ── Send welcome email BEFORE creating anything ──────────────────────────
+  // If delivery fails (invalid address / non-existent mailbox), abort without
+  // creating the account so the admin sees the problem immediately.
+  try {
+    await sendStaffWelcomeEmail({
+      to: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName || "",
+      staffCode,
+      loginEmail: data.email,
+      temporaryPassword: tempPassword,
+    });
+  } catch (err: unknown) {
+    const e = err as Error;
+    const msg = e.message ?? "Unknown error";
+    logger.warn("Welcome email rejected for " + data.email + ": " + msg);
+    throw Object.assign(
+      new Error("Could not deliver the welcome email to '" + data.email + "'. Teacher was NOT created. Check that the email address is valid and can receive mail. (" + msg + ")"),
+      { statusCode: 400 }
+    );
+  }
+
+  // ── Create staff in DB (email confirmed deliverable) ─────────────────────
   return await prisma.$transaction(async (tx) => {
-    const campus = await tx.campus.findUnique({ where: { id: data.primaryCampusId } });
-    if (!campus) throw Object.assign(new Error("Campus not found"), { statusCode: 404 });
-
-    const duplicateEmployee = await tx.staffProfile.findUnique({ where: { staffCode: data.staffCode } });
-    if (duplicateEmployee) throw Object.assign(new Error("Staff code already exists"), { statusCode: 409 });
-
-    const duplicateEmail = await tx.user.findUnique({ where: { email: data.email } });
-    if (duplicateEmail) throw Object.assign(new Error("Email already registered"), { statusCode: 409 });
-
-    const tempPassword = crypto.randomBytes(4).toString("hex").toUpperCase();
     const passwordHash = await bcrypt.hash(tempPassword, 10);
 
     const user = await tx.user.create({
@@ -122,7 +162,7 @@ export const createStaff = async (data: CreateStaffDto) => {
     const staffProfile = await tx.staffProfile.create({
       data: {
         userId: user.id,
-        staffCode: data.staffCode,
+        staffCode,
         firstName: data.firstName,
         lastName: data.lastName || "",
         gender: (data.gender as Gender) || Gender.MALE,
@@ -132,22 +172,14 @@ export const createStaff = async (data: CreateStaffDto) => {
         employmentType: data.employmentType,
         designation: data.designation || null,
         photoUrl: data.photoUrl || null,
+        temporaryPassword: tempPassword,
         campusAssignments: {
-          create: {
-            campusId: data.primaryCampusId,
-            isPrimary: true,
-          },
+          create: { campusId: data.primaryCampusId, isPrimary: true },
         },
       },
       include: {
-        user: {
-          select: { id: true, email: true, role: true, isActive: true },
-        },
-        campusAssignments: {
-          include: {
-            campus: true,
-          },
-        },
+        user: { select: { id: true, email: true, role: true, isActive: true } },
+        campusAssignments: { include: { campus: true } },
       },
     });
 
@@ -158,6 +190,8 @@ export const createStaff = async (data: CreateStaffDto) => {
         campusAssignments: undefined,
       },
       temporaryPassword: tempPassword,
+      emailSent: true,
+      emailError: null,
     };
   });
 };
@@ -259,6 +293,37 @@ export const toggleStaffStatus = async (id: string, user?: RequestUser) => {
   });
 };
 
+export const deleteStaff = async (id: string, user?: RequestUser) => {
+  if (user) await assertStaffCampus(id, user);
+
+  const staff = await prisma.staffProfile.findUnique({
+    where: { id },
+    include: { user: true },
+  });
+  if (!staff) throw Object.assign(new Error("Staff not found"), { statusCode: 404 });
+
+  await prisma.$transaction(async (tx) => {
+    // Clear nullable FK first (exam supervisor)
+    await tx.exam.updateMany({ where: { supervisorStaffId: id }, data: { supervisorStaffId: null } });
+    // Clear nullable timetable FK
+    await tx.timetableSlot.updateMany({ where: { staffId: id }, data: { staffId: null } });
+
+    // Delete all non-nullable FK records referencing StaffProfile
+    await tx.sectionSubjectTeacher.deleteMany({ where: { staffId: id } });
+    await tx.staffAttendance.deleteMany({ where: { staffId: id } });
+    await tx.staffLeave.deleteMany({ where: { staffId: id } });
+    await tx.staffCampusAssignment.deleteMany({ where: { staffId: id } });
+
+    // Delete the profile itself
+    await tx.staffProfile.delete({ where: { id } });
+
+    // Delete the login account
+    await tx.user.delete({ where: { id: staff.userId } });
+  });
+
+  return { message: "Staff deleted successfully" };
+};
+
 export const getStaffByCampus = async (campusId: string) => {
   const staffList = await prisma.staffProfile.findMany({
     where: {
@@ -289,4 +354,25 @@ export const getStaffByCampus = async (campusId: string) => {
     campus: staff.campusAssignments[0]?.campus || null,
     campusAssignments: undefined,
   }));
+};
+
+export const resendStaffCredentials = async (id: string) => {
+  const staff = await prisma.staffProfile.findUnique({
+    where: { id },
+    include: { user: { select: { email: true } } },
+  });
+  if (!staff) throw Object.assign(new Error("Staff not found"), { statusCode: 404 });
+  if (!staff.temporaryPassword)
+    throw Object.assign(new Error("No temporary password on record. The teacher may have already changed their password."), { statusCode: 400 });
+
+  await sendStaffWelcomeEmail({
+    to: staff.user.email,
+    firstName: staff.firstName,
+    lastName: staff.lastName,
+    staffCode: staff.staffCode,
+    loginEmail: staff.user.email,
+    temporaryPassword: staff.temporaryPassword,
+  });
+
+  return { message: "Credentials resent to " + staff.user.email };
 };

@@ -13,6 +13,7 @@ export interface Staff {
   phone: string | null;
   email: string | null;
   employmentType: EmploymentType;
+  temporaryPassword?: string | null;
   createdAt: string;
   user: {
     id: string;
@@ -29,8 +30,8 @@ export interface Staff {
 
 export interface CreateStaffInput {
   firstName: string;
-  lastName: string;
-  staffCode: string;
+  lastName?: string;
+  staffCode?: string;
   designation?: string;
   gender: Gender;
   joiningDate?: string;

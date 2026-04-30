@@ -47,6 +47,21 @@ function CampusPicker() {
   )
 }
 
+function AdminCampusBadge({ campusId }: { campusId: string | null }) {
+  const { data: campuses } = useCampuses()
+  const name = campuses?.find((c) => c.id === campusId)?.name
+  if (!name) return null
+  return (
+    <>
+      <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--gold)]/10 border border-[var(--gold)]/20">
+        <Building2 className="w-3 h-3 text-[var(--gold)]" />
+        <span className="text-xs font-medium text-[var(--gold)]">{name}</span>
+      </div>
+      <div className="mx-1 h-6 w-px bg-[var(--border)]" />
+    </>
+  )
+}
+
 export function TopBar({ title }: TopBarProps) {
   const user = useCurrentUser();
   const { mutate: logout } = useLogout();
@@ -108,15 +123,7 @@ export function TopBar({ title }: TopBarProps) {
         )}
 
         {/* ADMIN: read-only campus badge */}
-        {user.role === 'ADMIN' && (
-          <>
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--gold)]/10 border border-[var(--gold)]/20">
-              <Building2 className="w-3 h-3 text-[var(--gold)]" />
-              <span className="text-xs font-medium text-[var(--gold)]">My Campus</span>
-            </div>
-            <div className="mx-1 h-6 w-px bg-[var(--border)]" />
-          </>
-        )}
+        {user.role === 'ADMIN' && <AdminCampusBadge campusId={user.campusId} />}
 
         {/* Chat Button */}
         {showChat && (

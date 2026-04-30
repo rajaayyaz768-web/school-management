@@ -105,7 +105,7 @@ export function ParentForm({ parent, onSuccess, onCancel }: ParentFormProps) {
           label="CNIC"
           value={cnic}
           onChange={(e) => setCnic(e.target.value)}
-          hint="13 digits without dashes"
+          hint="13 digits without dashes — auto-links all students with matching Father CNIC"
           disabled={isPending}
         />
         <Input

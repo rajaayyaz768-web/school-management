@@ -3,6 +3,7 @@ export interface UpdateGradeDto {
   is_active?: boolean;
   teaching_mode?: "SUBJECT_WISE" | "CLASS_TEACHER" | "DUAL_TEACHER";
   is_transitional?: boolean;
+  displayOrder?: number;
 }
 
 export interface GradeResponse {

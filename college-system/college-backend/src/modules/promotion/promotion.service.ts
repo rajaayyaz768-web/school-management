@@ -16,41 +16,58 @@ export const getPromotionStatus = async (campusId: string) => {
     orderBy: { displayOrder: "asc" },
   });
 
-  return grades.map((grade, index) => {
-    const activeCount = grade.sections.reduce((sum, s) => sum + s.students.length, 0);
-    const nextGrade = grades[index + 1] ?? null;
-    const destCount = nextGrade
-      ? nextGrade.sections.reduce((sum, s) => sum + s.students.length, 0)
-      : 0;
+  // Group grades by program so "next grade" never crosses program boundaries
+  const byProgram = new Map<string, typeof grades>();
+  for (const grade of grades) {
+    const list = byProgram.get(grade.programId) ?? [];
+    list.push(grade);
+    byProgram.set(grade.programId, list);
+  }
 
-    let canPromote = false;
-    let blockedReason: string | null = null;
+  const result = [];
 
-    if (!nextGrade) {
-      // Highest grade — can always "graduate" if it has students
-      canPromote = activeCount > 0;
-      if (!canPromote) blockedReason = "No active students to graduate";
-    } else if (destCount > 0) {
-      canPromote = false;
-      blockedReason = `"${nextGrade.name}" still has ${destCount} students — promote them first`;
-    } else {
-      canPromote = activeCount > 0;
-      if (!canPromote) blockedReason = "No active students to promote";
+  for (const programGrades of byProgram.values()) {
+    // already ordered by displayOrder (from the query)
+    for (let i = 0; i < programGrades.length; i++) {
+      const grade = programGrades[i];
+      const activeCount = grade.sections.reduce((sum, s) => sum + s.students.length, 0);
+      const nextGrade = programGrades[i + 1] ?? null;
+      const destCount = nextGrade
+        ? nextGrade.sections.reduce((sum, s) => sum + s.students.length, 0)
+        : 0;
+
+      let canPromote = false;
+      let blockedReason: string | null = null;
+
+      if (!nextGrade) {
+        canPromote = activeCount > 0;
+        if (!canPromote) blockedReason = "No active students to graduate";
+      } else if (destCount > 0) {
+        canPromote = false;
+        blockedReason = `"${nextGrade.name}" still has ${destCount} students — promote them first`;
+      } else {
+        canPromote = activeCount > 0;
+        if (!canPromote) blockedReason = "No active students to promote";
+      }
+
+      result.push({
+        gradeId: grade.id,
+        gradeName: grade.name,
+        programId: grade.programId,
+        programName: grade.program.name,
+        displayOrder: grade.displayOrder,
+        isTransitional: grade.isTransitional,
+        teachingMode: grade.teachingMode,
+        activeStudentCount: activeCount,
+        destinationGradeId: nextGrade?.id ?? null,
+        destinationStudentCount: destCount,
+        canPromote,
+        blockedReason,
+      });
     }
+  }
 
-    return {
-      gradeId: grade.id,
-      gradeName: grade.name,
-      displayOrder: grade.displayOrder,
-      isTransitional: grade.isTransitional,
-      teachingMode: grade.teachingMode,
-      activeStudentCount: activeCount,
-      destinationGradeId: nextGrade?.id ?? null,
-      destinationStudentCount: destCount,
-      canPromote,
-      blockedReason,
-    };
-  });
+  return result;
 };
 
 // ─── createAcademicYear ────────────────────────────────────────────────────────
@@ -139,7 +156,7 @@ export const runTransitionalPromotion = async (
       data: { campusId, academicYearId: body.academicYearId, type: PromotionType.TRANSITIONAL, initiatedById },
     });
 
-    const sectionCache: Record<string, { name: string; currentCount: number; grade: { displayOrder: number; program: { code: string; campus: { code: string } } } }> = {};
+    const sectionCache: Record<string, { name: string; gradeId: string; currentCount: number; grade: { displayOrder: number; program: { code: string; campus: { code: string } } } }> = {};
 
     let promoted = 0, detained = 0, withdrawn = 0;
 
@@ -163,6 +180,25 @@ export const runTransitionalPromotion = async (
 
       // PROMOTED
       if (!a.toSectionId) continue;
+
+      // Guard: target section must belong to the same program as the student's current section
+      if (student.sectionId) {
+        const fromSection = await tx.section.findUnique({
+          where: { id: student.sectionId },
+          include: { grade: { select: { programId: true } } },
+        });
+        const toSection = await tx.section.findUnique({
+          where: { id: a.toSectionId },
+          include: { grade: { select: { programId: true } } },
+        });
+        if (fromSection && toSection && fromSection.grade.programId !== toSection.grade.programId) {
+          throw Object.assign(
+            new Error(`Student ${a.studentId}: cannot promote across programs. Target section belongs to a different program.`),
+            { statusCode: 400 }
+          );
+        }
+      }
+
       if (!sectionCache[a.toSectionId]) {
         const sec = await tx.section.findUnique({
           where: { id: a.toSectionId },
@@ -172,14 +208,14 @@ export const runTransitionalPromotion = async (
           },
         });
         if (!sec) continue;
-        sectionCache[a.toSectionId] = { name: sec.name, currentCount: sec.students.length, grade: { displayOrder: sec.grade.displayOrder, program: { code: sec.grade.program.code, campus: { code: sec.grade.program.campus.code } } } };
+        sectionCache[a.toSectionId] = { name: sec.name, gradeId: sec.gradeId, currentCount: sec.students.length, grade: { displayOrder: sec.grade.displayOrder, program: { code: sec.grade.program.code, campus: { code: sec.grade.program.campus.code } } } };
       }
 
       const cs = sectionCache[a.toSectionId];
       cs.currentCount++;
       const rollNumber = generateRollNumber(cs.grade.program.campus.code, cs.grade.program.code, cs.grade.displayOrder, cs.name, cs.currentCount);
 
-      await tx.studentProfile.update({ where: { id: a.studentId }, data: { sectionId: a.toSectionId, rollNumber } });
+      await tx.studentProfile.update({ where: { id: a.studentId }, data: { sectionId: a.toSectionId, gradeId: cs.gradeId, rollNumber } });
       await tx.studentPromotionRecord.create({ data: { promotionRunId: run.id, studentId: a.studentId, fromSectionId: student.sectionId, toSectionId: a.toSectionId, status: PromotionRecordStatus.PROMOTED, newRollNumber: rollNumber } });
       promoted++;
     }
@@ -223,7 +259,7 @@ export const runAnnualPromotion = async (
       data: { campusId, academicYearId: body.academicYearId, type: PromotionType.ANNUAL, initiatedById },
     });
 
-    const sectionCache: Record<string, { name: string; currentCount: number; grade: { displayOrder: number; program: { code: string; campus: { code: string } } } }> = {};
+    const sectionCache: Record<string, { name: string; gradeId: string; currentCount: number; grade: { displayOrder: number; program: { code: string; campus: { code: string } } } }> = {};
     let promoted = 0, detained = 0, graduated = 0, withdrawn = 0;
 
     // Sort gradeAssignments descending by displayOrder so highest grade processes first
@@ -261,20 +297,39 @@ export const runAnnualPromotion = async (
           graduated++;
         } else {
           if (!a.toSectionId) continue;
+
+          // Guard: target section must belong to the same program as student's current section
+          if (student.sectionId) {
+            const fromSection = await tx.section.findUnique({
+              where: { id: student.sectionId },
+              include: { grade: { select: { programId: true } } },
+            });
+            const toSection = await tx.section.findUnique({
+              where: { id: a.toSectionId },
+              include: { grade: { select: { programId: true } } },
+            });
+            if (fromSection && toSection && fromSection.grade.programId !== toSection.grade.programId) {
+              throw Object.assign(
+                new Error(`Student ${a.studentId}: cannot promote across programs. Target section belongs to a different program.`),
+                { statusCode: 400 }
+              );
+            }
+          }
+
           if (!sectionCache[a.toSectionId]) {
             const sec = await tx.section.findUnique({
               where: { id: a.toSectionId },
               include: { grade: { include: { program: { include: { campus: true } } } }, students: { where: { status: StudentStatus.ACTIVE }, select: { id: true } } },
             });
             if (!sec) continue;
-            sectionCache[a.toSectionId] = { name: sec.name, currentCount: sec.students.length, grade: { displayOrder: sec.grade.displayOrder, program: { code: sec.grade.program.code, campus: { code: sec.grade.program.campus.code } } } };
+            sectionCache[a.toSectionId] = { name: sec.name, gradeId: sec.gradeId, currentCount: sec.students.length, grade: { displayOrder: sec.grade.displayOrder, program: { code: sec.grade.program.code, campus: { code: sec.grade.program.campus.code } } } };
           }
 
           const cs = sectionCache[a.toSectionId];
           cs.currentCount++;
           const rollNumber = generateRollNumber(cs.grade.program.campus.code, cs.grade.program.code, cs.grade.displayOrder, cs.name, cs.currentCount);
 
-          await tx.studentProfile.update({ where: { id: a.studentId }, data: { sectionId: a.toSectionId, rollNumber } });
+          await tx.studentProfile.update({ where: { id: a.studentId }, data: { sectionId: a.toSectionId, gradeId: cs.gradeId, rollNumber } });
           await tx.studentPromotionRecord.create({ data: { promotionRunId: run.id, studentId: a.studentId, fromSectionId: student.sectionId, toSectionId: a.toSectionId, status: PromotionRecordStatus.PROMOTED, newRollNumber: rollNumber } });
           promoted++;
         }

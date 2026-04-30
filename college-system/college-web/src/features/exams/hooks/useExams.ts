@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks/useToast'
+import { extractApiError } from '@/lib/apiError'
 import {
   fetchExamTypes,
   createExamType,
@@ -34,12 +35,7 @@ export const useCreateExamType = () => {
       toast.success('Exam type created successfully')
     },
     onError: (error: unknown) => {
-      const msg =
-        error instanceof Error
-          ? error.message
-          : (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Failed to create exam type'
-      toast.error(msg)
+      toast.error(extractApiError(error, 'Failed to create exam type'))
     },
   })
 }
@@ -77,12 +73,7 @@ export const useCreateExam = () => {
       toast.success('Exam scheduled successfully')
     },
     onError: (error: unknown) => {
-      const msg =
-        error instanceof Error
-          ? error.message
-          : (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Failed to create exam'
-      toast.error(msg)
+      toast.error(extractApiError(error, 'Failed to create exam'))
     },
   })
 }
@@ -97,12 +88,7 @@ export const useUpdateExam = () => {
       toast.success('Exam updated successfully')
     },
     onError: (error: unknown) => {
-      const msg =
-        error instanceof Error
-          ? error.message
-          : (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Failed to update exam'
-      toast.error(msg)
+      toast.error(extractApiError(error, 'Failed to update exam'))
     },
   })
 }
@@ -117,12 +103,7 @@ export const useDeleteExam = () => {
       toast.success('Exam deleted')
     },
     onError: (error: unknown) => {
-      const msg =
-        error instanceof Error
-          ? error.message
-          : (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Failed to delete exam'
-      toast.error(msg)
+      toast.error(extractApiError(error, 'Failed to delete exam'))
     },
   })
 }
@@ -137,12 +118,7 @@ export const useEnterBulkResults = () => {
       toast.success('Results saved successfully')
     },
     onError: (error: unknown) => {
-      const msg =
-        error instanceof Error
-          ? error.message
-          : (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Failed to save results'
-      toast.error(msg)
+      toast.error(extractApiError(error, 'Failed to save results'))
     },
   })
 }

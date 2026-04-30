@@ -9,6 +9,8 @@ export interface AcademicYear {
 export interface GradePromotionStatus {
   gradeId: string;
   gradeName: string;
+  programId?: string;
+  programName?: string;
   displayOrder: number;
   isTransitional: boolean;
   teachingMode: string | null;

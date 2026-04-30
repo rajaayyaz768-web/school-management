@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as sectionService from "./sections.service";
+import { resequenceRollNumbers } from "../students/students.service";
 import { sendSuccess, sendCreated, sendError } from "../../utils/response";
 
 export const getAllSections = async (req: Request, res: Response) => {
@@ -61,6 +62,16 @@ export const getSectionStudentCount = async (req: Request, res: Response) => {
   try {
     const data = await sectionService.getSectionStudentCount(req.params.id as string, (req as any).user);
     sendSuccess(res, "Student count retrieved successfully", data);
+  } catch (error: unknown) {
+    const err = error as Error & { statusCode?: number };
+    sendError(res, err.message || "Internal Server Error", err.statusCode || 500);
+  }
+};
+
+export const resequenceSectionRolls = async (req: Request, res: Response) => {
+  try {
+    const result = await resequenceRollNumbers(req.params.id as string, (req as any).user);
+    sendSuccess(res, `Roll numbers resequenced alphabetically for ${result.resequenced} students`, result);
   } catch (error: unknown) {
     const err = error as Error & { statusCode?: number };
     sendError(res, err.message || "Internal Server Error", err.statusCode || 500);

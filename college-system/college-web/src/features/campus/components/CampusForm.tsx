@@ -11,11 +11,14 @@ export interface CampusFormProps {
   onCancel: () => void;
 }
 
+function previewCode(name: string): string {
+  return name.trim().split(/\s+/)[0].toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) || '—';
+}
+
 export function CampusForm({ campus, onSuccess, onCancel }: CampusFormProps) {
   const isEdit = !!campus;
-  
+
   const [name, setName] = useState(campus?.name || '');
-  const [campusCode, setCampusCode] = useState(campus?.campus_code || '');
   const [campusType, setCampusType] = useState<CampusType>(campus?.campus_type || 'COLLEGE');
   const [address, setAddress] = useState(campus?.address || '');
   const [contactNumber, setContactNumber] = useState(campus?.contact_number || '');
@@ -32,7 +35,7 @@ export function CampusForm({ campus, onSuccess, onCancel }: CampusFormProps) {
       updateMutation.mutate(
         {
           id: campus.id,
-          data: { name, campus_code: campusCode, campus_type: campusType, address, contact_number: contactNumber },
+          data: { name, campus_type: campusType, address, contact_number: contactNumber },
         },
         {
           onSuccess: () => onSuccess(),
@@ -40,7 +43,7 @@ export function CampusForm({ campus, onSuccess, onCancel }: CampusFormProps) {
       );
     } else {
       createMutation.mutate(
-        { name, campus_code: campusCode, campus_type: campusType, address, contact_number: contactNumber },
+        { name, campus_type: campusType, address, contact_number: contactNumber },
         {
           onSuccess: () => onSuccess(),
         }
@@ -58,14 +61,20 @@ export function CampusForm({ campus, onSuccess, onCancel }: CampusFormProps) {
         placeholder="Enter campus name"
       />
 
-      <Input
-        label="Campus Code"
-        value={campusCode}
-        onChange={(e) => setCampusCode(e.target.value.toUpperCase())}
-        required
-        hint="Short uppercase code e.g. BOY or GIRL"
-        placeholder="e.g. ABC"
-      />
+      {!isEdit && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius-sm)] bg-[var(--surface-raised)] border border-[var(--border)]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Campus Code</span>
+          <span className="ml-auto font-mono text-sm font-bold text-[var(--primary)]">{previewCode(name)}</span>
+          <span className="text-xs text-[var(--text-muted)]">· Auto-generated</span>
+        </div>
+      )}
+      {isEdit && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius-sm)] bg-[var(--surface-raised)] border border-[var(--border)]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Campus Code</span>
+          <span className="ml-auto font-mono text-sm font-bold text-[var(--text)]">{campus?.campus_code}</span>
+          <span className="text-xs text-[var(--text-muted)]">· Cannot be changed</span>
+        </div>
+      )}
 
       <div>
         <label className="block font-body text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">Campus Type</label>

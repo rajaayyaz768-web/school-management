@@ -1,7 +1,9 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as studentsApi from '../api/students.api';
+import { fetchAssignmentData } from '@/features/section-assignment/api/section-assignment.api';
 import { CreateStudentInput, UpdateStudentInput } from '../types/students.types';
 import { useToast } from '@/hooks/useToast';
+import { extractApiError } from '@/lib/apiError';
 
 export const useStudents = (filters?: studentsApi.StudentFilters) => {
   return useQuery({
@@ -51,6 +53,13 @@ export const useStudentsBySection = (sectionId: string) => {
   });
 };
 
+export const useSectionsByGrade = (gradeId?: string) =>
+  useQuery({
+    queryKey: ['sections-by-grade', gradeId],
+    queryFn: () => fetchAssignmentData(gradeId!).then(d => d.sections),
+    enabled: !!gradeId,
+  });
+
 export const useCreateStudent = () => {
   const queryClient = useQueryClient();
   const { success, error } = useToast();
@@ -62,7 +71,7 @@ export const useCreateStudent = () => {
       success('Student enrolled successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to create student';
+      const msg = extractApiError(err, 'Failed to create student');
       error(msg);
     }
   });
@@ -81,7 +90,7 @@ export const useUpdateStudent = () => {
       success('Student updated successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to update student';
+      const msg = extractApiError(err, 'Failed to update student');
       error(msg);
     }
   });

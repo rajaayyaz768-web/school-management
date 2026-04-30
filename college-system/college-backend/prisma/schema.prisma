@@ -142,6 +142,17 @@ enum PromotionRecordStatus {
   WITHDRAWN
 }
 
+enum DeviceStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum DeviceRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum Relationship {
   FATHER
   MOTHER
@@ -152,13 +163,14 @@ enum Relationship {
 
 // 1. User — core authentication record for every login
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  role         Role
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  role          Role
+  isActive      Boolean  @default(true) @map("is_active")
+  recoveryEmail String?  @map("recovery_email")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   staffProfile           StaffProfile?
   studentProfile         StudentProfile?
@@ -173,7 +185,11 @@ model User {
   gradedResults          ExamResult[]        @relation("ResultGradedBy")
   supervisedExams        Exam[]              @relation("ExamSupervisor")
   googleDriveToken       GoogleDriveToken?
-  promotionRuns          PromotionRun[]
+  promotionRuns              PromotionRun[]
+  registeredDevices          RegisteredDevice[]
+  deviceRequests             DeviceRegistrationRequest[]
+  importHistoriesCreated     ImportHistory[]    @relation("ImportedBy")
+  importCredentials          ImportCredential[] @relation("ImportCredentials")
 
   @@map("users")
 }
@@ -200,6 +216,7 @@ model Campus {
   announcements    Announcement[]
   academicYears    AcademicYear[]
   promotionRuns    PromotionRun[]
+  allowedNetworks  CampusAllowedNetwork[]
 
   @@map("campuses")
 }
@@ -236,9 +253,12 @@ model Grade {
 
   program          Program                  @relation(fields: [programId], references: [id])
   sections         Section[]
+  studentProfiles  StudentProfile[]
   timetableConfigs TimetablePeriodsConfig[]
   feeStructures    FeeStructure[]
+  gradeSubjects    GradeSubject[]
 
+  @@unique([programId, name])
   @@map("grades")
 }
 
@@ -262,6 +282,7 @@ model Section {
   announcements          Announcement[]
   promotionRecordsFrom   StudentPromotionRecord[] @relation("RecordFromSection")
   promotionRecordsTo     StudentPromotionRecord[] @relation("RecordToSection")
+  importHistories        ImportHistory[]
 
   @@map("sections")
 }
@@ -280,9 +301,10 @@ model StaffProfile {
   joiningDate    DateTime?      @map("joining_date")
   employmentType EmploymentType @default(PERMANENT) @map("employment_type")
   designation    String?
-  photoUrl       String?        @map("photo_url")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
+  photoUrl           String?        @map("photo_url")
+  temporaryPassword  String?        @map("temporary_password")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
 
   user                 User                    @relation(fields: [userId], references: [id])
   campusAssignments    StaffCampusAssignment[]
@@ -323,6 +345,9 @@ model StudentProfile {
   phone          String?
   address        String?
   guardianPhone  String?       @map("guardian_phone")
+  fatherName     String?       @map("father_name")
+  fatherCnic     String?       @map("father_cnic")
+  gradeId        String?       @map("grade_id")
   sectionId      String?       @map("section_id")
   campusId       String        @map("campus_id")
   enrollmentDate DateTime      @default(now()) @map("enrollment_date")
@@ -334,6 +359,7 @@ model StudentProfile {
 
   user               User                       @relation(fields: [userId], references: [id])
   section            Section?                   @relation(fields: [sectionId], references: [id])
+  grade              Grade?                     @relation(fields: [gradeId], references: [id])
   campus             Campus                     @relation(fields: [campusId], references: [id])
   parentLinks        StudentParentLink[]
   attendances        StudentAttendance[]
@@ -396,8 +422,23 @@ model Subject {
   studentAttendances     StudentAttendance[]
   exams                  Exam[]
   boardExamRecords       BoardExamRecord[]
+  gradeSubjects          GradeSubject[]
 
   @@map("subjects")
+}
+
+// 11b. GradeSubject — curriculum: which subjects belong to a grade
+model GradeSubject {
+  id        String   @id @default(uuid())
+  gradeId   String   @map("grade_id")
+  subjectId String   @map("subject_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  grade   Grade   @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([gradeId, subjectId])
+  @@map("grade_subjects")
 }
 
 // 12. SectionSubjectTeacher — which teacher teaches which subject in which section
@@ -866,4 +907,94 @@ model OutgoingMessage {
   @@index([toPhone])
   @@index([status])
   @@map("outgoing_messages")
+}
+
+// 37. RegisteredDevice — devices the principal has approved for an admin to log in from
+model RegisteredDevice {
+  id           String       @id @default(uuid())
+  adminUserId  String       @map("admin_user_id")
+  deviceToken  String       @map("device_token")
+  label        String?
+  userAgent    String?      @map("user_agent")
+  status       DeviceStatus @default(ACTIVE)
+  registeredAt DateTime     @default(now()) @map("registered_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  adminUser User @relation(fields: [adminUserId], references: [id])
+
+  @@unique([adminUserId, deviceToken])
+  @@index([adminUserId])
+  @@map("registered_devices")
+}
+
+// 38. DeviceRegistrationRequest — pending approval queue for unrecognised admin devices
+model DeviceRegistrationRequest {
+  id               String              @id @default(uuid())
+  adminUserId      String              @map("admin_user_id")
+  deviceToken      String              @map("device_token")
+  userAgent        String?             @map("user_agent")
+  requestedFromIp  String?             @map("requested_from_ip")
+  status           DeviceRequestStatus @default(PENDING)
+  isRead           Boolean             @default(false) @map("is_read")
+  reviewedAt       DateTime?           @map("reviewed_at")
+  reviewNote       String?             @map("review_note")
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+
+  adminUser User @relation(fields: [adminUserId], references: [id])
+
+  @@unique([adminUserId, deviceToken])
+  @@index([adminUserId])
+  @@map("device_registration_requests")
+}
+
+// 39. CampusAllowedNetwork — IP ranges from which admins of this campus may log in
+model CampusAllowedNetwork {
+  id        String   @id @default(uuid())
+  campusId  String   @map("campus_id")
+  cidr      String
+  label     String?
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  campus Campus @relation(fields: [campusId], references: [id])
+
+  @@index([campusId])
+  @@map("campus_allowed_networks")
+}
+
+// 40. ImportHistory — audit record for each bulk CSV import
+model ImportHistory {
+  id              String   @id @default(uuid())
+  sectionId       String   @map("section_id")
+  importedById    String   @map("imported_by_id")
+  importedAt      DateTime @default(now()) @map("imported_at")
+  studentsCreated Int      @map("students_created")
+  parentsCreated  Int      @map("parents_created")
+  parentsLinked   Int      @map("parents_linked")
+  siblingsLinked  Int      @map("siblings_linked")
+  totalRows       Int      @map("total_rows")
+  studentIds      Json     @map("student_ids")
+
+  section     Section           @relation(fields: [sectionId], references: [id])
+  importedBy  User              @relation("ImportedBy", fields: [importedById], references: [id])
+  credentials ImportCredential[]
+
+  @@map("import_histories")
+}
+
+// 41. ImportCredential — temporary plaintext password storage for credential Excel generation
+model ImportCredential {
+  id                String    @id @default(uuid())
+  importId          String    @map("import_id")
+  userId            String    @map("user_id")
+  plainTextPassword String    @map("plain_text_password")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  downloadedAt      DateTime? @map("downloaded_at")
+
+  import ImportHistory @relation(fields: [importId], references: [id])
+  user   User          @relation("ImportCredentials", fields: [userId], references: [id])
+
+  @@map("import_credentials")
 }

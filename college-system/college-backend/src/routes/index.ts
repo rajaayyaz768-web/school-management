@@ -25,6 +25,7 @@ import { studentDashboardRouter } from '../modules/dashboard/student/studentDash
 import { systemRouter } from '../modules/system/system.routes'
 import { adminManagementRouter } from '../modules/admin-management/admin-management.routes'
 import { promotionRouter } from '../modules/promotion/promotion.routes'
+import { importRouter } from '../modules/import/import.routes'
 
 const router = Router();
 
@@ -62,6 +63,9 @@ router.use('/admin-management', adminManagementRouter)
 
 // ─── Promotion (school academic year rollover) ────────────────────────────
 router.use('/promotion', promotionRouter)
+
+// ─── Bulk CSV Import ──────────────────────────────────────────────────────
+router.use('/', importRouter)
 
 // ─── Dashboards ───────────────────────────────────────────────────────────
 router.use('/dashboard/principal', principalDashboardRouter)

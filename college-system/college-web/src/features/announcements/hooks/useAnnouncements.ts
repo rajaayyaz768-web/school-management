@@ -1,5 +1,6 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks/useToast'
+import { extractApiError } from '@/lib/apiError'
 import {
   fetchAnnouncements,
   fetchAnnouncementsPage,
@@ -46,12 +47,7 @@ export const useCreateAnnouncement = () => {
       toast.success('Announcement posted')
     },
     onError: (error: unknown) => {
-      const msg =
-        error instanceof Error
-          ? error.message
-          : (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Failed to post announcement'
-      toast.error(msg)
+      toast.error(extractApiError(error, 'Failed to post announcement'))
     },
   })
 }
@@ -67,12 +63,7 @@ export const useUpdateAnnouncement = () => {
       toast.success('Announcement updated')
     },
     onError: (error: unknown) => {
-      const msg =
-        error instanceof Error
-          ? error.message
-          : (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Failed to update announcement'
-      toast.error(msg)
+      toast.error(extractApiError(error, 'Failed to update announcement'))
     },
   })
 }
@@ -87,12 +78,7 @@ export const useDeleteAnnouncement = () => {
       toast.success('Announcement deleted')
     },
     onError: (error: unknown) => {
-      const msg =
-        error instanceof Error
-          ? error.message
-          : (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Failed to delete announcement'
-      toast.error(msg)
+      toast.error(extractApiError(error, 'Failed to delete announcement'))
     },
   })
 }

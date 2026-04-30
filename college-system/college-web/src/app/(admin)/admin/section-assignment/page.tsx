@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 
+import { useCampusStore } from '@/store/campusStore';
+import { useRole } from '@/store/authStore';
 import { useCampuses } from '@/features/campus/hooks/useCampus';
 import { useProgramGrades } from '@/features/sections/hooks/useSections';
 import { useAssignmentData, useAutoAssign, useConfirmAssignment } from '@/features/section-assignment/hooks/useSectionAssignment';
@@ -37,8 +39,12 @@ export default function SectionAssignmentPage() {
   const [selectedGradeId, setSelectedGradeId] = useState('')
   const [selectedGradeName, setSelectedGradeName] = useState('')
 
+  const role = useRole()
+  const { activeCampusId } = useCampusStore()
   const { data: campuses = [] } = useCampuses()
-  const campusId = campuses[0]?.id ?? ''
+  const campusId = role === 'SUPER_ADMIN'
+    ? (activeCampusId ?? campuses[0]?.id ?? '')
+    : (campuses[0]?.id ?? '')
 
   const { data: grades = [], isLoading: gradesLoading } = useProgramGrades(selectedProgram?.id)
 

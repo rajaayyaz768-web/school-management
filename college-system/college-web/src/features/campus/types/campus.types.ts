@@ -16,7 +16,7 @@ export interface Campus {
 
 export interface CreateCampusInput {
   name: string;
-  campus_code: string;
+  campus_code?: string;
   campus_type?: CampusType;
   address?: string;
   contact_number?: string;

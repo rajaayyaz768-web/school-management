@@ -5,10 +5,13 @@ export interface CreateStudentDto {
   lastName: string;
   gender: Gender;
   campusId: string;
-  gradeId: string; // Used for validation context, not stored on student
+  gradeId: string;
+  sectionId?: string;   // optional: direct-assign for legacy/existing students
   dob?: string;
   phone?: string;
   guardianPhone?: string;
+  fatherName?: string;
+  fatherCnic?: string;
   address?: string;
   photoUrl?: string;
   rankingMarks?: number;
@@ -20,9 +23,12 @@ export interface UpdateStudentDto {
   firstName?: string;
   lastName?: string;
   gender?: Gender;
+  gradeId?: string;
   dob?: string;
   phone?: string;
   guardianPhone?: string;
+  fatherName?: string;
+  fatherCnic?: string;
   address?: string;
   photoUrl?: string;
   rankingMarks?: number;
@@ -41,6 +47,9 @@ export interface StudentResponse {
   phone: string | null;
   address: string | null;
   guardianPhone: string | null;
+  fatherName: string | null;
+  fatherCnic: string | null;
+  gradeId: string | null;
   sectionId: string | null;
   campusId: string;
   enrollmentDate: Date;

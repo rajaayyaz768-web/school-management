@@ -20,6 +20,16 @@ export interface SectionSubjectTeacher {
   section?: {
     id: string;
     name: string;
+    grade?: {
+      id: string;
+      name: string;
+      program?: {
+        id: string;
+        name: string;
+        code: string;
+        campus?: { id: string; name: string };
+      };
+    };
   };
   subject?: {
     id: string;

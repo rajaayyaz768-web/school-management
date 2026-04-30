@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { Staff } from '../types/staff.types';
-import { useStaffById } from '../hooks/useStaff';
+import { useStaffById, useResendStaffCredentials } from '../hooks/useStaff';
 import { Drawer, Avatar, Badge, Button, Tabs, TabPanel, Skeleton, ErrorState } from '@/components/ui';
+import { Eye, EyeOff, Copy, Mail } from 'lucide-react';
 
 export interface StaffProfileDrawerProps {
   staffId: string | null;
@@ -14,6 +15,8 @@ export interface StaffProfileDrawerProps {
 
 export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffProfileDrawerProps) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [showPassword, setShowPassword] = useState(false);
+  const resendMutation = useResendStaffCredentials();
   const { data: staff, isLoading, isError, refetch } = useStaffById(isOpen ? staffId : null);
 
   const getEmploymentBadge = (type?: string) => {
@@ -124,9 +127,60 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
                     </Badge>
                   )}
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Last Login</label>
-                  <p className="text-sm text-[var(--text)] mt-1">Not tracked globally yet</p>
+
+                {/* ─── Portal Password ────────────────────────────────────── */}
+                <div className="pt-2 border-t border-[var(--border)]">
+                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Portal Password</label>
+                  {staff.temporaryPassword ? (
+                    <div className="mt-2 space-y-2">
+                      <div className="flex items-center gap-2 bg-[var(--surface)] border border-[var(--border)] rounded-md px-3 py-2">
+                        <span className="flex-1 font-mono text-sm text-[var(--text)] tracking-widest">
+                          {showPassword ? staff.temporaryPassword : '••••••••'}
+                        </span>
+                        <button
+                          onClick={() => setShowPassword(v => !v)}
+                          className="text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+                          title={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(staff.temporaryPassword!)}
+                          className="text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors"
+                          title="Copy password"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-xs text-amber-600">
+                        This is the current temporary password. It will be cleared once the teacher changes it.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[var(--text-muted)] mt-1 italic">
+                      Teacher has set their own password.
+                    </p>
+                  )}
+                </div>
+
+                {/* ─── Resend Credentials ─────────────────────────────────── */}
+                <div className="pt-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => resendMutation.mutate(staff.id)}
+                    loading={resendMutation.isPending}
+                    disabled={!staff.temporaryPassword}
+                    className="flex items-center gap-2"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    Resend Login Credentials by Email
+                  </Button>
+                  {!staff.temporaryPassword && (
+                    <p className="text-xs text-[var(--text-muted)] mt-1">
+                      Not available — teacher has already changed their password.
+                    </p>
+                  )}
                 </div>
               </div>
             </TabPanel>

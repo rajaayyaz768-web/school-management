@@ -9,6 +9,9 @@ export interface Student {
   dob: string | null;
   phone: string | null;
   guardianPhone: string | null;
+  fatherName: string | null;
+  fatherCnic: string | null;
+  gradeId: string | null;
   address: string | null;
   photoUrl: string | null;
   rankingMarks: number | null;
@@ -58,6 +61,9 @@ export interface CreateStudentInput {
   dob?: string;
   phone?: string;
   guardianPhone?: string;
+  fatherName?: string;
+  fatherCnic?: string;
+  sectionId?: string;
   address?: string;
   photoUrl?: string;
   rankingMarks?: number;
@@ -71,6 +77,9 @@ export interface UpdateStudentInput {
   dob?: string;
   phone?: string;
   guardianPhone?: string;
+  fatherName?: string;
+  fatherCnic?: string;
+  gradeId?: string;
   address?: string;
   photoUrl?: string;
   rankingMarks?: number;

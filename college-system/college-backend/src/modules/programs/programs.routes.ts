@@ -9,6 +9,7 @@ import {
   createProgram,
   updateProgram,
   toggleProgramStatus,
+  deleteProgram,
 } from "./programs.controller";
 import {
   createProgramSchema,
@@ -52,6 +53,13 @@ router.patch(
   authenticate,
   authorize(Role.SUPER_ADMIN, Role.ADMIN),
   toggleProgramStatus
+);
+
+router.delete(
+  "/:id",
+  authenticate,
+  authorize(Role.SUPER_ADMIN, Role.ADMIN),
+  deleteProgram
 );
 
 export const programsRouter = router;

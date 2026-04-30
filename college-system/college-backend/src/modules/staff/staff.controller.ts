@@ -70,3 +70,23 @@ export const getStaffByCampus = async (req: Request, res: Response) => {
     sendError(res, err.message || "Internal Server Error", err.statusCode || 500);
   }
 };
+
+export const deleteStaff = async (req: Request, res: Response) => {
+  try {
+    const result = await staffService.deleteStaff(req.params.id as string, (req as any).user);
+    sendSuccess(res, result.message, null);
+  } catch (error: unknown) {
+    const err = error as Error & { statusCode?: number };
+    sendError(res, err.message || "Internal Server Error", err.statusCode || 500);
+  }
+};
+
+export const resendStaffCredentials = async (req: Request, res: Response) => {
+  try {
+    const result = await staffService.resendStaffCredentials(req.params.id as string);
+    sendSuccess(res, result.message, null);
+  } catch (error: unknown) {
+    const err = error as Error & { statusCode?: number };
+    sendError(res, err.message || "Internal Server Error", err.statusCode || 500);
+  }
+};

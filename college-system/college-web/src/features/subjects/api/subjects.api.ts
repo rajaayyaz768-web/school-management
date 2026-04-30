@@ -57,6 +57,11 @@ export const fetchAssignmentsByTeacher = async (staffId: string): Promise<Sectio
   return response.data.data;
 };
 
+export const fetchMyTeachingAssignments = async (): Promise<SectionSubjectTeacher[]> => {
+  const response = await axios.get('/subjects/assignments/mine');
+  return response.data.data;
+};
+
 export const createAssignment = async (data: CreateAssignmentInput): Promise<SectionSubjectTeacher> => {
   const response = await axios.post('/subjects/assignments', data);
   return response.data.data;

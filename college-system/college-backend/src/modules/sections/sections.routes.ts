@@ -10,6 +10,7 @@ import {
   updateSection,
   toggleSectionStatus,
   getSectionStudentCount,
+  resequenceSectionRolls,
 } from "./sections.controller";
 import {
   createSectionSchema,
@@ -60,6 +61,13 @@ router.patch(
   authenticate,
   authorize(Role.SUPER_ADMIN, Role.ADMIN),
   toggleSectionStatus
+);
+
+router.post(
+  "/:id/resequence-rolls",
+  authenticate,
+  authorize(Role.SUPER_ADMIN, Role.ADMIN),
+  resequenceSectionRolls
 );
 
 export const sectionsRouter = router;

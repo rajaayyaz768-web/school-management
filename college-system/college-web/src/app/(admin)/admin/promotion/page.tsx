@@ -161,11 +161,35 @@ export default function PromotionPage() {
       ) : statusList.length === 0 ? (
         <EmptyState title="No grades found" description="Create grades for this campus first." />
       ) : (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">Grade Chain — top to bottom</p>
-          {statusList.map((grade) => (
-            <GradeCard key={grade.gradeId} grade={grade} />
-          ))}
+        <div className="space-y-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+            Grade Chain — top to bottom &nbsp;·&nbsp; To fix order: go to Programs → click a grade pill → set Order number
+          </p>
+          {(() => {
+            const byProgram = new Map<string, { programName: string; grades: typeof statusList }>();
+            for (const g of statusList) {
+              const pid = g.programId ?? 'unknown';
+              if (!byProgram.has(pid)) byProgram.set(pid, { programName: g.programName ?? 'Unknown Program', grades: [] });
+              byProgram.get(pid)!.grades.push(g);
+            }
+            return Array.from(byProgram.values()).map(({ programName, grades }) => (
+              <div key={programName} className="space-y-1.5">
+                <p className="text-xs font-semibold text-[var(--text)] border-b border-[var(--border)] pb-1 mb-2">
+                  {programName}
+                </p>
+                {grades.map((grade) => (
+                  <div key={grade.gradeId} className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-[var(--text-muted)] w-6 text-right shrink-0">
+                      {grade.displayOrder}
+                    </span>
+                    <div className="flex-1">
+                      <GradeCard grade={grade} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ));
+          })()}
         </div>
       )}
 

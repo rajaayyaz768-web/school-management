@@ -5,10 +5,11 @@ import { Staff, CreateStaffInput, UpdateStaffInput, Gender, EmploymentType } fro
 import { useCreateStaff, useUpdateStaff } from '../hooks/useStaff';
 import { useCampuses } from '@/features/campus/hooks/useCampus';
 import { Button, Input, Select, DatePicker, PhoneInput } from '@/components/ui';
+import { extractApiError } from '@/lib/apiError';
 
 export interface StaffFormProps {
   staff?: Staff;
-  onSuccess: (temporaryPassword?: string) => void;
+  onSuccess: (temporaryPassword?: string, emailSent?: boolean, emailError?: string | null) => void;
   onCancel: () => void;
 }
 
@@ -19,58 +20,91 @@ export function StaffForm({ staff, onSuccess, onCancel }: StaffFormProps) {
   const [lastName, setLastName] = useState(staff?.lastName || '');
   const [staffCode, setStaffCode] = useState(staff?.staffCode || '');
   const [designation, setDesignation] = useState(staff?.designation || '');
+  const [photoUrlInput, setPhotoUrlInput] = useState(staff?.photoUrl || '');
   const [gender, setGender] = useState<Gender>(staff?.gender || 'MALE');
   const [employmentType, setEmploymentType] = useState<EmploymentType>(staff?.employmentType || 'PERMANENT');
   const [primaryCampusId, setPrimaryCampusId] = useState(staff?.campus?.id || '');
   const [joiningDate, setJoiningDate] = useState(staff?.joiningDate ? staff.joiningDate.split('T')[0] : '');
   const [email, setEmail] = useState(staff?.user?.email || staff?.email || '');
   const [phone, setPhone] = useState(staff?.phone || '');
-  const [photoUrl, setPhotoUrl] = useState(staff?.photoUrl || '');
 
   const { data: campuses = [], isLoading: loadingCampuses } = useCampuses();
   const createMutation = useCreateStaff();
   const updateMutation = useUpdateStaff();
   const isPending = createMutation.isPending || updateMutation.isPending;
 
+  // Inline field errors
+  const [emailError, setEmailError] = useState('');
+  const [generalError, setGeneralError] = useState('');
+
+  // Validate email format immediately while typing
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    setEmailError('');
+    setGeneralError('');
+    if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      setEmailError('Invalid email address format');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setEmailError('');
+    setGeneralError('');
+
+    // Block submit if email format is wrong
+    if (!isEdit && emailError) return;
+
+    const cleanPhotoUrl = photoUrlInput.trim() || undefined;
 
     if (isEdit && staff) {
       const payload: UpdateStaffInput = {
         firstName,
-        lastName,
-        staffCode,
-        designation,
+        lastName: lastName || undefined,
+        staffCode: staffCode || undefined,
+        designation: designation || undefined,
         gender,
         employmentType,
         primaryCampusId,
         joiningDate: joiningDate ? new Date(joiningDate).toISOString() : undefined,
-        phone,
-        photoUrl,
-        email // Optional in update usually, but can be provided
+        phone: phone || undefined,
+        photoUrl: cleanPhotoUrl,
       };
-
       updateMutation.mutate(
         { id: staff.id, data: payload },
-        { onSuccess: () => onSuccess() } // no temp password on edit
+        {
+          onSuccess: () => onSuccess(),
+          onError: (err) => setGeneralError(extractApiError(err, 'Failed to update staff')),
+        }
       );
     } else {
       const payload: CreateStaffInput = {
         firstName,
-        lastName,
-        staffCode,
-        designation,
+        lastName: lastName || undefined,
+        ...(staffCode.trim() ? { staffCode: staffCode.trim() } : {}),
+        designation: designation || undefined,
         gender,
         employmentType,
         primaryCampusId,
         joiningDate: joiningDate ? new Date(joiningDate).toISOString() : undefined,
         email,
-        phone,
-        photoUrl
+        phone: phone || undefined,
+        photoUrl: cleanPhotoUrl,
       };
-
       createMutation.mutate(payload, {
-        onSuccess: (data) => onSuccess(data.temporaryPassword)
+        onSuccess: (data) => onSuccess(data.temporaryPassword, data.emailSent, data.emailError),
+        onError: (err: unknown) => {
+          const msg = extractApiError(err, 'Failed to create staff');
+          if (msg.toLowerCase().includes('already registered')) {
+            setEmailError('This email is already registered in the system');
+          } else if (msg.toLowerCase().includes('could not deliver') || msg.toLowerCase().includes('welcome email')) {
+            setEmailError(msg);
+          } else if (msg.toLowerCase().includes('email')) {
+            setEmailError(msg);
+          } else {
+            setGeneralError(msg);
+          }
+        },
       });
     }
   };
@@ -106,21 +140,28 @@ export function StaffForm({ staff, onSuccess, onCancel }: StaffFormProps) {
           label="Last Name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          required
           disabled={isPending}
         />
       </div>
 
       {/* Row 2 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          label="Staff Code"
-          value={staffCode}
-          onChange={(e) => setStaffCode(e.target.value)}
-          required
-          hint="Unique employee code e.g. EMP-001"
-          disabled={isPending}
-        />
+        {isEdit ? (
+          <Input
+            label="Staff Code"
+            value={staffCode}
+            onChange={(e) => setStaffCode(e.target.value)}
+            hint="Unique employee code"
+            disabled={isPending}
+          />
+        ) : (
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-[var(--text-muted)]">Staff Code</label>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-[var(--border)] bg-[var(--surface-hover)] text-sm text-[var(--text-muted)]">
+              Auto-generated (e.g. EMP-001)
+            </div>
+          </div>
+        )}
         <Input
           label="Designation"
           value={designation}
@@ -171,15 +212,23 @@ export function StaffForm({ staff, onSuccess, onCancel }: StaffFormProps) {
 
       {/* Row 5 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          type="email"
-          label="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          hint="Used for login account"
-          disabled={isPending || isEdit}
-        />
+        <div className="space-y-1">
+          <Input
+            type="email"
+            label="Email"
+            value={email}
+            onChange={(e) => handleEmailChange(e.target.value)}
+            required
+            hint={!emailError ? "Used for login account" : undefined}
+            disabled={isPending || isEdit}
+            className={emailError ? 'border-red-400 focus:ring-red-400' : ''}
+          />
+          {emailError && (
+            <p className="text-xs text-red-500 flex items-center gap-1 font-medium">
+              <span>⚠</span> {emailError}
+            </p>
+          )}
+        </div>
         <PhoneInput
           label="Phone"
           value={phone}
@@ -192,13 +241,22 @@ export function StaffForm({ staff, onSuccess, onCancel }: StaffFormProps) {
       <div>
         <Input
           label="Profile Photo URL"
-          value={photoUrl}
-          onChange={(e) => setPhotoUrl(e.target.value)}
-          hint="Cloudinary URL of uploaded photo"
+          value={photoUrlInput}
+          onChange={(e) => setPhotoUrlInput(e.target.value)}
+          hint="Optional — paste a URL to the photo (leave empty to skip)"
+          placeholder="https://..."
           disabled={isPending}
           className="w-full"
         />
       </div>
+
+      {/* General error banner */}
+      {generalError && (
+        <div className="flex items-start gap-2 rounded-md border border-red-300 bg-red-50 dark:bg-red-950/30 dark:border-red-700 px-3 py-2 text-sm text-red-700 dark:text-red-400">
+          <span className="font-bold mt-0.5">!</span>
+          <span>{generalError}</span>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="flex justify-end gap-3 pt-6 border-t border-[var(--border)] mt-6">

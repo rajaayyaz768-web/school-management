@@ -2,6 +2,7 @@ import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tansta
 import * as staffApi from '../api/staff.api';
 import { CreateStaffInput, UpdateStaffInput } from '../types/staff.types';
 import { useToast } from '@/hooks/useToast';
+import { extractApiError } from '@/lib/apiError';
 
 export const useStaff = (filters?: staffApi.StaffFilters) => {
   return useQuery({
@@ -37,7 +38,7 @@ export const useStaffByCampus = (campusId: string) => {
 
 export const useCreateStaff = () => {
   const queryClient = useQueryClient();
-  const { success, error } = useToast();
+  const { success } = useToast();
 
   return useMutation({
     mutationFn: (data: CreateStaffInput) => staffApi.createStaff(data),
@@ -45,10 +46,6 @@ export const useCreateStaff = () => {
       queryClient.invalidateQueries({ queryKey: ['staff'] });
       success('Staff member added successfully');
     },
-    onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to create staff';
-      error(msg);
-    }
   });
 };
 
@@ -65,9 +62,31 @@ export const useUpdateStaff = () => {
       success('Staff member updated successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to update staff';
+      const msg = extractApiError(err, 'Failed to update staff');
       error(msg);
     }
+  });
+};
+
+export const useDeleteStaff = () => {
+  const queryClient = useQueryClient();
+  const { success, error } = useToast();
+  return useMutation({
+    mutationFn: (id: string) => staffApi.deleteStaff(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff'] });
+      success('Staff member deleted');
+    },
+    onError: (err: unknown) => error(extractApiError(err, 'Failed to delete staff')),
+  });
+};
+
+export const useResendStaffCredentials = () => {
+  const { success, error } = useToast();
+  return useMutation({
+    mutationFn: (id: string) => staffApi.resendStaffCredentials(id),
+    onSuccess: () => success('Credentials resent via email'),
+    onError: (err: unknown) => error(extractApiError(err, 'Failed to resend credentials')),
   });
 };
 
@@ -82,7 +101,7 @@ export const useToggleStaffStatus = () => {
       success('Staff status toggled successfully');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof Error ? err.message : 'Failed to toggle status';
+      const msg = extractApiError(err, 'Failed to toggle status');
       error(msg);
     }
   });

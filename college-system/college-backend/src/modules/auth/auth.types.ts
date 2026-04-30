@@ -1,6 +1,9 @@
 export interface LoginRequest {
-  email: string;
+  identifier: string; // email, roll number (students), or CNIC (parents)
   password: string;
+  deviceToken?: string;
+  userAgent?: string;
+  clientIp?: string;
 }
 
 export interface LoginResponse {
