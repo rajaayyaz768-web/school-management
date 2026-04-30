@@ -2,248 +2,407 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "motion/react";
 import { FalconEagleLogo } from "@/components/landing/FalconEagleLogo";
 import { usePathname } from "next/navigation";
 import { useCurrentUser, UserRole } from "@/store/authStore";
 import { cn } from "@/lib/utils";
 import {
-  GraduationCap,
-  LayoutDashboard,
-  Users,
-  CalendarCheck,
-  Clock,
-  Wallet,
-  BookOpen,
-  ClipboardList,
-  ClipboardCheck,
-  Megaphone,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  MessageSquare,
-  Home,
-  UserCog,
-  Building2,
-  FileText,
-  Paintbrush,
-  BookMarked,
-  Heart,
-  Shuffle,
-  Network,
-  Radio,
-  PieChart,
-  Layers,
-  CreditCard,
-  BarChart2,
-  UserCheck,
-  ArrowUpCircle,
+  GraduationCap, LayoutDashboard, Users, CalendarCheck, Clock, Wallet,
+  BookOpen, ClipboardList, ClipboardCheck, Megaphone, Settings,
+  ChevronLeft, ChevronRight, ChevronRight as Caret,
+  MessageSquare, Home, UserCog, Building2, FileText, Paintbrush,
+  BookMarked, Heart, Shuffle, Network, Radio, PieChart, Layers,
+  CreditCard, BarChart2, UserCheck, ArrowUpCircle,
 } from "lucide-react";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface NavItem {
   label: string;
-  href: string;
-  icon: React.ElementType;
-  section?: string;
+  href:  string;
+  icon:  React.ElementType;
 }
 
-const NAV_ITEMS: Record<UserRole, NavItem[]> = {
-  SUPER_ADMIN: [
-    { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
-    { label: "Hierarchy Browser", href: "/principal/hierarchy", icon: Network },
-    { label: "Live View", href: "/principal/live-view", icon: Radio },
-    { label: "Teachers Live", href: "/principal/teachers-live", icon: UserCheck },
-    { label: "Students", href: "/principal/students", icon: GraduationCap },
-    { label: "Staff", href: "/principal/staff", icon: Users },
-    { label: "Admin Management", href: "/principal/admins", icon: UserCog },
-    { label: "Reports", href: "/reports", icon: PieChart },
-    { label: "Chat", href: "/principal/chat", icon: MessageSquare },
-    { label: "Announcements", href: "/announcements", icon: Megaphone },
-    { label: "Settings", href: "/principal/settings/backups", icon: Settings },
-    { label: "Campus", href: "/principal/campus-management", icon: Building2, section: "Campus Operations" },
-    { label: "Promotion", href: "/principal/promotion", icon: ArrowUpCircle },
-    { label: "Programs", href: "/principal/programs", icon: BookOpen },
-    { label: "Sections", href: "/principal/sections", icon: Layers },
-    { label: "Subjects", href: "/principal/subjects", icon: BookMarked },
-    { label: "Parents", href: "/principal/parents", icon: Heart },
-    { label: "Section Assignment", href: "/principal/section-assignment", icon: Shuffle },
-    { label: "Staff Attendance", href: "/attendance/staff", icon: ClipboardCheck },
-    { label: "Student Attendance", href: "/attendance/students", icon: UserCheck },
-    { label: "Timetable", href: "/principal/timetable", icon: Clock },
-    { label: "Fees", href: "/fees", icon: CreditCard },
-    { label: "Exams", href: "/exams", icon: FileText },
-    { label: "Results", href: "/results", icon: BarChart2 },
-  ],
-  ADMIN: [
-    { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-    { label: "Campus", href: "/admin/campus", icon: Building2 },
-    { label: "Promotion", href: "/admin/promotion", icon: ArrowUpCircle },
-    { label: "Programs", href: "/admin/programs", icon: BookOpen },
-    { label: "Sections", href: "/admin/sections", icon: Layers },
-    { label: "Subjects", href: "/admin/subjects", icon: BookMarked },
-    { label: "Students", href: "/admin/students", icon: GraduationCap },
-    { label: "Staff", href: "/admin/staff", icon: Users },
-    { label: "Parents", href: "/admin/parents", icon: Heart },
-    { label: "Section Assignment", href: "/admin/section-assignment", icon: Shuffle },
-    { label: "Staff Attendance", href: "/attendance/staff", icon: ClipboardCheck },
-    { label: "Student Attendance", href: "/attendance/students", icon: UserCheck },
-    { label: "Timetable", href: "/admin/timetable", icon: Clock },
-    { label: "Fees", href: "/fees", icon: CreditCard },
-    { label: "Exams", href: "/exams", icon: FileText },
-    { label: "Results", href: "/results", icon: BarChart2 },
-    { label: "Reports", href: "/reports", icon: PieChart },
-    { label: "Announcements", href: "/announcements", icon: Megaphone },
-    { label: "Settings", href: "/admin/settings", icon: Settings },
-  ],
-  TEACHER: [
-    { label: "My Day", href: "/teacher/dashboard", icon: LayoutDashboard },
-    { label: "My Teaching", href: "/teacher/teaching", icon: BookMarked },
-    { label: "My Classes", href: "/teacher/my-classes", icon: Users },
-    { label: "Attendance", href: "/attendance/students", icon: CalendarCheck },
-    { label: "Enter Results", href: "/results", icon: BookOpen },
-    { label: "Timetable", href: "/teacher/timetable", icon: Clock },
-    { label: "Exams", href: "/exams", icon: FileText },
-    { label: "Chat", href: "/teacher/chat", icon: MessageSquare },
-  ],
-  PARENT: [
-    { label: "Home", href: "/parent/dashboard", icon: Home },
-    { label: "Attendance", href: "/parent/attendance", icon: CalendarCheck },
-    { label: "Fees", href: "/parent/fees", icon: Wallet },
-    { label: "Results", href: "/parent/results", icon: BookOpen },
-    { label: "Announcements", href: "/parent/announcements", icon: Megaphone },
-  ],
-  STUDENT: [
-    { label: "Home", href: "/student/dashboard", icon: Home },
-    { label: "Timetable", href: "/student/timetable", icon: Clock },
-    { label: "Attendance", href: "/student/attendance", icon: CalendarCheck },
-    { label: "Results", href: "/student/results", icon: ClipboardList },
-    { label: "Notices", href: "/student/announcements", icon: Megaphone },
-  ],
+interface NavGroup {
+  id:       string;
+  label:    string;
+  items:    NavItem[];
+  defaultOpen?: boolean;
+}
+
+interface NavConfig {
+  pinned: NavItem[];        // always-visible top items (no group)
+  groups: NavGroup[];
+}
+
+// ─── Nav definitions ─────────────────────────────────────────────────────────
+const NAV: Record<UserRole, NavConfig> = {
+  SUPER_ADMIN: {
+    pinned: [
+      { label: "Dashboard",     href: "/principal/dashboard",     icon: LayoutDashboard },
+      { label: "Live View",     href: "/principal/live-view",     icon: Radio },
+      { label: "Teachers Live", href: "/principal/teachers-live", icon: UserCheck },
+    ],
+    groups: [
+      {
+        id: "people", label: "People", defaultOpen: false,
+        items: [
+          { label: "Students",          href: "/principal/students",           icon: GraduationCap },
+          { label: "Staff",             href: "/principal/staff",              icon: Users },
+          { label: "Parents",           href: "/principal/parents",            icon: Heart },
+          { label: "Admin Management",  href: "/principal/admins",             icon: UserCog },
+        ],
+      },
+      {
+        id: "academic", label: "Academic", defaultOpen: false,
+        items: [
+          { label: "Programs",           href: "/principal/programs",           icon: BookOpen },
+          { label: "Sections",           href: "/principal/sections",           icon: Layers },
+          { label: "Subjects",           href: "/principal/subjects",           icon: BookMarked },
+          { label: "Section Assignment", href: "/principal/section-assignment", icon: Shuffle },
+          { label: "Timetable",          href: "/principal/timetable",          icon: Clock },
+        ],
+      },
+      {
+        id: "operations", label: "Operations", defaultOpen: false,
+        items: [
+          { label: "Staff Attendance",   href: "/attendance/staff",    icon: ClipboardCheck },
+          { label: "Student Attendance", href: "/attendance/students", icon: CalendarCheck },
+          { label: "Fees",               href: "/fees",                icon: CreditCard },
+          { label: "Exams",              href: "/exams",               icon: FileText },
+          { label: "Results",            href: "/results",             icon: BarChart2 },
+        ],
+      },
+      {
+        id: "campus", label: "Campus", defaultOpen: false,
+        items: [
+          { label: "Campus",     href: "/principal/campus-management", icon: Building2 },
+          { label: "Hierarchy",  href: "/principal/hierarchy",         icon: Network },
+          { label: "Promotion",  href: "/principal/promotion",         icon: ArrowUpCircle },
+        ],
+      },
+      {
+        id: "communication", label: "Communication", defaultOpen: false,
+        items: [
+          { label: "Chat",          href: "/principal/chat", icon: MessageSquare },
+          { label: "Announcements", href: "/announcements",  icon: Megaphone },
+          { label: "Reports",       href: "/reports",        icon: PieChart },
+        ],
+      },
+      {
+        id: "system", label: "System", defaultOpen: false,
+        items: [
+          { label: "Settings", href: "/principal/settings/backups", icon: Settings },
+        ],
+      },
+    ],
+  },
+
+  ADMIN: {
+    pinned: [
+      { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    ],
+    groups: [
+      {
+        id: "people", label: "People", defaultOpen: true,
+        items: [
+          { label: "Students", href: "/admin/students", icon: GraduationCap },
+          { label: "Staff",    href: "/admin/staff",    icon: Users },
+          { label: "Parents",  href: "/admin/parents",  icon: Heart },
+        ],
+      },
+      {
+        id: "academic", label: "Academic", defaultOpen: false,
+        items: [
+          { label: "Programs",           href: "/admin/programs",           icon: BookOpen },
+          { label: "Sections",           href: "/admin/sections",           icon: Layers },
+          { label: "Subjects",           href: "/admin/subjects",           icon: BookMarked },
+          { label: "Section Assignment", href: "/admin/section-assignment", icon: Shuffle },
+          { label: "Timetable",          href: "/admin/timetable",          icon: Clock },
+        ],
+      },
+      {
+        id: "operations", label: "Operations", defaultOpen: false,
+        items: [
+          { label: "Staff Attendance",   href: "/attendance/staff",    icon: ClipboardCheck },
+          { label: "Student Attendance", href: "/attendance/students", icon: CalendarCheck },
+          { label: "Fees",               href: "/fees",                icon: CreditCard },
+          { label: "Exams",              href: "/exams",               icon: FileText },
+          { label: "Results",            href: "/results",             icon: BarChart2 },
+        ],
+      },
+      {
+        id: "campus", label: "Campus", defaultOpen: false,
+        items: [
+          { label: "Promotion", href: "/admin/promotion", icon: ArrowUpCircle },
+        ],
+      },
+      {
+        id: "communication", label: "Communication", defaultOpen: false,
+        items: [
+          { label: "Announcements", href: "/announcements",  icon: Megaphone },
+          { label: "Reports",       href: "/reports",        icon: PieChart },
+        ],
+      },
+      {
+        id: "system", label: "System", defaultOpen: false,
+        items: [
+          { label: "Settings", href: "/admin/settings", icon: Settings },
+        ],
+      },
+    ],
+  },
+
+  TEACHER: {
+    pinned: [
+      { label: "My Day",       href: "/teacher/dashboard",  icon: LayoutDashboard },
+      { label: "My Teaching",  href: "/teacher/teaching",   icon: BookMarked },
+      { label: "My Classes",   href: "/teacher/my-classes", icon: Users },
+      { label: "Attendance",   href: "/attendance/students",icon: CalendarCheck },
+      { label: "Enter Results",href: "/results",            icon: BookOpen },
+      { label: "Timetable",    href: "/teacher/timetable",  icon: Clock },
+      { label: "Exams",        href: "/exams",              icon: FileText },
+      { label: "Chat",         href: "/teacher/chat",       icon: MessageSquare },
+    ],
+    groups: [],
+  },
+
+  PARENT: {
+    pinned: [
+      { label: "Home",          href: "/parent/dashboard",     icon: Home },
+      { label: "Attendance",    href: "/parent/attendance",    icon: CalendarCheck },
+      { label: "Fees",          href: "/parent/fees",          icon: Wallet },
+      { label: "Results",       href: "/parent/results",       icon: BookOpen },
+      { label: "Announcements", href: "/parent/announcements", icon: Megaphone },
+    ],
+    groups: [],
+  },
+
+  STUDENT: {
+    pinned: [
+      { label: "Home",       href: "/student/dashboard",     icon: Home },
+      { label: "Timetable",  href: "/student/timetable",    icon: Clock },
+      { label: "Attendance", href: "/student/attendance",   icon: CalendarCheck },
+      { label: "Results",    href: "/student/results",      icon: ClipboardList },
+      { label: "Notices",    href: "/student/announcements",icon: Megaphone },
+    ],
+    groups: [],
+  },
 };
 
-const ROLE_LABEL_MAP: Record<UserRole, string> = {
-  SUPER_ADMIN: "Principal",
-  ADMIN: "Administrator",
-  TEACHER: "Teacher",
-  PARENT: "Parent",
-  STUDENT: "Student",
+const ROLE_LABEL: Record<UserRole, string> = {
+  SUPER_ADMIN: "Principal", ADMIN: "Administrator",
+  TEACHER: "Teacher", PARENT: "Parent", STUDENT: "Student",
 };
 
+// ─── Single nav link ──────────────────────────────────────────────────────────
+function NavLink({ item, collapsed, isActive }: {
+  item: NavItem; collapsed: boolean; isActive: boolean;
+}) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      title={collapsed ? item.label : undefined}
+      className={cn(
+        "group relative flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] transition-colors duration-150",
+        isActive
+          ? "bg-white/[0.09] text-white"
+          : "text-white/48 hover:bg-white/[0.05] hover:text-white/82"
+      )}
+    >
+      {isActive && (
+        <motion.span
+          layoutId="nav-active-pill"
+          className="absolute left-0 top-1/2 h-[18px] w-[3px] -translate-y-1/2 rounded-r-full bg-[var(--gold)]"
+          transition={{ type: "spring", stiffness: 400, damping: 34 }}
+        />
+      )}
+      <Icon className={cn(
+        "h-4 w-4 shrink-0 transition-colors duration-150",
+        isActive ? "text-[var(--gold)]" : "text-white/42 group-hover:text-white/72"
+      )} />
+      <AnimatePresence initial={false}>
+        {!collapsed && (
+          <motion.span
+            initial={{ opacity: 0, x: -4 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -4 }}
+            transition={{ duration: 0.13 }}
+            className={cn(
+              "truncate text-[12.5px] font-medium leading-none",
+              isActive ? "text-white" : "text-white/52 group-hover:text-white/84"
+            )}
+          >
+            {item.label}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </Link>
+  );
+}
+
+// ─── Collapsible group ────────────────────────────────────────────────────────
+function NavGroupSection({ group, collapsed, pathname }: {
+  group: NavGroup; collapsed: boolean; pathname: string;
+}) {
+  const hasActive = group.items.some(
+    i => pathname === i.href || (i.href !== "/" && pathname.startsWith(i.href + "/"))
+  );
+
+  // Auto-open the group if it contains the active route
+  const [open, setOpen] = useState(group.defaultOpen || hasActive);
+
+  return (
+    <div>
+      {collapsed ? (
+        // Collapsed: just a thin divider
+        <div className="sidebar-collapsed-divider" />
+      ) : (
+        // Expanded: clickable group header
+        <button
+          onClick={() => setOpen(o => !o)}
+          className={cn(
+            "sidebar-group-header w-full",
+            hasActive && "sidebar-group-header-active"
+          )}
+        >
+          <span>{group.label}</span>
+          <Caret className={cn(
+            "sidebar-group-chevron",
+            open && "sidebar-group-chevron-open"
+          )} />
+        </button>
+      )}
+
+      {/* Dropdown items */}
+      <AnimatePresence initial={false}>
+        {(open || collapsed) && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className={cn("relative flex flex-col gap-0.5 py-0.5", !collapsed && "pl-1")}>
+              {/* Left rail — visible only in expanded mode */}
+              {!collapsed && <span className="sidebar-group-rail pointer-events-none" />}
+
+              {group.items.map(item => {
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/" && pathname.startsWith(item.href + "/"));
+                return (
+                  <NavLink key={item.href} item={item} collapsed={collapsed} isActive={isActive} />
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const user = useCurrentUser();
+  const user    = useCurrentUser();
   const pathname = usePathname();
 
   if (!user) return null;
 
-  const baseNavItems = NAV_ITEMS[user.role] || [];
-  const navItems: NavItem[] = process.env.NODE_ENV === "development"
-    ? [...baseNavItems, { label: "Design System", href: "/showcase", icon: Paintbrush }]
-    : baseNavItems;
-
-  const roleName = ROLE_LABEL_MAP[user.role];
+  const config = NAV[user.role] ?? { pinned: [], groups: [] };
+  const pinned = process.env.NODE_ENV === "development"
+    ? [...config.pinned, { label: "Design System", href: "/showcase", icon: Paintbrush }]
+    : config.pinned;
 
   return (
-    <aside
-      className={cn(
-        "relative z-40 flex h-screen shrink-0 flex-col transition-all duration-300",
-        "text-white",
-        collapsed ? "w-16" : "w-60"
-      )}
+    <motion.aside
+      animate={{ width: collapsed ? 60 : 228 }}
+      transition={{ duration: 0.26, ease: "easeInOut" }}
+      className="relative z-40 flex h-screen shrink-0 flex-col overflow-hidden text-white"
       style={{
-        background: "#1A1A1B",
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E")`,
-        backgroundRepeat: "repeat",
-        backgroundSize: "300px 300px",
-        boxShadow: "2px 0 16px rgba(0,0,0,0.35)",
+        background: "linear-gradient(180deg, #1c1c1e 0%, #141415 100%)",
+        boxShadow: "1px 0 0 rgba(255,255,255,0.055), 4px 0 24px rgba(0,0,0,0.38)",
       }}
     >
-      {/* Top Section / Logo Area */}
-      <div className="flex h-16 shrink-0 items-center border-b border-white/[0.07] px-4">
-        <div className="shrink-0">
-          <FalconEagleLogo size={collapsed ? 36 : 48} />
-        </div>
-        {!collapsed && (
-          <span
-            className="ml-3 truncate font-bold text-lg font-[var(--font-display)]"
-          >
-            Falcon School
-          </span>
-        )}
+      {/* Logo */}
+      <div className="flex h-14 shrink-0 items-center gap-3 border-b border-white/[0.06] px-3.5">
+        <FalconEagleLogo size={collapsed ? 28 : 36} />
+        <AnimatePresence initial={false}>
+          {!collapsed && (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="truncate text-[14.5px] font-bold tracking-tight text-white"
+            >
+              Falcon School
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Navigation Items */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 font-[var(--font-body)]">
-        <ul className="space-y-1 px-2">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
-            const Icon = item.icon;
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2.5 scrollbar-none">
+        <div className="flex flex-col gap-0.5 px-2">
 
+          {/* Pinned (always visible, no group) */}
+          {pinned.map(item => {
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/" && pathname.startsWith(item.href + "/"));
             return (
-              <li key={item.href}>
-                {item.section && !collapsed && (
-                  <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-white/30 select-none">
-                    {item.section}
-                  </p>
-                )}
-                {item.section && collapsed && (
-                  <div className="mx-3 my-3 h-px bg-white/15" />
-                )}
-                <Link
-                  href={item.href}
-                  title={collapsed ? item.label : undefined}
-                  className={cn(
-                    "group relative flex items-center rounded-lg px-3 py-2.5 transition-colors",
-                    isActive
-                      ? "bg-[var(--gold)]/15 text-[var(--gold)] font-medium"
-                      : "text-white/55 hover:bg-white/[0.07] hover:text-white/90"
-                  )}
-                >
-                  {/* Collapsed dot for active state */}
-                  {collapsed && isActive && (
-                    <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[var(--gold)]" />
-                  )}
-
-                  <Icon
-                    className={cn(
-                      "h-5 w-5 shrink-0 transition-colors",
-                      isActive
-                        ? "text-[var(--gold)]"
-                        : "text-white/55 group-hover:text-white/90"
-                    )}
-                  />
-
-                  {!collapsed && (
-                    <span className="ml-3 truncate text-sm">
-                      {item.label}
-                    </span>
-                  )}
-                </Link>
-              </li>
+              <NavLink key={item.href} item={item} collapsed={collapsed} isActive={isActive} />
             );
           })}
-        </ul>
+
+          {/* Collapsible groups */}
+          {config.groups.map(group => (
+            <NavGroupSection
+              key={group.id}
+              group={group}
+              collapsed={collapsed}
+              pathname={pathname}
+            />
+          ))}
+
+        </div>
       </nav>
 
-      {/* Bottom Section (Expanded Only) */}
-      {!collapsed && (
-        <div className="shrink-0 border-t border-white/[0.07] p-4 font-[var(--font-body)]">
-          <p className="text-xs text-white/50 mb-0.5">Signed in as</p>
-          <p className="truncate text-sm font-medium">{user.fullName || roleName}</p>
-        </div>
-      )}
+      {/* User footer */}
+      <AnimatePresence initial={false}>
+        {!collapsed && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.13 }}
+            className="shrink-0 border-t border-white/[0.06] px-4 py-3"
+          >
+            <p className="text-[9.5px] text-white/28 uppercase tracking-widest mb-0.5">Signed in as</p>
+            <p className="truncate text-[12.5px] font-semibold text-white/80">
+              {user.fullName || ROLE_LABEL[user.role]}
+            </p>
+            <p className="text-[10px] text-white/28 mt-0.5">{ROLE_LABEL[user.role]}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Collapse Button */}
+      {/* Collapse toggle */}
       <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-5 flex h-6 w-6 items-center justify-center rounded-[var(--radius-pill)] border border-white/10 bg-[#2A2A2B] text-white/70 hover:bg-[#333335] hover:text-white focus:outline-none transition-colors"
+        onClick={() => setCollapsed(c => !c)}
+        className="absolute -right-3 top-[18px] flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-[#252527] text-white/45 shadow-md transition-colors hover:bg-[#2e2e30] hover:text-white focus:outline-none"
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
-        {collapsed ? (
-          <ChevronRight className="h-4 w-4" />
-        ) : (
-          <ChevronLeft className="h-4 w-4" />
-        )}
+        {collapsed
+          ? <ChevronRight className="h-3.5 w-3.5" />
+          : <ChevronLeft  className="h-3.5 w-3.5" />}
       </button>
-    </aside>
+    </motion.aside>
   );
 }

@@ -309,12 +309,118 @@
   --info: #3B82F6;
 }
 
+/* ─── ADDITIONAL LIGHT MODE TOKENS ─────────────── */
+:root {
+  /* Generic aliases so components can use --background / --radius */
+  --background: var(--bg);
+  --radius:      var(--radius-md);
+
+  /* Surface container hierarchy (material-style depth) */
+  --surface-container-lowest:  #FFFDF9;
+  --surface-container-low:     #F8F4EE;
+  --surface-container:         #F2EDE4;
+  --surface-container-high:    #EBE4D9;
+  --surface-container-highest: #E4DBcc;
+
+  /* Elevation tints (subtle brand wash per layer) */
+  --elev-1: rgba(180, 83, 9, 0.02);
+  --elev-2: rgba(180, 83, 9, 0.04);
+  --elev-3: rgba(180, 83, 9, 0.07);
+
+  /* Neutral semantic */
+  --neutral-50:  #FAFAF9;
+  --neutral-100: #F5F5F4;
+  --neutral-200: #E7E5E4;
+  --neutral-300: #D6D3D1;
+  --neutral-500: #78716C;
+  --neutral-700: #44403C;
+  --neutral-900: #1C1917;
+}
+
+.dark {
+  --background: var(--bg);
+  --radius:     var(--radius-md);
+
+  --surface-container-lowest:  #141210;
+  --surface-container-low:     #1C1917;
+  --surface-container:         #211E1B;
+  --surface-container-high:    #292524;
+  --surface-container-highest: #312E2B;
+
+  --elev-1: rgba(249, 115, 22, 0.03);
+  --elev-2: rgba(249, 115, 22, 0.05);
+  --elev-3: rgba(249, 115, 22, 0.08);
+}
+
 /* ─── BASE STYLES ───────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 body {
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-dm-sans), system-ui, sans-serif;
+  line-height: 1.6;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Focus rings — consistent, accessible ────────── */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Selection highlight ─────────────────────────── */
+::selection {
+  background: rgba(212, 168, 67, 0.25);
+  color: var(--text);
+}
+
+/* ── Heading rhythm ──────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), Georgia, serif;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--text);
+}
+
+/* ── Link defaults ───────────────────────────────── */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Better table defaults ───────────────────────── */
+table { border-collapse: collapse; width: 100%; }
+
+/* ── Input / button base ─────────────────────────── */
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+/* ── Reduced-motion safety net ───────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Skeleton shimmer */
@@ -344,11 +450,368 @@ body {
   border: 1px solid var(--glass-border);
 }
 
-/* Scrollbar (subtle, themed) */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+/* ─── SCROLLBAR ─────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 99px;
+}
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── SCROLLBAR UTILITIES ────────────────────────── */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+  &::-webkit-scrollbar { width: 4px; height: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 99px;
+  }
+}
+
+/* ─── CARD UTILITIES ─────────────────────────────── */
+
+/* Base card — border + bg + shadow, applied to every dashboard widget */
+@utility card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+/* Interactive card — subtle lift on hover */
+@utility card-interactive {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), border-color var(--transition-base);
+  cursor: pointer;
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-strong);
+  }
+}
+
+/* Elevated card — slightly stronger shadow */
+@utility card-elevated {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* Gold-accented card */
+@utility card-gold {
+  background: var(--surface);
+  border: 1px solid rgba(212, 168, 67, 0.30);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 12px rgba(212, 168, 67, 0.10);
+}
+
+/* ─── LAYOUT UTILITIES ───────────────────────────── */
+
+/* Page wrapper — consistent inner padding */
+@utility page-content {
+  max-width: 1400px;
+  margin-inline: auto;
+  padding: 1.5rem;
+}
+
+@utility page-content-lg {
+  max-width: 1600px;
+  margin-inline: auto;
+  padding: 1.5rem 2rem;
+}
+
+/* Section header row (label + action) */
+@utility section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+/* ─── TYPOGRAPHY UTILITIES ───────────────────────── */
+@utility label-xs {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@utility label-sm {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@utility metric-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+@utility metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+/* ─── INTERACTIVE STATE UTILITIES ────────────────── */
+
+/* Nav link base — used in sidebar */
+@utility nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 0.5rem;
+  padding: 0.4375rem 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.52);
+  transition: color 150ms ease, background-color 150ms ease;
+  cursor: pointer;
+  &:hover {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+@utility nav-link-active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+/* ─── ANIMATION UTILITIES ────────────────────────── */
+@utility animate-fade-up {
+  animation: fadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-fade-in {
+  animation: fadeIn 0.22s ease-out both;
+}
+
+@utility animate-scale-in {
+  animation: scaleIn 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@utility animate-slide-down {
+  animation: slideDown 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── STATUS DOT ─────────────────────────────────── */
+@utility status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ─── DIVIDER ────────────────────────────────────── */
+@utility divider {
+  height: 1px;
+  background: var(--border);
+  margin-block: 1rem;
+}
+
+@utility divider-vertical {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+  margin-inline: 0.5rem;
+}
+
+/* ─── GLOW UTILITIES ─────────────────────────────── */
+@utility glow-gold {
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.20),
+              0 4px 20px rgba(212, 168, 67, 0.15);
+}
+
+@utility glow-primary {
+  box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.15),
+              0 4px 16px rgba(180, 83, 9, 0.10);
+}
+
+/* ─── PROGRESS BAR ───────────────────────────────── */
+@utility progress-track {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+@utility progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── BADGE PILL ─────────────────────────────────── */
+@utility pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  line-height: 1.4;
+}
+
+/* ─── SIDEBAR GROUP (collapsible nav sections) ───── */
+
+/* Clickable group header row */
+@utility sidebar-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.3rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  user-select: none;
+  transition: color 150ms ease, background-color 150ms ease;
+  margin-top: 0.5rem;
+  margin-bottom: 0.125rem;
+  &:hover {
+    color: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* When a group contains the active route — header glows softly */
+@utility sidebar-group-header-active {
+  color: rgba(212, 168, 67, 0.75);
+}
+
+/* Chevron icon inside the group header */
+@utility sidebar-group-chevron {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@utility sidebar-group-chevron-open {
+  transform: rotate(90deg);
+}
+
+/* Thin left-rail that appears beside an open group's items */
+@utility sidebar-group-rail {
+  position: absolute;
+  left: 14px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 1px;
+}
+
+/* Collapsed-mode divider (replaces group header when sidebar is narrow) */
+@utility sidebar-collapsed-divider {
+  height: 1px;
+  margin: 0.625rem 0.75rem;
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 1px;
+}
+
+/* ─── ICON CONTAINER ─────────────────────────────── */
+@utility icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── TABLE IMPROVEMENTS ─────────────────────────── */
+@utility data-table {
+  & thead tr {
+    background: var(--surface-container-high);
+    border-bottom: 1px solid var(--border);
+  }
+  & thead th {
+    padding: 0.6rem 1rem;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    white-space: nowrap;
+  }
+  & tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background-color 120ms ease;
+  }
+  & tbody tr:last-child { border-bottom: none; }
+  & tbody tr:hover { background: var(--surface-hover); }
+  & tbody td {
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+    color: var(--text);
+    vertical-align: middle;
+  }
+}
+
+/* ─── FORM FIELD POLISH ──────────────────────────── */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+select,
+textarea {
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    background-color var(--transition-base);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-disabled);
+}
+
+/* ─── GLOBAL HOVER LIFT ──────────────────────────── */
+@utility hover-lift {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+}
 
 /* ─── Landing Page Utilities ──────────────────────── */
 
