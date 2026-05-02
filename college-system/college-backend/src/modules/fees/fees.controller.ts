@@ -75,8 +75,9 @@ export const getStudentFeeRecords = async (req: Request, res: Response) => {
 
 export const getAllFeeRecords = async (req: Request, res: Response) => {
   try {
-    const { campusId, status, academicYear, page, limit } = req.query as {
+    const { campusId, sectionId, status, academicYear, page, limit } = req.query as {
       campusId?: string
+      sectionId?: string
       status?: string
       academicYear?: string
       page?: string
@@ -84,6 +85,7 @@ export const getAllFeeRecords = async (req: Request, res: Response) => {
     }
     const result = await service.getAllFeeRecords({
       campusId,
+      sectionId,
       status: status as any,
       academicYear,
       page: page ? parseInt(page) : undefined,

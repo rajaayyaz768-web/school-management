@@ -39,6 +39,7 @@ export function AssignmentForm({
   const [rows, setRows] = useState<SubjectRow[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [quickStaffId, setQuickStaffId] = useState('');
 
   // Edit mode state
   const [editStaffId, setEditStaffId] = useState(assignment?.staffId || '');
@@ -183,11 +184,44 @@ export function AssignmentForm({
     );
   }
 
+  const handleApplyAll = () => {
+    if (!quickStaffId) return;
+    setRows(prev => prev.map(r => ({ ...r, staffId: quickStaffId, included: true })));
+  };
+
   return (
     <form onSubmit={handleBulkSubmit} className="space-y-4">
       <p className="text-xs text-[var(--text-muted)]">
         Tick the subjects you want to assign, then pick a teacher for each.
       </p>
+
+      {/* Quick Assign bar — one teacher for all subjects (Class Teacher / Dual Teacher) */}
+      <div className="flex items-end gap-2 p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-container-lowest)]">
+        <div className="flex-1">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
+            Quick Assign — same teacher for all
+          </label>
+          <select
+            value={quickStaffId}
+            onChange={e => setQuickStaffId(e.target.value)}
+            disabled={loadingStaff || submitting}
+            className="w-full text-sm border border-[var(--border)] rounded-md px-2 py-1.5 bg-[var(--surface)] text-[var(--text)] disabled:opacity-50"
+          >
+            <option value="">— Select teacher —</option>
+            {staffOptions.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="button"
+          onClick={handleApplyAll}
+          disabled={!quickStaffId || submitting}
+          className="px-3 py-1.5 text-xs font-semibold rounded-md bg-[var(--primary)] text-white hover:opacity-90 disabled:opacity-40 transition-opacity whitespace-nowrap"
+        >
+          Apply to All
+        </button>
+      </div>
 
       <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
         {rows.map((row, idx) => (

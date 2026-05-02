@@ -108,8 +108,19 @@ export const toggleSubjectStatus = async (id: string) => {
 export const getAssignmentsBySection = async (sectionId: string, user?: RequestUser) => {
   if (user) await assertSectionCampus(sectionId, user)
 
+  const where: { sectionId: string; staffId?: string } = { sectionId }
+
+  // Teachers only see their own subject assignments — not other teachers' subjects
+  if (user?.role === Role.TEACHER) {
+    const staff = await prisma.staffProfile.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    })
+    if (staff) where.staffId = staff.id
+  }
+
   return await prisma.sectionSubjectTeacher.findMany({
-    where: { sectionId },
+    where,
     include: {
       subject: true,
       staff: true,

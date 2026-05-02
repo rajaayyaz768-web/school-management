@@ -41,7 +41,8 @@ export const confirmImport = async (
 ): Promise<ImportResult> => {
   const response = await axios.post<{ success: boolean; data: ImportResult }>(
     `/sections/${sectionId}/import/confirm`,
-    { validationToken, acknowledgeWarnings }
+    { validationToken, acknowledgeWarnings },
+    { timeout: 120_000 }
   );
   return response.data.data;
 };

@@ -60,6 +60,7 @@ export const useUpdateFeeStructure = () => {
 
 interface FeeRecordFilters {
   campusId?: string;
+  sectionId?: string;
   status?: string;
   academicYear?: string;
 }
@@ -67,7 +68,7 @@ interface FeeRecordFilters {
 export const useFeeRecords = (filters: FeeRecordFilters) => {
   return useQuery({
     queryKey: ['fee-records', filters],
-    queryFn: () => fetchFeeRecords(filters.campusId, filters.status, filters.academicYear),
+    queryFn: () => fetchFeeRecords(filters.campusId, filters.status, filters.academicYear, filters.sectionId),
     enabled: true,
   });
 };
@@ -75,7 +76,7 @@ export const useFeeRecords = (filters: FeeRecordFilters) => {
 export const useInfiniteFeeRecords = (filters: FeeRecordFilters) => {
   return useInfiniteQuery({
     queryKey: ['fee-records', 'infinite', filters],
-    queryFn: ({ pageParam }) => fetchFeeRecordsPage(filters.campusId, filters.status, filters.academicYear, pageParam as number),
+    queryFn: ({ pageParam }) => fetchFeeRecordsPage(filters.campusId, filters.status, filters.academicYear, pageParam as number, filters.sectionId),
     initialPageParam: 1,
     getNextPageParam: (last) => last.page < Math.ceil(last.total / last.limit) ? last.page + 1 : undefined,
   });
@@ -94,9 +95,15 @@ export const useGenerateFeeRecords = () => {
   const toast = useToast();
   return useMutation({
     mutationFn: (data: GenerateFeeRecordsInput) => generateFeeRecords(data),
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['fee-records'] });
-      toast.success('Fee records generated successfully');
+      if (result.created === 0) {
+        toast.warning(`Fee records already generated for this month — ${result.skipped} student${result.skipped !== 1 ? 's' : ''} skipped`);
+      } else if (result.skipped > 0) {
+        toast.success(`${result.created} record${result.created !== 1 ? 's' : ''} created, ${result.skipped} already existed this month`);
+      } else {
+        toast.success(`${result.created} fee record${result.created !== 1 ? 's' : ''} generated`);
+      }
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to generate fee records');

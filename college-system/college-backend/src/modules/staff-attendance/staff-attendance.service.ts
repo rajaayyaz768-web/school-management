@@ -2,6 +2,7 @@ import { StaffAttendanceStatus, Role } from '@prisma/client'
 import prisma from '../../config/database'
 import { MarkStaffAttendanceDto, UpdateAttendanceDto, StaffAttendanceResponse, StaffWithAttendance, DailyAttendanceReport } from './staff-attendance.types'
 import { assertStaffCampus } from '../../utils/campusGuard'
+import { cacheDelPattern } from '../../utils/cache'
 
 interface RequestUser { id: string; role: Role; campusId: string | null }
 
@@ -129,6 +130,9 @@ export const markDailyAttendance = async (data: MarkStaffAttendanceDto, markedBy
     })
   ))
 
+  cacheDelPattern('dashboard:admin:')
+  cacheDelPattern('dashboard:principal:')
+
   return getDailyReport(effectiveCampusId, data.date)
 }
 
@@ -153,6 +157,10 @@ export const updateSingleAttendance = async (id: string, data: UpdateAttendanceD
     },
     include: staffAttendanceInclude,
   })
+
+  cacheDelPattern('dashboard:admin:')
+  cacheDelPattern('dashboard:principal:')
+
   return mapToResponse(updated)
 }
 

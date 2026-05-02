@@ -10,9 +10,10 @@ interface SectionSelectorCardsProps {
   campusId?: string
   onSelect: (section: SectionCardData) => void
   selectedId?: string | null
+  emptyDescription?: string
 }
 
-export function SectionSelectorCards({ campusId, onSelect, selectedId }: SectionSelectorCardsProps) {
+export function SectionSelectorCards({ campusId, onSelect, selectedId, emptyDescription }: SectionSelectorCardsProps) {
   const { data, isLoading } = useSections(undefined, campusId)
   const raw = data ?? []
 
@@ -38,7 +39,7 @@ export function SectionSelectorCards({ campusId, onSelect, selectedId }: Section
   }
 
   if (sections.length === 0) {
-    return <EmptyState title="No sections available" description="No sections are assigned to this campus." />
+    return <EmptyState title="No sections available" description={emptyDescription ?? "No sections are assigned to this campus."} />
   }
 
   const grouped = sections.reduce<Record<string, SectionCardData[]>>((acc, sec) => {

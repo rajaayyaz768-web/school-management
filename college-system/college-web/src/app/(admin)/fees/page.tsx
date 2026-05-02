@@ -14,7 +14,8 @@ import {
   SearchInput,
   StatCard,
 } from '@/components/ui';
-import { useCampuses } from '@/features/campus/hooks/useCampus';
+import { useCampusStore } from '@/store/campusStore';
+import { useRole } from '@/store/authStore';
 import {
   useFeeStructures,
   useFeeRecords,
@@ -26,6 +27,7 @@ import { FeeRecordTable } from '@/features/fees/components/FeeRecordTable';
 import { DefaultersList } from '@/features/fees/components/DefaultersList';
 import { FeeStructureForm } from '@/features/fees/components/FeeStructureForm';
 import { MarkAsPaidModal } from '@/features/fees/components/MarkAsPaidModal';
+import { ChalanModal } from '@/features/fees/components/ChalanModal';
 import { FeeRecordResponse, FeeStructureResponse } from '@/features/fees/types/fees.types';
 import { Plus, Calculator, AlertTriangle, Clock, CheckCircle2 } from 'lucide-react';
 import axios from '@/lib/axios';
@@ -37,72 +39,47 @@ const TABS = [
   { id: 'defaulters', label: 'Defaulters', countVariant: 'alert' as const },
 ];
 
-export default function FeesPage() {
-  const [activeTab, setActiveTab] = useState('structures');
+const chipBase = 'px-3 py-1 rounded-full text-xs font-medium border transition-colors';
+const chipActive = 'bg-[var(--primary)] text-white border-[var(--primary)]';
+const chipInactive = 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] hover:border-[var(--primary)]';
 
+export default function FeesPage() {
+  const role = useRole();
+  const { activeCampusId } = useCampusStore();
+
+  const [activeTab, setActiveTab] = useState('structures');
   const [academicYear, setAcademicYear] = useState('2025-2026');
   const [recordStatus, setRecordStatus] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterSectionId, setFilterSectionId] = useState<string | null>(null);
 
   const [generateModalOpen, setGenerateModalOpen] = useState(false);
   const [selectedStructureForGen, setSelectedStructureForGen] = useState<FeeStructureResponse | null>(null);
-  const [generateSectionId, setGenerateSectionId] = useState('');
+  const [generateSectionId, setGenerateSectionId] = useState<string | null>(null);
 
   const [isStructureModalOpen, setIsStructureModalOpen] = useState(false);
   const [editingStructure, setEditingStructure] = useState<FeeStructureResponse | undefined>();
   const [isMarkOpen, setIsMarkOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<FeeRecordResponse | null>(null);
+  const [chalanRecordId, setChalanRecordId] = useState<string | null>(null);
 
-  const { data: campuses } = useCampuses();
-  const campusId = campuses?.[0]?.id ?? '';
-  const campusName = campuses?.[0]?.name ?? '';
+  // For SUPER_ADMIN: use the TopBar campus selection.
+  // For ADMIN: pass nothing — backend enforces their campus via auth middleware.
+  const campusIdForQuery = role === 'SUPER_ADMIN' ? (activeCampusId ?? undefined) : undefined;
 
-  const { data: structures, isLoading: loadingStructures } = useFeeStructures(campusId, academicYear);
+  const { data: structures, isLoading: loadingStructures } = useFeeStructures(campusIdForQuery, academicYear);
   const { data: records, isLoading: loadingRecords } = useFeeRecords({
-    campusId,
+    campusId: campusIdForQuery,
+    sectionId: filterSectionId ?? undefined,
     status: recordStatus !== 'ALL' ? recordStatus : undefined,
-    academicYear
+    academicYear,
   });
-  const { data: defaulters, isLoading: loadingDefaulters } = useFeeDefaulters(campusId, academicYear);
+  const { data: defaulters, isLoading: loadingDefaulters } = useFeeDefaulters(campusIdForQuery ?? '', academicYear);
 
   const generateMutation = useGenerateFeeRecords();
 
-  // ── Stat card computations ──────────────────────────────────────────────────
-  const today = new Date().toDateString()
-  const allRecords = records ?? []
-  const todayCollected = allRecords
-    .filter(r => r.paidAt && new Date(r.paidAt).toDateString() === today)
-    .reduce((sum, r) => sum + r.amountPaid, 0)
-  const pendingCount = allRecords.filter(r => r.status === 'PENDING').length
-  const overdueCount = allRecords.filter(r => r.status === 'OVERDUE').length
-
-  // ── Defaulters summary ─────────────────────────────────────────────────────
-  const allDefaulters = defaulters ?? []
-  const totalDefaultersBalance = allDefaulters.reduce((sum, d) => sum + d.balance, 0)
-
-  const handleEditStructure = (structure: FeeStructureResponse) => {
-    setEditingStructure(structure);
-    setIsStructureModalOpen(true);
-  };
-
-  const handleGenerateClick = (structure: FeeStructureResponse) => {
-    setSelectedStructureForGen(structure);
-    setGenerateSectionId('');
-    setGenerateModalOpen(true);
-  };
-
-  const confirmGenerateRecords = () => {
-    if (selectedStructureForGen && generateSectionId) {
-      generateMutation.mutate({
-        feeStructureId: selectedStructureForGen.id,
-        sectionId: generateSectionId
-      }, {
-        onSuccess: () => setGenerateModalOpen(false)
-      });
-    }
-  };
-
-  const { data: sections } = useQuery<{ id: string; name: string }[]>({
+  // Sections for the generate-records modal (filtered by the structure's grade)
+  const { data: generateSections } = useQuery<{ id: string; name: string }[]>({
     queryKey: ['sections', selectedStructureForGen?.gradeId],
     queryFn: async () => {
       if (!selectedStructureForGen?.gradeId) return [];
@@ -111,6 +88,53 @@ export default function FeesPage() {
     },
     enabled: !!selectedStructureForGen?.gradeId,
   });
+
+  // Sections for the records-tab filter (all sections for the active campus)
+  const { data: filterSections } = useQuery<{ id: string; name: string; grade?: { name: string } }[]>({
+    queryKey: ['sections', undefined, campusIdForQuery],
+    queryFn: async () => {
+      const params: Record<string, string> = {};
+      if (campusIdForQuery) params.campus_id = campusIdForQuery;
+      const res = await axios.get('/sections', { params });
+      return res.data.data;
+    },
+    enabled: true,
+  });
+
+  // ── Stat card computations ──────────────────────────────────────────────────
+  const today = new Date().toDateString();
+  const allRecords = records ?? [];
+  const todayCollected = allRecords
+    .filter(r => r.paidAt && new Date(r.paidAt).toDateString() === today)
+    .reduce((sum, r) => sum + r.amountPaid, 0);
+  const pendingCount = allRecords.filter(r => r.status === 'PENDING').length;
+  const overdueCount = allRecords.filter(r => r.status === 'OVERDUE').length;
+
+  // ── Defaulters summary ─────────────────────────────────────────────────────
+  const allDefaulters = defaulters ?? [];
+  const totalDefaultersBalance = allDefaulters.reduce((sum, d) => sum + d.balance, 0);
+
+  const handleEditStructure = (structure: FeeStructureResponse) => {
+    setEditingStructure(structure);
+    setIsStructureModalOpen(true);
+  };
+
+  const handleGenerateClick = (structure: FeeStructureResponse) => {
+    setSelectedStructureForGen(structure);
+    setGenerateSectionId(null);
+    setGenerateModalOpen(true);
+  };
+
+  const confirmGenerateRecords = () => {
+    if (selectedStructureForGen && generateSectionId) {
+      generateMutation.mutate({
+        feeStructureId: selectedStructureForGen.id,
+        sectionId: generateSectionId,
+      }, {
+        onSuccess: () => setGenerateModalOpen(false),
+      });
+    }
+  };
 
   const filteredRecords = allRecords.filter(r => {
     if (!searchQuery) return true;
@@ -169,7 +193,6 @@ export default function FeesPage() {
               <StatCard
                 title="Today Collected"
                 value={`PKR ${todayCollected.toLocaleString()}`}
-                subtitle={campusName}
                 icon={<CheckCircle2 className="w-5 h-5" />}
               />
               <StatCard
@@ -185,6 +208,28 @@ export default function FeesPage() {
                 icon={<AlertTriangle className="w-5 h-5" />}
               />
             </div>
+
+            {/* Section filter chips */}
+            {filterSections && filterSections.length > 0 && (
+              <div className="flex flex-wrap gap-2 items-center mb-4">
+                <span className="text-xs text-[var(--text-muted)] mr-1">Section:</span>
+                <button
+                  onClick={() => setFilterSectionId(null)}
+                  className={`${chipBase} ${filterSectionId === null ? chipActive : chipInactive}`}
+                >
+                  All
+                </button>
+                {filterSections.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => setFilterSectionId(s.id)}
+                    className={`${chipBase} ${filterSectionId === s.id ? chipActive : chipInactive}`}
+                  >
+                    {s.name}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="flex flex-wrap gap-4 mb-6">
               <Select
@@ -218,12 +263,12 @@ export default function FeesPage() {
               records={filteredRecords}
               isLoading={loadingRecords}
               onMarkPaid={(r) => { setSelectedRecord(r); setIsMarkOpen(true); }}
+              onChallan={(r) => setChalanRecordId(r.id)}
             />
           </TabPanel>
 
           {/* ── Defaulters ── */}
           <TabPanel tabId="defaulters" activeTab={activeTab}>
-            {/* Red summary card */}
             {allDefaulters.length > 0 && (
               <div className="bg-[var(--danger)]/10 border border-[var(--danger)]/30 rounded-[var(--radius-lg)] p-4 mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -275,10 +320,15 @@ export default function FeesPage() {
         onClose={() => setIsMarkOpen(false)}
       />
 
+      <ChalanModal
+        recordId={chalanRecordId}
+        onClose={() => setChalanRecordId(null)}
+      />
+
       <ConfirmDialog
         isOpen={generateModalOpen}
         title="Generate Fee Records"
-        message="Please select the section for which you want to generate fee records based on this structure."
+        message="Select the section to generate fee records for this structure."
         confirmText="Generate Records"
         variant="warning"
         onConfirm={confirmGenerateRecords}
@@ -286,12 +336,21 @@ export default function FeesPage() {
         loading={generateMutation.isPending}
       >
         <div className="mt-4">
-          <Select
-            label="Section"
-            value={generateSectionId}
-            onChange={(e) => setGenerateSectionId(e.target.value)}
-            options={(sections || []).map(s => ({ label: s.name, value: s.id }))}
-          />
+          {generateSections && generateSections.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {generateSections.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setGenerateSectionId(s.id)}
+                  className={`${chipBase} ${generateSectionId === s.id ? chipActive : chipInactive}`}
+                >
+                  {s.name}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-[var(--text-muted)]">No sections found for this grade.</p>
+          )}
         </div>
       </ConfirmDialog>
     </div>

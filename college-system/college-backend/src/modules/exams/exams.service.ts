@@ -9,8 +9,11 @@ import {
   EnterResultDto,
   BulkEnterResultsDto,
   ExamResultResponse,
+  CreateExamScheduleDto,
+  ExamScheduleResponse,
+  CreateClassTestDto,
 } from './exams.types'
-import { assertSectionCampus, assertStudentCampus } from '../../utils/campusGuard'
+import { assertSectionCampus, assertStudentCampus, assertTeacherSubjectAccess } from '../../utils/campusGuard'
 
 interface RequestUser { id: string; role: Role; campusId: string | null }
 
@@ -44,6 +47,9 @@ function mapToExamResponse(exam: any): ExamResponse {
     venue: exam.venue ?? null,
     status: exam.status,
     supervisorStaffId: exam.supervisorStaffId ?? null,
+    isClassTest: exam.isClassTest ?? false,
+    examScheduleId: exam.examScheduleId ?? null,
+    createdByStaffId: exam.createdByStaffId ?? null,
     createdAt: exam.createdAt.toISOString(),
     updatedAt: exam.updatedAt.toISOString(),
     examType: exam.examType,
@@ -125,20 +131,67 @@ export const createExamType = async (data: CreateExamTypeDto): Promise<ExamTypeR
   }
 }
 
-export const getAllExams = async (filters: {
-  sectionId?: string
-  subjectId?: string
-  examTypeId?: string
-  status?: string
-  campusId?: string
-}): Promise<ExamResponse[]> => {
+export const getAllExams = async (
+  filters: {
+    sectionId?: string
+    subjectId?: string
+    examTypeId?: string
+    status?: string
+    campusId?: string
+    isClassTest?: boolean
+  },
+  user?: RequestUser
+): Promise<ExamResponse[]> => {
   const where: any = {}
   if (filters.sectionId) where.sectionId = filters.sectionId
   if (filters.subjectId) where.subjectId = filters.subjectId
   if (filters.examTypeId) where.examTypeId = filters.examTypeId
   if (filters.status) where.status = filters.status
+  if (filters.isClassTest !== undefined) where.isClassTest = filters.isClassTest
   if (filters.campusId) {
     where.section = { grade: { program: { campusId: filters.campusId } } }
+  }
+
+  // Students only see exams for their own section
+  if (user?.role === Role.STUDENT) {
+    const student = await prisma.studentProfile.findUnique({
+      where: { userId: user.id },
+      select: { sectionId: true },
+    })
+    if (!student?.sectionId) return []
+    where.sectionId = student.sectionId
+  }
+
+  // Parents see exams for a specific child's section (studentId must be passed as filter)
+  if (user?.role === Role.PARENT && filters.sectionId) {
+    const link = await prisma.studentParentLink.findFirst({
+      where: {
+        parent: { userId: user.id },
+        student: { sectionId: filters.sectionId },
+      },
+      select: { id: true },
+    })
+    if (!link) return []
+  }
+
+  // Teachers only see exams for subjects they are assigned to teach
+  if (user?.role === Role.TEACHER) {
+    const staff = await prisma.staffProfile.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    })
+    if (staff) {
+      const assignments = await prisma.sectionSubjectTeacher.findMany({
+        where: { staffId: staff.id },
+        select: { sectionId: true, subjectId: true },
+      })
+      if (assignments.length === 0) return []
+      // Filter to exams matching the teacher's (sectionId, subjectId) pairs
+      where.OR = assignments.map((a) => ({
+        sectionId: a.sectionId,
+        subjectId: a.subjectId,
+      }))
+    }
   }
 
   const records = await prisma.exam.findMany({
@@ -162,7 +215,10 @@ export const getExamById = async (id: string, user?: RequestUser): Promise<ExamR
     throw error
   }
 
-  if (user) await assertSectionCampus(record.sectionId, user)
+  if (user) {
+    await assertSectionCampus(record.sectionId, user)
+    await assertTeacherSubjectAccess(record.sectionId, record.subjectId, user)
+  }
 
   return mapToExamResponse(record)
 }
@@ -258,12 +314,17 @@ export const deleteExam = async (id: string, user?: RequestUser): Promise<void> 
   await prisma.exam.delete({ where: { id } })
 }
 
-export const getExamResults = async (examId: string): Promise<ExamResultResponse[]> => {
+export const getExamResults = async (examId: string, user?: RequestUser): Promise<ExamResultResponse[]> => {
   const exam = await prisma.exam.findUnique({ where: { id: examId } })
   if (!exam) {
     const error = new Error('Exam not found') as any
     error.status = 404
     throw error
+  }
+
+  if (user) {
+    await assertSectionCampus(exam.sectionId, user)
+    await assertTeacherSubjectAccess(exam.sectionId, exam.subjectId, user)
   }
 
   // Fetch existing results
@@ -327,6 +388,7 @@ export const enterBulkResults = async (
     }
 
     if (user) await assertSectionCampus(exam.sectionId, user)
+    if (user) await assertTeacherSubjectAccess(exam.sectionId, exam.subjectId, user)
     if (user) await assertStudentCampus(item.studentId, user)
 
     if (item.obtainedMarks !== undefined && item.obtainedMarks > exam.totalMarks) {
@@ -378,4 +440,120 @@ export const getStudentResults = async (studentId: string): Promise<ExamResultRe
   })
 
   return results.map((r) => mapToResultResponse(r, r.exam.totalMarks))
+}
+
+// ─── Exam Schedule ────────────────────────────────────────────────────────────
+
+export const createExamSchedule = async (
+  data: CreateExamScheduleDto,
+  createdById: string
+): Promise<{ scheduleId: string; examCount: number }> => {
+  const schedule = await prisma.examSchedule.create({
+    data: {
+      examTypeId: data.examTypeId,
+      campusId: data.campusId,
+      academicYear: data.academicYear,
+      date: new Date(data.date),
+      startTime: data.startTime,
+      createdById,
+    },
+  })
+
+  let examCount = 0
+  for (const section of data.sections) {
+    for (const sub of section.subjects) {
+      await prisma.exam.create({
+        data: {
+          examTypeId: data.examTypeId,
+          sectionId: section.sectionId,
+          subjectId: sub.subjectId,
+          date: new Date(data.date),
+          startTime: data.startTime,
+          durationMins: sub.durationMins,
+          totalMarks: sub.totalMarks,
+          examScheduleId: schedule.id,
+          isClassTest: false,
+        },
+      })
+      examCount++
+    }
+  }
+
+  return { scheduleId: schedule.id, examCount }
+}
+
+export const getExamSchedules = async (campusId?: string): Promise<ExamScheduleResponse[]> => {
+  const where: any = {}
+  if (campusId) where.campusId = campusId
+
+  const schedules = await prisma.examSchedule.findMany({
+    where,
+    include: {
+      examType: { select: { id: true, name: true } },
+      _count: { select: { exams: true } },
+    },
+    orderBy: { date: 'desc' },
+  })
+
+  return schedules.map((s) => ({
+    id: s.id,
+    examTypeId: s.examTypeId,
+    campusId: s.campusId,
+    academicYear: s.academicYear,
+    date: s.date instanceof Date ? s.date.toISOString().split('T')[0] : s.date,
+    startTime: s.startTime,
+    status: s.status,
+    createdAt: s.createdAt.toISOString(),
+    examType: s.examType,
+    examCount: s._count.exams,
+  }))
+}
+
+// ─── Class Tests ──────────────────────────────────────────────────────────────
+
+export const createClassTest = async (
+  data: CreateClassTestDto,
+  user: RequestUser
+): Promise<ExamResponse> => {
+  await assertTeacherSubjectAccess(data.sectionId, data.subjectId, user)
+
+  const staff = await prisma.staffProfile.findUnique({
+    where: { userId: user.id },
+    select: { id: true },
+  })
+
+  // Class tests use a generic "Class Test" exam type per campus; create it if missing
+  const section = await prisma.section.findUnique({
+    where: { id: data.sectionId },
+    include: { grade: { include: { program: { include: { campus: true } } } } },
+  })
+  if (!section) throw Object.assign(new Error('Section not found'), { statusCode: 404 })
+
+  const campusId = section.grade.program.campusId
+  let examType = await prisma.examType.findFirst({
+    where: { campusId, name: 'Class Test' },
+  })
+  if (!examType) {
+    examType = await prisma.examType.create({
+      data: { name: 'Class Test', campusId },
+    })
+  }
+
+  const exam = await prisma.exam.create({
+    data: {
+      examTypeId: examType.id,
+      sectionId: data.sectionId,
+      subjectId: data.subjectId,
+      date: new Date(data.date),
+      startTime: data.startTime,
+      durationMins: data.durationMins,
+      totalMarks: data.totalMarks,
+      venue: data.venue,
+      isClassTest: true,
+      createdByStaffId: staff?.id ?? null,
+    },
+    include: examInclude,
+  })
+
+  return mapToExamResponse(exam)
 }

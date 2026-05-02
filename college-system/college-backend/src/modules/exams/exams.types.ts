@@ -32,6 +32,45 @@ export interface UpdateExamDto {
   supervisorStaffId?: string
 }
 
+export interface CreateExamScheduleDto {
+  examTypeId: string
+  campusId: string
+  academicYear: string
+  date: string
+  startTime: string
+  sections: Array<{
+    sectionId: string
+    subjects: Array<{
+      subjectId: string
+      totalMarks: number
+      durationMins: number
+    }>
+  }>
+}
+
+export interface ExamScheduleResponse {
+  id: string
+  examTypeId: string
+  campusId: string
+  academicYear: string
+  date: string
+  startTime: string
+  status: string
+  createdAt: string
+  examType: { id: string; name: string }
+  examCount: number
+}
+
+export interface CreateClassTestDto {
+  sectionId: string
+  subjectId: string
+  date: string
+  startTime: string
+  durationMins: number
+  totalMarks: number
+  venue?: string
+}
+
 export interface ExamResponse {
   id: string
   examTypeId: string
@@ -44,6 +83,9 @@ export interface ExamResponse {
   venue: string | null
   status: string
   supervisorStaffId: string | null
+  isClassTest: boolean
+  examScheduleId: string | null
+  createdByStaffId: string | null
   createdAt: string
   updatedAt: string
   examType: { id: string; name: string }

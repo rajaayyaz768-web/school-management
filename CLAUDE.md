@@ -106,23 +106,47 @@ Roles.ALL                 // all five roles
 
 **Pagination** (`src/utils/pagination.ts`): use `parsePagination(query)` to read `page`/`limit` from query params, `getPrismaSkipTake()` for Prisma `skip`/`take`, and `buildPaginationMeta()` to attach metadata to the response. All list endpoints should go through this utility.
 
-**Campus ownership guard** (`src/utils/campusGuard.ts`): use `assertStudentBelongsToCampus` / `assertSectionBelongsToCampus` etc. when a service needs to verify ownership beyond what the auth middleware already scopes. These throw `AppError(403)` on mismatch.
+**Campus ownership guard** (`src/utils/campusGuard.ts`): use these when a service needs to verify ownership beyond what the auth middleware already scopes — all throw `CampusScopeError(403)` on mismatch:
+- `assertSectionCampus(sectionId, user)` — section belongs to user's campus
+- `assertStudentCampus(studentId, user)` — student belongs to user's campus
+- `assertStaffCampus(staffId, user)` — staff belongs to user's campus
+- `requireOwnCampus(user, targetCampusId)` — campusId on a payload matches user's campus
+- `assertTeacherSubjectAccess(sectionId, subjectId, user)` — **TEACHER only**: verifies a `SectionSubjectTeacher` record exists for this teacher+section+subject. SUPER_ADMIN/ADMIN always pass. Apply this to any endpoint where a teacher writes data (mark attendance, enter results). For read endpoints, filter the query by the teacher's assignments instead (see Teacher Subject Scoping below).
 
 **Database**: PostgreSQL via Prisma 6. Schema at `prisma/schema.prisma`. Key model groups:
 - Auth/profiles: `User` (5 roles), `StaffProfile`, `StudentProfile`, `ParentProfile`
-- Hierarchy: `Campus` → `Program` → `Grade` → `Section`
+- Hierarchy: `Campus` (`campusType`: COLLEGE | PRIMARY_SCHOOL) → `Program` → `Grade` (`teachingMode`: MORNING | AFTERNOON | optional) → `Section`
 - Assignments: `StaffCampusAssignment`, `SectionSubjectTeacher`, `TimetableSlot`
 - Attendance: `StudentAttendance`, `StaffAttendance`, `MonthlyAttendanceSummary`
-- Academics: `Exam`, `ExamResult`, `BoardExamRecord`
+- Academics: `ExamSchedule` (admin bulk-schedules one event across sections/subjects) → `Exam` (1 section + 1 subject + marks; `isClassTest: bool`, `examScheduleId?`, `createdByStaffId?`), `ExamResult`, `BoardExamRecord`
 - Finance: `FeeStructure`, `FeeRecord`
 - Messaging: `ChatConversation`, `ChatMessage`, `Announcement`, `Notification`, `OutgoingMessage`
 - Ops: `AuditLog`, `AppVersion`, `GoogleDriveToken`
+- Promotion: `PromotionCycle` (`promotionType`: ANNUAL | TRANSITIONAL), `PromotionRecord`
+
+**Import module** (`src/modules/import/`): uses `multer` for file uploads and `exceljs` for parsing Excel. Validates rows against Zod schemas before bulk-inserting via Prisma. Critical invariants:
+- Roll numbers are stored **UPPERCASE** (`${campusCode}-${programCode}-${gradeOrder}-${secName}-${seq}`.toUpperCase()). Auth login uses case-insensitive `findFirst` for roll number lookup.
+- Fee record generation has a **30-day duplicate check** using `createdAt >= now - 30 days` — re-running within 30 days skips students who already have a record for that fee structure.
+- New students in a section get roll numbers continuing from the highest existing sequence (`maxSeq + 1`). Existing roll numbers are never reset.
+
+**Caching**: `node-cache` instance available for short-lived in-memory caching (e.g. timetable computations). Do not introduce a second caching layer.
+
+**Active backend modules**: admin-management, announcements, app-version, attendance, auth, campus, chat, dashboard, exams, fees, grades, import, leave, notifications, parents, programs, promotion, reports, results, section-assignment, sections, staff, staff-attendance, student-attendance, students, subjects, system, timetable.
 
 **Prisma singleton**: always import from `src/config/database.ts` (exports the shared `prisma` instance) — never `new PrismaClient()` in service files.
 
 **Real-time**: Socket.io server initialised via `src/config/socket.ts`. Users join a room keyed by `userId` on login.
 
 **Docker**: a multi-stage `Dockerfile` (Node 20 Alpine) builds TypeScript, regenerates Prisma client, then serves from `dist/` with production-only dependencies. No `docker-compose` is provided.
+
+### Teacher Subject Scoping (security-critical)
+
+Teachers are scoped to the subjects they are assigned to in each section, via `SectionSubjectTeacher`. Two layers must both be present:
+
+1. **Backend data filter** — for list endpoints (GET exams, GET section assignments), filter the query to only return rows matching the teacher's `SectionSubjectTeacher` records. See `subjects.service.ts` `getAssignmentsBySection` and `exams.service.ts` `getAllExams` for the pattern.
+2. **Backend write guard** — for mutation endpoints (mark attendance, enter results), call `assertTeacherSubjectAccess(sectionId, subjectId, user)` before writing. Returns 403 if the teacher has no assignment for that pair.
+
+The frontend does **not** need separate filtering logic — once the backend returns only the teacher's subjects, the existing UI components automatically show the right data. Do not skip either layer (filter prevents info leak; guard prevents unauthorized writes).
 
 ### Campus Scoping (security-critical)
 
@@ -175,7 +199,7 @@ npm run lint
 
 **Middleware** (`src/middleware.ts`) — reads `access-token` and `user-role` cookies; redirects unauthenticated users to `/login` and enforces role-based route access before the page renders.
 
-**Auth state**: Zustand store (`src/store/authStore.ts`) persisted to `localStorage` as `college-auth`. On `setAuth`, sets `access-token` and `user-role` cookies (1-day expiry) and connects Socket.io. On `logout`, removes cookies and disconnects socket.
+**Auth state**: Zustand store (`src/store/authStore.ts`) persisted to `localStorage` as `college-auth`. On `setAuth`, sets `access-token` and `user-role` cookies (1-day expiry) and connects Socket.io. On `logout`, calls `queryClient.clear()` (purges all React Query cache so a new user never sees stale data from the previous session), removes cookies, and disconnects socket.
 
 **API client** (`src/lib/axios.ts`): Axios instance with `baseURL = NEXT_PUBLIC_API_URL`. Attaches `Authorization: Bearer <token>` from auth store. For `SUPER_ADMIN`, also injects `?campusId` from `campusStore` when not already present (lets the backend filter to the selected campus). On 401, silently refreshes via `POST /auth/refresh-token`; queues concurrent failed requests; redirects to `/login` if refresh fails.
 
@@ -195,10 +219,34 @@ types/       # TypeScript types
 - `notificationStore` — in-app notifications
 - `themeStore` — light/dark theme
 
-**Data fetching**: React Query via `src/lib/queryClient.ts`. All API calls go through React Query hooks in `features/<name>/hooks/`.
+**Styling**: Tailwind CSS v4 + `tailwind-merge` (`cn()` in `src/lib/utils.ts`). Design tokens are CSS variables defined in `globals.css` — use these, never hardcode colors:
+- **Palette**: `--color-teal-{50…950}`, `--color-gold-{100…700}`, `--color-charcoal-{300…950}`, `--color-parchment` / `--color-parchment-dark` / `--color-parchment-darker`
+- **Radii**: `--radius-card` (16px), `--radius-card-sm` (12px), `--radius-card-lg` (20px), `--radius-pill`
+- **Shadows**: `--shadow-card`, `--shadow-card-md`, `--shadow-card-lg`, `--shadow-gold`, `--shadow-teal`, `--shadow-dark-card`
+- **Fonts**: `--font-display` (Playfair Display), `--font-body` (DM Sans), `--font-mono` (JetBrains Mono)
 
-**Styling**: Tailwind CSS v4 + `tailwind-merge` (`cn()` in `src/lib/utils.ts`). Design tokens are CSS variables (`--gold`, `--primary`, `--text`, `--border`, `--surface`, `--radius-lg`, etc.) defined in the global stylesheet — use these rather than hardcoded colors.
+**Animations**: always use the `motion` package (`import { motion, AnimatePresence, … } from "motion/react"`) for every new component — never raw CSS transitions or other animation libraries.
+
+**Utilities** (`src/lib/utils.ts`): `cn()` for class merging, `formatDate()` / `formatTime()` (locale `en-PK`), `getInitials()`, `capitalizeFirst()` — use these before writing new helpers.
+
+**Data fetching**: React Query via `src/lib/queryClient.ts`. Default config: `staleTime: 5 min`, `refetchOnWindowFocus: false`, no retry on 401/403/404. All API calls go through React Query hooks in `features/<name>/hooks/`.
 
 **Forms**: `react-hook-form` + `@hookform/resolvers` with Zod schemas.
 
 **Socket.io client** (`src/lib/socket.ts`): singleton connecting to `NEXT_PUBLIC_API_URL`. User joins their personal room (`join_room` event) on login.
+
+**Filter UI pattern** — the site uses **pill-chip buttons**, not `<Select>` dropdowns, for all filtering (sections, subjects, campuses, exam types, etc.). Pattern from `src/app/(admin)/admin/sections/page.tsx`:
+```tsx
+const chipBase = 'px-3 py-1 rounded-full text-xs font-medium border transition-colors'
+const chipActive = 'bg-[var(--primary)] text-white border-[var(--primary)]'
+const chipInactive = 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] hover:border-[var(--primary)]'
+// Render: <button onClick={() => setFilter(id)} className={`${chipBase} ${active ? chipActive : chipInactive}`}>
+```
+Never introduce a new `<Select>` for a filter that's better served by chips.
+
+**Exam system** — two exam types share the same `Exam` model:
+- **Scheduled exams** (`isClassTest: false`): created by admin via `POST /exams/schedule` (bulk — one schedule event generates N individual exams across sections/subjects). Teachers can only see exams for their assigned `(sectionId, subjectId)` pairs.
+- **Class tests** (`isClassTest: true`): created by teacher via `POST /exams/class-test`. Teacher must have a `SectionSubjectTeacher` record for the section+subject. A "Class Test" `ExamType` is auto-created per campus on first use.
+- Teachers, students, and parents access `GET /exams` — each role gets server-side filtered results (teacher: their assignments; student: their section; parent: selected child's section).
+
+**Fee challan** (`src/features/fees/components/ChalanModal.tsx`): opens inline as an animated modal overlay — never a new browser tab. The "Download PDF" button injects a `<style id="challan-print-override">` tag that uses `body * { visibility: hidden } + #challan-print-area { visibility: visible }` to isolate only the challan content, calls `window.print()`, then removes the style via `window.onafterprint`. This is the standard pattern for any future print-to-PDF features.

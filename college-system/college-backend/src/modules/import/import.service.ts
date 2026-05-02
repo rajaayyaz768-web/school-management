@@ -59,7 +59,8 @@ export const validateImport = async (
   sectionId: string,
   fileBuffer: Buffer,
   mimetype: string,
-  _userId: string
+  _userId: string,
+  campusId?: string
 ): Promise<ValidationReport> => {
   purgeExpired();
 
@@ -68,6 +69,13 @@ export const validateImport = async (
     include: { grade: { include: { program: { include: { campus: true } } } } },
   });
   if (!section) throw Object.assign(new Error("Section not found"), { statusCode: 404 });
+
+  if (campusId && section.grade.program.campusId !== campusId) {
+    throw Object.assign(
+      new Error("The selected section does not belong to your campus. Switch the campus and try again."),
+      { statusCode: 403 }
+    );
+  }
 
   const rawRows = await parseUploadedFile(fileBuffer, mimetype);
   if (rawRows.length === 0) {
@@ -99,7 +107,8 @@ export const confirmImport = async (
   sectionId: string,
   validationToken: string,
   acknowledgeWarnings: boolean,
-  userId: string
+  userId: string,
+  campusId?: string
 ): Promise<ImportResult> => {
   purgeExpired();
 
@@ -141,6 +150,13 @@ export const confirmImport = async (
     include: { grade: { include: { program: { include: { campus: true } } } } },
   });
   if (!section) throw Object.assign(new Error("Section not found"), { statusCode: 404 });
+
+  if (campusId && section.grade.program.campusId !== campusId) {
+    throw Object.assign(
+      new Error("The selected section does not belong to your campus. Switch the campus and try again."),
+      { statusCode: 403 }
+    );
+  }
 
   // Filter to valid rows only (READY + WARNING), preserving original index
   const validIndexes = report.rows
@@ -301,21 +317,40 @@ export const confirmImport = async (
           }
         }
       } else {
-        const allActive = await tx.studentProfile.findMany({
-          where: { sectionId: section.id, status: StudentStatus.ACTIVE },
+        // Find the highest sequence number already assigned in this section
+        // so new students continue from where the last import left off.
+        const existingWithRolls = await tx.studentProfile.findMany({
+          where: {
+            sectionId: section.id,
+            status: StudentStatus.ACTIVE,
+            rollNumber: { not: null },
+            id: { notIn: studentIds },
+          },
+          select: { rollNumber: true },
+        });
+        let maxSeq = 0;
+        for (const s of existingWithRolls) {
+          const tail = parseInt(s.rollNumber!.split("-").pop()!, 10);
+          if (!isNaN(tail) && tail > maxSeq) maxSeq = tail;
+        }
+
+        // Sort only the newly imported students alphabetically, then assign
+        // roll numbers continuing from maxSeq + 1.
+        const newStudents = await tx.studentProfile.findMany({
+          where: { id: { in: studentIds } },
           select: { id: true, firstName: true, lastName: true },
         });
-        allActive.sort((a, b) => {
+        newStudents.sort((a, b) => {
           const fa = a.firstName.toLowerCase(), fb = b.firstName.toLowerCase();
           if (fa !== fb) return fa < fb ? -1 : 1;
           return a.lastName.toLowerCase() < b.lastName.toLowerCase() ? -1 : 1;
         });
-        for (let i = 0; i < allActive.length; i++) {
-          const seq = String(i + 1).padStart(3, "0");
+        for (let i = 0; i < newStudents.length; i++) {
+          const seq = String(maxSeq + i + 1).padStart(3, "0");
           await tx.studentProfile.update({
-            where: { id: allActive[i].id },
+            where: { id: newStudents[i].id },
             data: {
-              rollNumber: `${campusCode}-${programCode}-${gradeOrder}-${secName}-${seq}`,
+              rollNumber: `${campusCode}-${programCode}-${gradeOrder}-${secName}-${seq}`.toUpperCase(),
             },
           });
         }

@@ -58,13 +58,12 @@ export async function getStudentDashboardData(userId: string) {
     }
   }
 
-  const todayDow = JS_DAY_TO_ENUM[new Date().getDay()] ?? null
-  const currentYear = new Date().getFullYear()
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' })
+  const todayPKT = new Date(todayStr + 'T00:00:00.000Z')
+  const todayDow = JS_DAY_TO_ENUM[todayPKT.getUTCDay()] ?? null
+  const currentYear = todayPKT.getUTCFullYear()
   const academicYear = `${currentYear}-${currentYear + 1}`
-
-  const now = new Date()
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-  thirtyDaysAgo.setHours(0, 0, 0, 0)
+  const thirtyDaysAgo = new Date(new Date(todayStr + 'T00:00:00.000Z').getTime() - 30 * 24 * 60 * 60 * 1000)
 
   const [todaySlots, attendanceRecords, recentResults, announcements] = await Promise.all([
     // 2. Today's timetable

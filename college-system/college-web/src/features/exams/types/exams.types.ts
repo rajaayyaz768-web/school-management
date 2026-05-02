@@ -19,11 +19,49 @@ export interface Exam {
   venue: string | null
   status: ExamStatus
   supervisorStaffId: string | null
+  isClassTest: boolean
+  examScheduleId: string | null
+  createdByStaffId: string | null
   createdAt: string
   updatedAt: string
   examType: { id: string; name: string }
   section: { id: string; name: string }
   subject: { id: string; name: string; code: string }
+}
+
+export interface ExamSchedule {
+  id: string
+  examTypeId: string
+  campusId: string
+  academicYear: string
+  date: string
+  startTime: string
+  status: string
+  createdAt: string
+  examType: { id: string; name: string }
+  examCount: number
+}
+
+export interface CreateExamScheduleInput {
+  examTypeId: string
+  campusId: string
+  academicYear: string
+  date: string
+  startTime: string
+  sections: Array<{
+    sectionId: string
+    subjects: Array<{ subjectId: string; totalMarks: number; durationMins: number }>
+  }>
+}
+
+export interface CreateClassTestInput {
+  sectionId: string
+  subjectId: string
+  date: string
+  startTime: string
+  durationMins: number
+  totalMarks: number
+  venue?: string
 }
 
 export interface ExamResult {

@@ -64,6 +64,43 @@ export interface SectionResultSummary {
   absentCount: number
 }
 
+export interface ExamReportCardSubject {
+  sn: number
+  subjectId: string
+  subjectName: string
+  subjectCode: string
+  maxMarks: number
+  obtainedMarks: number | null
+  isAbsent: boolean
+  percentage: number | null
+  grade: string | null
+}
+
+export interface ExamReportCard {
+  student: {
+    id: string
+    firstName: string
+    lastName: string
+    rollNumber: string | null
+    fatherName: string | null
+    photoUrl: string | null
+    sectionName: string
+    gradeName: string
+    programName: string
+    campusName: string
+    campusType: string
+  }
+  examType: { id: string; name: string }
+  academicYear: string
+  examDate: string | null
+  subjects: ExamReportCardSubject[]
+  totalMaxMarks: number
+  totalObtainedMarks: number | null
+  overallPercentage: number | null
+  overallGrade: string | null
+  generatedAt: string
+}
+
 export interface TopStudent {
   studentId: string
   firstName: string

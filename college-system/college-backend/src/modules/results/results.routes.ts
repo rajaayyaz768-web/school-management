@@ -27,4 +27,18 @@ router.get(
   controller.getTopStudents
 )
 
+router.get(
+  '/exam-report-card',
+  authenticate,
+  authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER),
+  controller.getStudentExamReportCard
+)
+
+router.get(
+  '/section-students',
+  authenticate,
+  authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER),
+  controller.getSectionStudentList
+)
+
 export { router as resultsRouter }

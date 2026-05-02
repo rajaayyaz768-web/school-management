@@ -88,13 +88,28 @@ function SubjectCard({ subject }: { subject: SubjectResultSummary }) {
   )
 }
 
+const chipBase = 'px-3 py-1.5 rounded-full text-sm font-medium border transition-colors cursor-pointer'
+const chipActive = 'bg-[var(--primary)] text-white border-[var(--primary)]'
+const chipInactive = 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] hover:border-[var(--primary)]'
+
 export default function StudentResultsPage() {
   const [academicYear, setAcademicYear] = useState('2025-2026')
+  const [tab, setTab] = useState<'all' | 'classtest'>('all')
   const { data: profile, isLoading: profileLoading } = useMyProfile()
   const studentId = profile?.id ?? ''
   const { data: reportCard, isLoading: rcLoading } = useStudentReportCard(studentId, academicYear)
 
   const isLoading = profileLoading || rcLoading
+
+  // Filter subjects/exams based on tab
+  const filteredSubjects = (reportCard?.subjects ?? [])
+    .map((subject) => ({
+      ...subject,
+      exams: tab === 'classtest'
+        ? subject.exams.filter((e) => e.examTypeName === 'Class Test')
+        : subject.exams.filter((e) => e.examTypeName !== 'Class Test'),
+    }))
+    .filter((s) => s.exams.length > 0)
 
   return (
     <div className="p-6 space-y-6">
@@ -104,6 +119,16 @@ export default function StudentResultsPage() {
       />
 
       {profile && <StudentContextStrip profile={profile} />}
+
+      {/* Tab chips */}
+      <div className="flex gap-2">
+        <button onClick={() => setTab('all')} className={`${chipBase} ${tab === 'all' ? chipActive : chipInactive}`}>
+          Exam Results
+        </button>
+        <button onClick={() => setTab('classtest')} className={`${chipBase} ${tab === 'classtest' ? chipActive : chipInactive}`}>
+          Class Tests
+        </button>
+      </div>
 
       <div className="rounded-xl p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
         <div className="max-w-xs">
@@ -119,29 +144,33 @@ export default function StudentResultsPage() {
         <div className="rounded-xl" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
           <EmptyState icon={<Trophy size={28} style={{ color: 'var(--primary)' }} />} title="Profile Not Found" description="Your student profile could not be loaded." />
         </div>
-      ) : !reportCard?.subjects?.length ? (
+      ) : filteredSubjects.length === 0 ? (
         <div className="rounded-xl" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-          <EmptyState icon={<Trophy size={28} style={{ color: 'var(--primary)' }} />} title="No Results Yet" description="No exam results have been recorded for this academic year." />
+          <EmptyState icon={<Trophy size={28} style={{ color: 'var(--primary)' }} />}
+            title={tab === 'classtest' ? 'No Class Test Results' : 'No Results Yet'}
+            description={tab === 'classtest' ? 'No class test results recorded yet.' : 'No exam results have been recorded for this academic year.'} />
         </div>
       ) : (
         <>
-          {/* Overall Summary */}
-          <Card className="flex flex-wrap items-center justify-between gap-4 p-5">
-            <div>
-              <p className="text-sm text-[var(--text-muted)]">Overall Performance</p>
-              <p className="text-2xl font-bold text-[var(--text)] mt-0.5">
-                {reportCard.overallPercentage?.toFixed(1) ?? '—'}%
-              </p>
-              <p className="text-xs text-[var(--text-muted)]">{reportCard.passedExams} / {reportCard.totalExams} exams passed</p>
-            </div>
-            <Badge variant={gradeVariant(reportCard.overallGrade)} size="md">
-              Grade {reportCard.overallGrade ?? '—'}
-            </Badge>
-          </Card>
+          {/* Overall Summary — only show for all exams tab */}
+          {tab === 'all' && reportCard && (
+            <Card className="flex flex-wrap items-center justify-between gap-4 p-5">
+              <div>
+                <p className="text-sm text-[var(--text-muted)]">Overall Performance</p>
+                <p className="text-2xl font-bold text-[var(--text)] mt-0.5">
+                  {reportCard.overallPercentage?.toFixed(1) ?? '—'}%
+                </p>
+                <p className="text-xs text-[var(--text-muted)]">{reportCard.passedExams} / {reportCard.totalExams} exams passed</p>
+              </div>
+              <Badge variant={gradeVariant(reportCard.overallGrade)} size="md">
+                Grade {reportCard.overallGrade ?? '—'}
+              </Badge>
+            </Card>
+          )}
 
           {/* Subject Cards */}
           <div className="space-y-3">
-            {reportCard.subjects.map((subject) => (
+            {filteredSubjects.map((subject) => (
               <SubjectCard key={subject.subjectId} subject={subject} />
             ))}
           </div>

@@ -18,11 +18,13 @@ export const validateImportHandler = async (req: Request, res: Response) => {
     }
 
     const sectionId = req.params.sectionId as string;
+    const campusId = (req.query.campusId as string) || undefined;
     const report = await importService.validateImport(
       sectionId,
       Buffer.from(req.file.buffer),
       req.file.mimetype,
-      req.user!.id
+      req.user!.id,
+      campusId
     );
 
     sendSuccess(res, "Validation complete", report);
@@ -35,6 +37,7 @@ export const validateImportHandler = async (req: Request, res: Response) => {
 export const confirmImportHandler = async (req: Request, res: Response) => {
   try {
     const sectionId = req.params.sectionId as string;
+    const campusId = (req.query.campusId as string) || undefined;
     const { validationToken, acknowledgeWarnings } = req.body as {
       validationToken: string;
       acknowledgeWarnings: boolean;
@@ -44,7 +47,8 @@ export const confirmImportHandler = async (req: Request, res: Response) => {
       sectionId,
       validationToken,
       acknowledgeWarnings ?? false,
-      req.user!.id
+      req.user!.id,
+      campusId
     );
 
     sendCreated(res, "Import complete", result);

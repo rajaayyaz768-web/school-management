@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client'
 import prisma from '../../config/database'
-import { StudentReportCard, SectionResultSummary, SubjectResultSummary } from './results.types'
+import { StudentReportCard, SectionResultSummary, SubjectResultSummary, ExamReportCard } from './results.types'
 import { assertStudentCampus, assertSectionCampus } from '../../utils/campusGuard'
 
 interface RequestUser { id: string; role: Role; campusId: string | null }
@@ -352,4 +352,160 @@ export const getTopStudents = async (
   return ranked
     .sort((a, b) => b.overallPercentage - a.overallPercentage)
     .slice(0, limit)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// getStudentExamReportCard — single exam type, one row per subject
+// ─────────────────────────────────────────────────────────────────────────────
+export const getStudentExamReportCard = async (
+  studentId: string,
+  examTypeId: string,
+  user?: RequestUser
+): Promise<ExamReportCard> => {
+  if (user) await assertStudentCampus(studentId, user)
+
+  const student = await prisma.studentProfile.findUnique({
+    where: { id: studentId },
+    include: {
+      section: {
+        include: {
+          grade: {
+            include: {
+              program: { include: { campus: true } },
+            },
+          },
+        },
+      },
+      campus: true,
+      parentLinks: {
+        where: { isPrimary: true },
+        include: { parent: { select: { firstName: true, lastName: true } } },
+        take: 1,
+      },
+    },
+  })
+
+  if (!student) {
+    const err = new Error('Student not found') as any
+    err.status = 404
+    throw err
+  }
+
+  const examType = await prisma.examType.findUnique({ where: { id: examTypeId } })
+  if (!examType) {
+    const err = new Error('Exam type not found') as any
+    err.status = 404
+    throw err
+  }
+
+  // Find all exams of this type in the student's section
+  const sectionId = student.sectionId
+  if (!sectionId) {
+    const err = new Error('Student has no section assigned') as any
+    err.status = 400
+    throw err
+  }
+
+  const exams = await prisma.exam.findMany({
+    where: { sectionId, examTypeId },
+    include: { subject: { select: { id: true, name: true, code: true } } },
+    orderBy: { date: 'asc' },
+  })
+
+  // Get results for this student in those exams
+  const examIds = exams.map((e) => e.id)
+  const results = await prisma.examResult.findMany({
+    where: { studentId, examId: { in: examIds } },
+    select: { examId: true, obtainedMarks: true, isAbsent: true },
+  })
+  const resultMap = new Map(results.map((r) => [r.examId, r]))
+
+  // Build subject rows
+  const subjects: ExamReportCard['subjects'] = exams.map((exam, i) => {
+    const result = resultMap.get(exam.id)
+    const obtained = result?.obtainedMarks ?? null
+    const absent = result?.isAbsent ?? false
+    let percentage: number | null = null
+    let grade: string | null = null
+    if (!absent && obtained !== null) {
+      const calc = calculateGrade(obtained, exam.totalMarks)
+      percentage = calc.percentage
+      grade = calc.grade
+    }
+    return {
+      sn: i + 1,
+      subjectId: exam.subjectId,
+      subjectName: exam.subject.name,
+      subjectCode: exam.subject.code,
+      maxMarks: exam.totalMarks,
+      obtainedMarks: absent ? null : obtained,
+      isAbsent: absent,
+      percentage,
+      grade,
+    }
+  })
+
+  // Totals
+  const totalMaxMarks = subjects.reduce((s, r) => s + r.maxMarks, 0)
+  const totalObtainedMarks = subjects.every((r) => r.obtainedMarks !== null)
+    ? subjects.reduce((s, r) => s + (r.obtainedMarks ?? 0), 0)
+    : null
+  let overallPercentage: number | null = null
+  let overallGrade: string | null = null
+  if (totalObtainedMarks !== null && totalMaxMarks > 0) {
+    const calc = calculateGrade(totalObtainedMarks, totalMaxMarks)
+    overallPercentage = calc.percentage
+    overallGrade = calc.grade
+  }
+
+  const parent = student.parentLinks[0]?.parent
+  const fatherName = parent ? `${parent.firstName} ${parent.lastName}` : null
+  const latestExamDate = exams.length > 0
+    ? (exams[exams.length - 1].date instanceof Date
+        ? exams[exams.length - 1].date.toISOString().split('T')[0]
+        : exams[exams.length - 1].date as unknown as string)
+    : null
+
+  return {
+    student: {
+      id: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      rollNumber: student.rollNumber ?? null,
+      fatherName,
+      photoUrl: student.photoUrl ?? null,
+      sectionName: student.section?.name ?? '—',
+      gradeName: student.section?.grade?.name ?? '—',
+      programName: student.section?.grade?.program?.name ?? '—',
+      campusName: student.campus?.name ?? student.section?.grade?.program?.campus?.name ?? '—',
+      campusType: student.section?.grade?.program?.campus?.campusType ?? 'COLLEGE',
+    },
+    examType: { id: examType.id, name: examType.name },
+    academicYear: (exams[0] as any)?.academicYear ?? new Date().getFullYear().toString(),
+    examDate: latestExamDate,
+    subjects,
+    totalMaxMarks,
+    totalObtainedMarks,
+    overallPercentage,
+    overallGrade,
+    generatedAt: new Date().toISOString(),
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// getSectionStudentList — list students in a section for report card selection
+// ─────────────────────────────────────────────────────────────────────────────
+export const getSectionStudentList = async (
+  sectionId: string,
+  user?: RequestUser
+): Promise<{ id: string; firstName: string; lastName: string; rollNumber: string | null }[]> => {
+  if (user) await assertSectionCampus(sectionId, user)
+
+  const students = await prisma.studentProfile.findMany({
+    where: { sectionId, status: 'ACTIVE' },
+    select: { id: true, firstName: true, lastName: true, rollNumber: true },
+    orderBy: { rollNumber: 'asc' },
+  })
+
+  return students
 }

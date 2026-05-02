@@ -5,6 +5,9 @@ import {
   fetchExamTypes,
   createExamType,
   fetchExams,
+  fetchExamSchedules,
+  createExamSchedule,
+  createClassTest,
   createExam,
   updateExam,
   deleteExam,
@@ -15,6 +18,8 @@ import {
   CreateExamInput,
   UpdateExamInput,
   BulkEnterResultsInput,
+  CreateExamScheduleInput,
+  CreateClassTestInput,
 } from '../types/exams.types'
 
 export const useExamTypes = (campusId?: string) => {
@@ -45,13 +50,52 @@ interface ExamFilters {
   subjectId?: string
   examTypeId?: string
   status?: string
+  isClassTest?: boolean
 }
 
-export const useExams = (filters?: ExamFilters) => {
+export const useExams = (filters?: ExamFilters, enabled = true) => {
   return useQuery({
     queryKey: ['exams', filters],
     queryFn: () => fetchExams(filters),
-    enabled: true,
+    enabled,
+  })
+}
+
+export const useExamSchedules = (campusId?: string) => {
+  return useQuery({
+    queryKey: ['exam-schedules', campusId],
+    queryFn: () => fetchExamSchedules(campusId),
+  })
+}
+
+export const useCreateExamSchedule = () => {
+  const queryClient = useQueryClient()
+  const toast = useToast()
+  return useMutation({
+    mutationFn: (data: CreateExamScheduleInput) => createExamSchedule(data),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['exams'] })
+      queryClient.invalidateQueries({ queryKey: ['exam-schedules'] })
+      toast.success(`Exam schedule created — ${result.examCount} exam(s) generated`)
+    },
+    onError: (error: unknown) => {
+      toast.error(extractApiError(error, 'Failed to create exam schedule'))
+    },
+  })
+}
+
+export const useCreateClassTest = () => {
+  const queryClient = useQueryClient()
+  const toast = useToast()
+  return useMutation({
+    mutationFn: (data: CreateClassTestInput) => createClassTest(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exams'] })
+      toast.success('Class test created successfully')
+    },
+    onError: (error: unknown) => {
+      toast.error(extractApiError(error, 'Failed to create class test'))
+    },
   })
 }
 

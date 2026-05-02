@@ -122,7 +122,7 @@ export interface FeeChalanData {
   section: { id: string; name: string } | null;
   grade: { id: string; name: string } | null;
   program: { id: string; name: string; code: string } | null;
-  campus: { id: string; name: string; code: string } | null;
+  campus: { id: string; name: string; code: string; campusType: 'COLLEGE' | 'PRIMARY_SCHOOL' } | null;
   feeStructure: {
     id: string;
     academicYear: string;

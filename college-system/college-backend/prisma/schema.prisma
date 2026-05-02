@@ -184,6 +184,7 @@ model User {
   auditLogs              AuditLog[]
   gradedResults          ExamResult[]        @relation("ResultGradedBy")
   supervisedExams        Exam[]              @relation("ExamSupervisor")
+  createdSchedules       ExamSchedule[]      @relation("ScheduleCreatedBy")
   googleDriveToken       GoogleDriveToken?
   promotionRuns              PromotionRun[]
   registeredDevices          RegisteredDevice[]
@@ -213,6 +214,7 @@ model Campus {
   staffAttendances StaffAttendance[]
   feeStructures    FeeStructure[]
   examTypes        ExamType[]
+  examSchedules    ExamSchedule[]
   announcements    Announcement[]
   academicYears    AcademicYear[]
   promotionRuns    PromotionRun[]
@@ -313,6 +315,7 @@ model StaffProfile {
   leaves               StaffLeave[]
   staffAttendances     StaffAttendance[]
   supervisedExams      Exam[]                  @relation("ExamSupervisorStaff")
+  createdExams         Exam[]                  @relation("ExamCreatedByStaff")
 
   @@map("staff_profiles")
 }
@@ -636,11 +639,33 @@ model ExamType {
   campusId  String   @map("campus_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  campus Campus @relation(fields: [campusId], references: [id])
-  exams  Exam[]
+  campus        Campus        @relation(fields: [campusId], references: [id])
+  exams         Exam[]
+  examSchedules ExamSchedule[]
 
   @@unique([name, campusId])
   @@map("exam_types")
+}
+
+// 21b. ExamSchedule — admin bulk-schedules one exam event across multiple sections/subjects
+model ExamSchedule {
+  id           String     @id @default(uuid())
+  examTypeId   String     @map("exam_type_id")
+  campusId     String     @map("campus_id")
+  academicYear String     @map("academic_year")
+  date         DateTime   @db.Date
+  startTime    String     @map("start_time")
+  status       ExamStatus @default(SCHEDULED)
+  createdById  String     @map("created_by_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  examType  ExamType @relation(fields: [examTypeId], references: [id])
+  campus    Campus   @relation(fields: [campusId], references: [id])
+  createdBy User     @relation("ScheduleCreatedBy", fields: [createdById], references: [id])
+  exams     Exam[]
+
+  @@map("exam_schedules")
 }
 
 // 22. Exam — scheduled exam for a section+subject
@@ -657,6 +682,9 @@ model Exam {
   status            ExamStatus @default(SCHEDULED)
   supervisorId      String?    @map("supervisor_id")
   supervisorStaffId String?    @map("supervisor_staff_id")
+  examScheduleId    String?    @map("exam_schedule_id")
+  isClassTest       Boolean    @default(false) @map("is_class_test")
+  createdByStaffId  String?    @map("created_by_staff_id")
   createdAt         DateTime   @default(now()) @map("created_at")
   updatedAt         DateTime   @updatedAt @map("updated_at")
 
@@ -665,6 +693,8 @@ model Exam {
   subject         Subject       @relation(fields: [subjectId], references: [id])
   supervisor      User?         @relation("ExamSupervisor", fields: [supervisorId], references: [id])
   supervisorStaff StaffProfile? @relation("ExamSupervisorStaff", fields: [supervisorStaffId], references: [id])
+  examSchedule    ExamSchedule? @relation(fields: [examScheduleId], references: [id])
+  createdByStaff  StaffProfile? @relation("ExamCreatedByStaff", fields: [createdByStaffId], references: [id])
   results         ExamResult[]
 
   @@map("exams")

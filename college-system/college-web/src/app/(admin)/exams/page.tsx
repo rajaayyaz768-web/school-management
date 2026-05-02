@@ -10,6 +10,7 @@ import { useCampuses } from '@/features/campus/hooks/useCampus'
 import { useExamTypes, useCreateExamType, useExams, useDeleteExam } from '@/features/exams/hooks/useExams'
 import { ExamTable } from '@/features/exams/components/ExamTable'
 import { ExamForm } from '@/features/exams/components/ExamForm'
+import { ExamScheduleForm } from '@/features/exams/components/ExamScheduleForm'
 import { ResultEntryTable } from '@/features/exams/components/ResultEntryTable'
 import { ExamSelectorCards } from '@/features/exams/components/ExamSelectorCards'
 import { Exam } from '@/features/exams/types/exams.types'
@@ -43,6 +44,7 @@ export default function ExamsPage() {
 
   // ── Modals ───────────────────────────────────────────────────
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false)
   const [editingExam, setEditingExam] = useState<Exam | undefined>()
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [selectedExamId, setSelectedExamId] = useState('')
@@ -77,6 +79,7 @@ export default function ExamsPage() {
     setSelectedExamId('')
   }
 
+  const handleOpenSchedule = () => setIsScheduleOpen(true)
   const handleOpenCreate = () => { setEditingExam(undefined); setIsFormOpen(true) }
   const handleEdit = (exam: Exam) => { setEditingExam(exam); setIsFormOpen(true) }
   const handleDeleteConfirm = () => {
@@ -118,9 +121,14 @@ export default function ExamsPage() {
         subtitle="Schedule exams, manage exam types, and enter student results"
         actions={
           activeTab === 'schedule' ? (
-            <Button onClick={handleOpenCreate} icon={<Plus className="w-4 h-4" />}>
-              Add Exam
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={handleOpenSchedule} icon={<CalendarDays className="w-4 h-4" />}>
+                Schedule Exam
+              </Button>
+              <Button onClick={handleOpenCreate} icon={<Plus className="w-4 h-4" />}>
+                Add Single Exam
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -336,6 +344,22 @@ export default function ExamsPage() {
           exam={editingExam}
           onSuccess={() => setIsFormOpen(false)}
           onCancel={() => setIsFormOpen(false)}
+        />
+      </Modal>
+
+      {/* Bulk Exam Schedule Modal */}
+      <Modal
+        isOpen={isScheduleOpen}
+        onClose={() => setIsScheduleOpen(false)}
+        title="Schedule Exam"
+        subtitle="Create exams for multiple sections and subjects at once"
+        size="lg"
+      >
+        <ExamScheduleForm
+          campusId={selectedCampusId ?? ''}
+          academicYear="2025-2026"
+          onSuccess={() => setIsScheduleOpen(false)}
+          onCancel={() => setIsScheduleOpen(false)}
         />
       </Modal>
 

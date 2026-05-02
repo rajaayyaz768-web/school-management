@@ -47,3 +47,31 @@ export const getTopStudents = async (req: Request, res: Response) => {
     return sendError(res, message, status)
   }
 }
+
+export const getStudentExamReportCard = async (req: Request, res: Response) => {
+  try {
+    const { studentId, examTypeId } = req.query as { studentId?: string; examTypeId?: string }
+    if (!studentId || !examTypeId) {
+      return sendError(res, 'studentId and examTypeId are required', 400)
+    }
+    const result = await service.getStudentExamReportCard(studentId, examTypeId, (req as any).user)
+    return sendSuccess(res, 'Exam report card fetched successfully', result)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Something went wrong'
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
+    return sendError(res, message, status)
+  }
+}
+
+export const getSectionStudentList = async (req: Request, res: Response) => {
+  try {
+    const { sectionId } = req.query as { sectionId?: string }
+    if (!sectionId) return sendError(res, 'sectionId is required', 400)
+    const result = await service.getSectionStudentList(sectionId, (req as any).user)
+    return sendSuccess(res, 'Students fetched successfully', result)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Something went wrong'
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
+    return sendError(res, message, status)
+  }
+}

@@ -46,12 +46,14 @@ export interface FeeRecordPage {
 export const fetchFeeRecords = async (
   campusId?: string,
   status?: string,
-  academicYear?: string
+  academicYear?: string,
+  sectionId?: string
 ): Promise<FeeRecordResponse[]> => {
   const params: Record<string, string> = {};
   if (campusId) params.campusId = campusId;
   if (status && status !== 'ALL') params.status = status;
   if (academicYear) params.academicYear = academicYear;
+  if (sectionId) params.sectionId = sectionId;
   const res = await axios.get('/fees/records', { params });
   const data = res.data.data;
   return Array.isArray(data) ? data : (data.records ?? []);
@@ -61,12 +63,14 @@ export const fetchFeeRecordsPage = async (
   campusId: string | undefined,
   status: string | undefined,
   academicYear: string | undefined,
-  page: number
+  page: number,
+  sectionId?: string
 ): Promise<FeeRecordPage> => {
   const params: Record<string, string> = { page: String(page), limit: '20' };
   if (campusId) params.campusId = campusId;
   if (status && status !== 'ALL') params.status = status;
   if (academicYear) params.academicYear = academicYear;
+  if (sectionId) params.sectionId = sectionId;
   const res = await axios.get('/fees/records', { params });
   return res.data.data;
 };
@@ -80,7 +84,7 @@ export const fetchStudentFeeRecords = async (
 
 export const generateFeeRecords = async (
   data: GenerateFeeRecordsInput
-): Promise<{ created: number }> => {
+): Promise<{ created: number; skipped: number }> => {
   const res = await axios.post('/fees/records/generate', data);
   return res.data.data;
 };

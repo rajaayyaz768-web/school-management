@@ -39,9 +39,9 @@ async function resolveUserByIdentifier(identifier: string): Promise<User | null>
     return parent?.user ?? null;
   }
 
-  // Roll number: stored uppercase (e.g. BOY-FSPM-1-A-001)
-  const student = await prisma.studentProfile.findUnique({
-    where: { rollNumber: trimmed.toUpperCase() },
+  // Roll number — case-insensitive so mixed-case legacy entries still work
+  const student = await prisma.studentProfile.findFirst({
+    where: { rollNumber: { equals: trimmed, mode: "insensitive" } },
     include: { user: true },
   });
   return student?.user ?? null;

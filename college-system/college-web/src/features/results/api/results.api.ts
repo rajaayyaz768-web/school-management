@@ -1,5 +1,5 @@
 import axios from '@/lib/axios'
-import { StudentReportCard, SectionResultSummary, TopStudent } from '../types/results.types'
+import { StudentReportCard, SectionResultSummary, TopStudent, ExamReportCard } from '../types/results.types'
 
 export const fetchStudentReportCard = async (
   studentId: string,
@@ -20,6 +20,21 @@ export const fetchSectionResults = async (filters: {
   if (filters.subjectId) params.subjectId = filters.subjectId
   if (filters.examId) params.examId = filters.examId
   const res = await axios.get('/results/section', { params })
+  return res.data.data
+}
+
+export const fetchExamReportCard = async (
+  studentId: string,
+  examTypeId: string
+): Promise<ExamReportCard> => {
+  const res = await axios.get('/results/exam-report-card', { params: { studentId, examTypeId } })
+  return res.data.data
+}
+
+export const fetchSectionStudentList = async (
+  sectionId: string
+): Promise<{ id: string; firstName: string; lastName: string; rollNumber: string | null }[]> => {
+  const res = await axios.get('/results/section-students', { params: { sectionId } })
   return res.data.data
 }
 

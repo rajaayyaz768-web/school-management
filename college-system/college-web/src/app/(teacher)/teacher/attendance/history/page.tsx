@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import axios from '@/lib/axios'
-import { CampusSelectorCards } from '@/components/shared/selection/CampusSelectorCards'
 import { SectionSelectorCards } from '@/components/shared/selection/SectionSelectorCards'
 import { SelectionContainer } from '@/components/shared/selection/SelectionContainer'
 import { Button } from '@/components/ui/Button'
@@ -19,9 +18,9 @@ import type {
   AttendanceStatus,
   SingleStudentAttendanceInput,
 } from '@/features/student-attendance/types/student-attendance.types'
-import type { CampusCardData, SectionCardData, SelectionState } from '@/components/shared/selection/types'
+import type { SectionCardData } from '@/components/shared/selection/types'
 
-type Step = 'campus' | 'section' | 'subject' | 'marking'
+type Step = 'section' | 'subject' | 'marking'
 
 interface SubjectOption {
   id: string
@@ -30,17 +29,9 @@ interface SubjectOption {
 }
 
 export default function TeacherAttendancePage() {
-  const [step, setStep] = useState<Step>('campus')
-  const [selection, setSelection] = useState<SelectionState>({
-    campusId: null,
-    campusName: null,
-    programId: null,
-    programName: null,
-    gradeId: null,
-    gradeName: null,
-    sectionId: null,
-    sectionName: null,
-  })
+  const [step, setStep] = useState<Step>('section')
+  const [sectionId, setSectionId] = useState<string | null>(null)
+  const [sectionName, setSectionName] = useState<string | null>(null)
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null)
   const [selectedSubjectName, setSelectedSubjectName] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0])
@@ -49,32 +40,32 @@ export default function TeacherAttendancePage() {
   const [pendingAttendances, setPendingAttendances] = useState<Record<string, SingleStudentAttendanceInput>>({})
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
 
-  const isMarkingReady = !!selection.sectionId && !!selectedSubjectId && !!selectedDate
+  const isMarkingReady = !!sectionId && !!selectedSubjectId && !!selectedDate
 
   const { data: studentList, isLoading: studentsLoading } = useStudentsForAttendance(
-    selection.sectionId ?? '',
+    sectionId ?? '',
     selectedSubjectId ?? '',
     selectedDate
   )
 
   const { data: report, isLoading: reportLoading } = useSectionAttendanceReport(
-    selection.sectionId ?? '',
+    sectionId ?? '',
     selectedSubjectId ?? '',
     selectedDate
   )
 
   const { mutate: submitAttendance, isPending } = useMarkStudentAttendance()
 
-  // Load subjects when a section is selected
+  // Load only teacher's assigned subjects for the selected section
   useEffect(() => {
-    if (!selection.sectionId) return
-    const sectionId = selection.sectionId
+    if (!sectionId) return
+    const id = sectionId
     let cancelled = false
 
     async function load() {
       try {
         setSubjectsLoading(true)
-        const res = await axios.get('/subjects/assignments', { params: { section_id: sectionId } })
+        const res = await axios.get('/subjects/assignments', { params: { section_id: id } })
         if (cancelled) return
         const assignments: { subject: SubjectOption }[] = res.data.data ?? []
         setSubjects(assignments.map((a) => ({ id: a.subject.id, name: a.subject.name, code: a.subject.code })))
@@ -87,21 +78,11 @@ export default function TeacherAttendancePage() {
 
     load()
     return () => { cancelled = true }
-  }, [selection.sectionId])
-
-  const handleCampusSelect = (campus: CampusCardData) => {
-    setSelection((prev) => ({ ...prev, campusId: campus.id, campusName: campus.name }))
-    setStep('section')
-  }
+  }, [sectionId])
 
   const handleSectionSelect = (section: SectionCardData) => {
-    setSelection((prev) => ({
-      ...prev,
-      sectionId: section.id,
-      sectionName: section.name,
-      programName: section.programName,
-      gradeName: section.gradeName,
-    }))
+    setSectionId(section.id)
+    setSectionName(section.name)
     setSubjects([])
     setSelectedSubjectId(null)
     setSelectedSubjectName(null)
@@ -116,27 +97,21 @@ export default function TeacherAttendancePage() {
     setStep('marking')
   }
 
-  const handleNavigate = (target: 'campus' | 'program' | 'grade' | 'section') => {
-    if (target === 'campus') {
-      setSelection({
-        campusId: null, campusName: null,
-        programId: null, programName: null,
-        gradeId: null, gradeName: null,
-        sectionId: null, sectionName: null,
-      })
-      setSelectedSubjectId(null)
-      setSelectedSubjectName(null)
-      setSubjects([])
-      setPendingAttendances({})
-      setStep('campus')
-    } else if (target === 'section') {
-      setSelection((prev) => ({ ...prev, sectionId: null, sectionName: null }))
-      setSelectedSubjectId(null)
-      setSelectedSubjectName(null)
-      setSubjects([])
-      setPendingAttendances({})
-      setStep('section')
-    }
+  const handleBackToSection = () => {
+    setSectionId(null)
+    setSectionName(null)
+    setSubjects([])
+    setSelectedSubjectId(null)
+    setSelectedSubjectName(null)
+    setPendingAttendances({})
+    setStep('section')
+  }
+
+  const handleBackToSubject = () => {
+    setSelectedSubjectId(null)
+    setSelectedSubjectName(null)
+    setPendingAttendances({})
+    setStep('subject')
   }
 
   const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
@@ -151,10 +126,10 @@ export default function TeacherAttendancePage() {
   }
 
   const handleConfirmSubmit = () => {
-    if (!selection.sectionId || !selectedSubjectId) return
+    if (!sectionId || !selectedSubjectId) return
     submitAttendance(
       {
-        sectionId: selection.sectionId,
+        sectionId,
         subjectId: selectedSubjectId,
         date: selectedDate,
         attendances:
@@ -173,33 +148,26 @@ export default function TeacherAttendancePage() {
     )
   }
 
-  const breadcrumbState: Partial<SelectionState> = {
-    campusName: selection.campusName,
-    sectionName: selection.sectionName,
-    ...(selectedSubjectName ? { gradeName: selectedSubjectName } : {}),
-  }
-
   return (
     <SelectionContainer
       title="Student Attendance"
       subtitle="Mark daily attendance for your assigned sections"
-      breadcrumbState={step === 'marking' ? breadcrumbState : undefined}
-      onBreadcrumbNavigate={handleNavigate}
     >
-      {step === 'campus' && (
-        <CampusSelectorCards onSelect={handleCampusSelect} selectedId={selection.campusId} />
-      )}
-
-      {step === 'section' && selection.campusId && (
+      {step === 'section' && (
         <SectionSelectorCards
-          campusId={selection.campusId}
           onSelect={handleSectionSelect}
-          selectedId={selection.sectionId}
+          selectedId={sectionId}
+          emptyDescription="You have no sections assigned yet. Contact your administrator."
         />
       )}
 
       {step === 'subject' && (
         <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={handleBackToSection}>← Sections</Button>
+            <span className="text-sm font-medium text-[var(--text)]">{sectionName}</span>
+          </div>
+
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">
               Select Subject
@@ -245,7 +213,7 @@ export default function TeacherAttendancePage() {
       {step === 'marking' && isMarkingReady && (
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-2">
-            <Button variant="ghost" size="sm" onClick={() => setStep('subject')}>
+            <Button variant="ghost" size="sm" onClick={handleBackToSubject}>
               ← Change selection
             </Button>
             <div className="flex items-center gap-3">
@@ -262,6 +230,18 @@ export default function TeacherAttendancePage() {
                 Save Attendance
               </Button>
             </div>
+          </div>
+
+          <div className="flex items-center gap-3 text-sm text-[var(--text-muted)]">
+            <button onClick={handleBackToSection} className="hover:text-[var(--primary)] transition-colors">
+              Sections
+            </button>
+            <span>›</span>
+            <button onClick={handleBackToSubject} className="hover:text-[var(--primary)] transition-colors">
+              {sectionName}
+            </button>
+            <span>›</span>
+            <span className="font-medium text-[var(--text)]">{selectedSubjectName}</span>
           </div>
 
           <AttendanceReportCard

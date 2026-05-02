@@ -218,7 +218,7 @@ export const generateFeeRecordsForSection = async (
   feeStructureId: string,
   sectionId: string,
   user?: RequestUser
-): Promise<{ created: number }> => {
+): Promise<{ created: number; skipped: number }> => {
   if (user) await assertSectionCampus(sectionId, user)
   const feeStructure = await prisma.feeStructure.findUnique({ where: { id: feeStructureId } })
   if (!feeStructure) {
@@ -232,12 +232,33 @@ export const generateFeeRecordsForSection = async (
     select: { id: true },
   })
 
+  if (students.length === 0) return { created: 0, skipped: 0 }
+
+  // Prevent duplicate generation: skip students who already have a fee record
+  // for this structure created within the last 30 days.
+  const now = new Date()
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+
+  const existing = await prisma.feeRecord.findMany({
+    where: {
+      studentId: { in: students.map((s) => s.id) },
+      feeStructureId,
+      createdAt: { gte: thirtyDaysAgo },
+    },
+    select: { studentId: true },
+  })
+
+  const alreadyGenerated = new Set(existing.map((r) => r.studentId))
+  const newStudents = students.filter((s) => !alreadyGenerated.has(s.id))
+
+  if (newStudents.length === 0) return { created: 0, skipped: students.length }
+
   const result = await prisma.feeRecord.createMany({
-    data: students.map((s) => ({
+    data: newStudents.map((s) => ({
       studentId: s.id,
       feeStructureId,
       academicYear: feeStructure.academicYear,
-      dueDate: new Date(),
+      dueDate: now,
       amountDue: feeStructure.totalFee,
       amountPaid: 0,
       discount: 0,
@@ -246,7 +267,7 @@ export const generateFeeRecordsForSection = async (
     skipDuplicates: true,
   })
 
-  return { created: result.count }
+  return { created: result.count, skipped: alreadyGenerated.size }
 }
 
 export const getStudentFeeRecords = async (studentId: string, user?: RequestUser): Promise<FeeRecordResponse[]> => {
@@ -263,6 +284,7 @@ export const getStudentFeeRecords = async (studentId: string, user?: RequestUser
 
 export const getAllFeeRecords = async (filters: {
   campusId?: string
+  sectionId?: string
   status?: FeeStatus
   academicYear?: string
   page?: number
@@ -271,7 +293,12 @@ export const getAllFeeRecords = async (filters: {
   const where: any = {}
   if (filters.academicYear) where.academicYear = filters.academicYear
   if (filters.status) where.status = filters.status
-  if (filters.campusId) where.student = { campusId: filters.campusId }
+  if (filters.campusId || filters.sectionId) {
+    where.student = {
+      ...(filters.campusId ? { campusId: filters.campusId } : {}),
+      ...(filters.sectionId ? { sectionId: filters.sectionId } : {}),
+    }
+  }
 
   const page = Math.max(1, filters.page ?? 1)
   const limit = Math.min(200, Math.max(1, filters.limit ?? 50))
@@ -428,7 +455,7 @@ export const getFeeRecordChalan = async (id: string, user?: RequestUser) => {
                       id: true,
                       name: true,
                       code: true,
-                      campus: { select: { id: true, name: true, code: true } },
+                      campus: { select: { id: true, name: true, code: true, campusType: true } },
                     },
                   },
                 },
@@ -457,7 +484,7 @@ export const getFeeRecordChalan = async (id: string, user?: RequestUser) => {
           miscFee: true,
           program: { select: { id: true, name: true, code: true } },
           grade: { select: { id: true, name: true } },
-          campus: { select: { id: true, name: true, code: true } },
+          campus: { select: { id: true, name: true, code: true, campusType: true } },
         },
       },
     },

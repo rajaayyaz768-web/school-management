@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { connectSocket, disconnectSocket } from "@/lib/socket";
 import Cookies from "js-cookie";
+import { queryClient } from "@/lib/queryClient";
 
 export type UserRole =
   | "SUPER_ADMIN"
@@ -58,6 +59,7 @@ export const useAuthStore = create<AuthState>()(
         Cookies.remove("access-token");
         Cookies.remove("user-role");
         disconnectSocket();
+        queryClient.clear();
         set({
           user: null,
           accessToken: null,

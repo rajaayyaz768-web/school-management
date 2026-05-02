@@ -85,3 +85,35 @@ export function requireOwnCampus(user: GuardUser, targetCampusId: string): void 
   if (user.role === Role.SUPER_ADMIN) return;
   if (targetCampusId !== user.campusId) throw new CampusScopeError();
 }
+
+/**
+ * Assert that a TEACHER is assigned to the given subject in the given section.
+ * SUPER_ADMIN and ADMIN always pass (they have full access).
+ * Throws 403 if the teacher has no SectionSubjectTeacher record for this pair.
+ */
+export async function assertTeacherSubjectAccess(
+  sectionId: string,
+  subjectId: string,
+  user: GuardUser
+): Promise<void> {
+  if (user.role === Role.SUPER_ADMIN || user.role === Role.ADMIN) return;
+  if (user.role !== Role.TEACHER) return;
+
+  const staff = await prisma.staffProfile.findUnique({
+    where: { userId: user.id },
+    select: { id: true },
+  });
+
+  if (!staff) throw new CampusScopeError("Teacher profile not found");
+
+  const assignment = await prisma.sectionSubjectTeacher.findFirst({
+    where: { sectionId, subjectId, staffId: staff.id },
+    select: { id: true },
+  });
+
+  if (!assignment) {
+    throw new CampusScopeError(
+      "Access denied: you are not assigned to this subject in this section"
+    );
+  }
+}

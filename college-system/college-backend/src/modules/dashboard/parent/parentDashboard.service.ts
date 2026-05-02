@@ -2,11 +2,9 @@ import prisma from '../../../config/database'
 import { FeeStatus } from '@prisma/client'
 
 function getDateRange(daysBack: number) {
-  const end = new Date()
-  const start = new Date()
-  start.setDate(start.getDate() - daysBack)
-  start.setHours(0, 0, 0, 0)
-  return { start, end }
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' })
+  const start = new Date(new Date(todayStr + 'T00:00:00.000Z').getTime() - daysBack * 24 * 60 * 60 * 1000)
+  return { start }
 }
 
 function computeGrade(obtained: number, total: number): string {
@@ -204,11 +202,12 @@ export async function getParentDashboardData(userId: string, studentId?: string)
   const totalDays = dayStatuses.length
   const attendancePct = totalDays > 0 ? Math.round(((presentDays + lateDays) / totalDays) * 100) : 0
 
-  // 7-day strip
+  // 7-day strip — use PKT date for "today" so keys match stored attendance dates
+  const todayPKTStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' })
+  const todayPKT = new Date(todayPKTStr + 'T00:00:00.000Z')
   const sevenDayStrip: { date: string; status: string | null }[] = []
   for (let i = 6; i >= 0; i--) {
-    const d = new Date()
-    d.setDate(d.getDate() - i)
+    const d = new Date(todayPKT.getTime() - i * 24 * 60 * 60 * 1000)
     const key = d.toISOString().split('T')[0]
     const status = dayMap.has(key) ? dayMap.get(key)! : null
     sevenDayStrip.push({ date: key, status })

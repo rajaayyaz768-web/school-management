@@ -1,6 +1,6 @@
 import { AttendanceStatus, Role } from '@prisma/client'
 import prisma from '../../config/database'
-import { assertSectionCampus, assertStudentCampus } from '../../utils/campusGuard'
+import { assertSectionCampus, assertStudentCampus, assertTeacherSubjectAccess } from '../../utils/campusGuard'
 import {
   MarkStudentAttendanceDto,
   UpdateStudentAttendanceDto,
@@ -106,6 +106,7 @@ export const getStudentsForAttendance = async (sectionId: string, subjectId: str
 export const markStudentAttendance = async (data: MarkStudentAttendanceDto, markedById: string, user?: RequestUser): Promise<SectionAttendanceReport> => {
   if (user) {
     await assertSectionCampus(data.sectionId, user)
+    await assertTeacherSubjectAccess(data.sectionId, data.subjectId, user)
     await Promise.all(data.attendances.map((item) => assertStudentCampus(item.studentId, user)))
   }
   await Promise.all(data.attendances.map((item) => prisma.studentAttendance.upsert({

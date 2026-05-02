@@ -62,6 +62,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(ROLE_DASHBOARD[userRole] || "/", request.url));
   }
 
+  // Shared routes that live outside /admin but belong to admin/principal only
+  const ADMIN_ONLY_PATHS = ["/exams", "/results", "/fees", "/attendance", "/announcements", "/reports"];
+  if (
+    ADMIN_ONLY_PATHS.some((p) => pathname.startsWith(p)) &&
+    !["SUPER_ADMIN", "ADMIN"].includes(userRole)
+  ) {
+    return NextResponse.redirect(new URL(ROLE_DASHBOARD[userRole] || "/", request.url));
+  }
+
   return NextResponse.next();
 }
 
