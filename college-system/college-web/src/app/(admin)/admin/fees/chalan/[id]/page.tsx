@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { Printer, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -149,12 +148,98 @@ export default function FeeChalanPage() {
   const id = params.id as string
   const { data, isLoading, error } = useFeeChalanData(id)
 
-  useEffect(() => {
-    if (data) {
-      const timer = setTimeout(() => window.print(), 500)
-      return () => clearTimeout(timer)
+  function handlePrint() {
+    const el = document.getElementById('challan-print-area')
+    if (!el) return
+
+    const clone = el.cloneNode(true) as HTMLElement
+    clone.removeAttribute('id')
+
+    const printRoot = document.createElement('div')
+    printRoot.id = 'print-root'
+    printRoot.appendChild(clone)
+
+    const style = document.createElement('style')
+    style.id = 'challan-page-print'
+    style.textContent = `
+      @media print {
+        @page { size: A4 landscape; margin: 6mm; }
+
+        body > *:not(#print-root) {
+          display: none !important;
+          visibility: hidden !important;
+          height: 0 !important;
+          overflow: hidden !important;
+        }
+
+        html, body {
+          background: #fff !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
+          height: auto !important;
+        }
+
+        #print-root {
+          display: block !important;
+          visibility: visible !important;
+          position: static !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
+          background: #fff !important;
+        }
+
+        #print-root > div {
+          display: flex !important;
+          flex-direction: row !important;
+          gap: 0 !important;
+          width: 285mm !important;
+          height: 198mm !important;
+          max-height: 198mm !important;
+          align-items: stretch !important;
+          box-sizing: border-box !important;
+          background: #fff !important;
+          overflow: hidden !important;
+        }
+
+        #print-root > div > div {
+          flex: 1 !important;
+          min-width: 0 !important;
+          max-height: 198mm !important;
+          overflow: hidden !important;
+          border-right: 1px solid #ccc !important;
+          box-sizing: border-box !important;
+        }
+
+        #print-root > div > div:last-child {
+          border-right: none !important;
+        }
+
+        #print-root, #print-root * {
+          visibility: visible !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+      }
+    `
+
+    document.head.appendChild(style)
+    document.body.appendChild(printRoot)
+
+    const cleanup = () => {
+      printRoot.remove()
+      style.remove()
+      window.onafterprint = null
     }
-  }, [data])
+
+    window.onafterprint = cleanup
+
+    requestAnimationFrame(() => {
+      setTimeout(() => window.print(), 150)
+    })
+  }
 
   if (isLoading) {
     return (
@@ -177,7 +262,7 @@ export default function FeeChalanPage() {
   }
 
   return (
-    <>
+    <div>
       {/* Screen toolbar */}
       <div className="print:hidden p-6 flex items-center justify-between border-b border-[var(--border)]">
         <Link href="/fees" className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">
@@ -185,7 +270,7 @@ export default function FeeChalanPage() {
           Back to Fees
         </Link>
         <button
-          onClick={() => window.print()}
+          onClick={handlePrint}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
         >
           <Printer className="w-4 h-4" />
@@ -194,29 +279,13 @@ export default function FeeChalanPage() {
       </div>
 
       {/* Challan — landscape 3-column */}
-      <div className="p-6 print:p-0 bg-gray-100 print:bg-white min-h-screen">
-        <div id="challan-print-area" className="flex flex-row bg-white max-w-5xl mx-auto shadow print:shadow-none print:max-w-none divide-x divide-gray-300">
+      <div className="p-6 bg-gray-100 min-h-screen">
+        <div id="challan-print-area" className="flex flex-row bg-white max-w-5xl mx-auto shadow divide-x divide-gray-300">
           <ChalanStub data={data} copyLabel="Bank Copy" />
           <ChalanStub data={data} copyLabel="School Copy" />
           <ChalanStub data={data} copyLabel="Student Copy" />
         </div>
       </div>
-
-      <style>{`
-        @media print {
-          @page { size: A4 landscape; margin: 6mm; }
-          body * { visibility: hidden !important; }
-          #challan-print-area, #challan-print-area * { visibility: visible !important; }
-          #challan-print-area {
-            position: fixed; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            display: flex !important;
-            flex-direction: row;
-            box-shadow: none !important;
-            max-width: 100vw !important;
-          }
-        }
-      `}</style>
-    </>
+    </div>
   )
 }

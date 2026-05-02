@@ -21,22 +21,93 @@ const chipActive = 'bg-[var(--primary)] text-white border-[var(--primary)]'
 const chipInactive = 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] hover:border-[var(--primary)]'
 
 function handlePrintReportCard() {
+  const el = document.getElementById('exam-report-card')
+  if (!el) return
+
+  // Clone the report card and place it as a direct child of body
+  const clone = el.cloneNode(true) as HTMLElement
+  clone.removeAttribute('id')
+
+  const printRoot = document.createElement('div')
+  printRoot.id = 'print-root'
+  printRoot.appendChild(clone)
+
+  // Inject ALL print CSS directly — fully self-contained
   const style = document.createElement('style')
   style.id = 'report-card-print'
   style.textContent = `
     @media print {
       @page { size: A4 portrait; margin: 0; }
-      body * { visibility: hidden !important; }
-      #exam-report-card, #exam-report-card * { visibility: visible !important; }
-      #exam-report-card { position: fixed; top: 0; left: 0; width: 100vw; }
+
+      /* Hide EVERYTHING in body except our print root */
+      body > *:not(#print-root) {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+      }
+
+      /* Also kill any fixed/absolute overlays (modals, backdrops) */
+      [class*="fixed"], [class*="backdrop"], [class*="modal"],
+      [style*="position: fixed"], [style*="position:fixed"] {
+        display: none !important;
+      }
+
+      html, body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        height: auto !important;
+      }
+
+      #print-root {
+        display: block !important;
+        visibility: visible !important;
+        position: static !important;
+        width: 210mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: #fff !important;
+      }
+
+      #print-root > div {
+        width: 210mm !important;
+        min-height: auto !important;
+        max-height: 297mm !important;
+        padding: 6mm 8mm !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        background: #fff !important;
+        overflow: hidden !important;
+        position: relative !important;
+      }
+
+      #print-root, #print-root * {
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
     }
   `
+
   document.head.appendChild(style)
-  window.onafterprint = () => {
-    document.getElementById('report-card-print')?.remove()
+  document.body.appendChild(printRoot)
+
+  const cleanup = () => {
+    printRoot.remove()
+    style.remove()
     window.onafterprint = null
   }
-  window.print()
+
+  window.onafterprint = cleanup
+
+  // Let the browser render the clone before triggering print
+  requestAnimationFrame(() => {
+    setTimeout(() => window.print(), 150)
+  })
 }
 
 export default function AdminResultsPage() {

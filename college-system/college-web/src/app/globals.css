@@ -949,3 +949,20 @@ main.noise-overlay {
   transform: rotateY(360deg);
 }
 
+/* ─── PRINT STYLES ───────────────────────────────── */
+@media print {
+  /* Force white background and disable animations */
+  html, body {
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  ::-webkit-scrollbar { display: none !important; }
+}
+

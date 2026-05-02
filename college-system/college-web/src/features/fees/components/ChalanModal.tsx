@@ -381,39 +381,101 @@ function ChalanStub({ data, copyLabel }: { data: FeeChalanData; copyLabel: strin
 
 // ── Print handler ─────────────────────────────────────────────────────────────
 function handleDownloadPDF() {
+  const el = document.getElementById('challan-print-area')
+  if (!el) return
+
+  const clone = el.cloneNode(true) as HTMLElement
+  clone.removeAttribute('id')
+
+  const printRoot = document.createElement('div')
+  printRoot.id = 'print-root'
+  printRoot.appendChild(clone)
+
   const style = document.createElement('style')
   style.id = 'challan-print-override'
-  // A4 landscape: 297mm × 210mm. With 6mm margins: usable 285mm × 198mm.
-  // Each stub ≈ (285 - 8) / 3 = 92.3mm wide (two 4mm gaps).
   style.textContent = `
     @media print {
-      @page { size: A4 landscape; margin: 0; }
-      body * { visibility: hidden !important; }
-      #challan-print-area, #challan-print-area * {
+      @page { size: A4 landscape; margin: 6mm; }
+
+      body > *:not(#print-root) {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+      }
+
+      [class*="fixed"], [class*="backdrop"], [class*="modal"],
+      [style*="position: fixed"], [style*="position:fixed"] {
+        display: none !important;
+      }
+
+      html, body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        height: auto !important;
+      }
+
+      #print-root {
+        display: block !important;
+        visibility: visible !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: #fff !important;
+      }
+
+      #print-root > div {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 0 !important;
+        width: 285mm !important;
+        height: 198mm !important;
+        max-height: 198mm !important;
+        align-items: stretch !important;
+        box-sizing: border-box !important;
+        background: #fff !important;
+        overflow: hidden !important;
+      }
+
+      #print-root > div > div {
+        flex: 1 !important;
+        min-width: 0 !important;
+        max-height: 198mm !important;
+        overflow: hidden !important;
+        border-right: 1px solid #ccc !important;
+        box-sizing: border-box !important;
+      }
+
+      #print-root > div > div:last-child {
+        border-right: none !important;
+      }
+
+      #print-root, #print-root * {
         visibility: visible !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
       }
-      #challan-print-area {
-        position: fixed;
-        top: 6mm; left: 6mm;
-        width: 285mm;
-        height: 198mm;
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 4mm;
-        align-items: stretch;
-        box-sizing: border-box;
-      }
     }
   `
+
   document.head.appendChild(style)
-  window.onafterprint = () => {
-    document.getElementById('challan-print-override')?.remove()
+  document.body.appendChild(printRoot)
+
+  const cleanup = () => {
+    printRoot.remove()
+    style.remove()
     window.onafterprint = null
   }
-  window.print()
+
+  window.onafterprint = cleanup
+
+  requestAnimationFrame(() => {
+    setTimeout(() => window.print(), 150)
+  })
 }
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
