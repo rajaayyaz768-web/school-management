@@ -31,7 +31,7 @@ export function SectionSelectorCards({ campusId, onSelect, selectedId, emptyDesc
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[0, 1, 2].map((i) => <Skeleton key={i} variant="card" />)}
         </div>
       </div>
@@ -63,7 +63,7 @@ export function SectionSelectorCards({ campusId, onSelect, selectedId, emptyDesc
           <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">
             {program}
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {groupSections.map((sec) => {
               const fillPct = sec.capacity > 0
                 ? Math.min((sec.studentCount / sec.capacity) * 100, 100)
@@ -74,15 +74,15 @@ export function SectionSelectorCards({ campusId, onSelect, selectedId, emptyDesc
                   key={sec.id}
                   onClick={() => onSelect(sec)}
                   className={cn(
-                    'text-left rounded-[var(--radius-card)] border-2 p-5 transition-all duration-[var(--transition-base)]',
+                    'text-left rounded-[var(--radius-card)] border-2 p-3 sm:p-5 transition-all duration-[var(--transition-base)]',
                     'bg-[var(--surface)] hover:border-[var(--primary)] hover:bg-[var(--surface-hover)]',
                     selectedId === sec.id
                       ? 'border-[var(--primary)] bg-[var(--surface-hover)]'
                       : 'border-[var(--border)]'
                   )}
                 >
-                  <p className="text-xl font-bold text-[var(--text)] mb-1">{sec.name}</p>
-                  <p className="text-xs text-[var(--text-muted)] mb-3">
+                  <p className="text-sm sm:text-xl font-bold text-[var(--text)] mb-1">{sec.name}</p>
+                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] mb-2 sm:mb-3">
                     {[sec.programCode, sec.gradeName].filter(Boolean).join(' · ')}
                   </p>
                   <div className="w-full h-1.5 rounded-full bg-[var(--border)] overflow-hidden mb-1">

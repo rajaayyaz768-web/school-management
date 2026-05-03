@@ -51,7 +51,7 @@ export function PrincipalStudentsPage() {
 
   if (step === 'campus') {
     return (
-      <div className="flex flex-col gap-6 p-8">
+      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-8">
         <PageHeader
           title="Students Management"
           subtitle="Select a campus to browse students"
@@ -68,7 +68,7 @@ export function PrincipalStudentsPage() {
 
   if (step === 'section' && selectedCampusId) {
     return (
-      <div className="flex flex-col gap-6 p-8">
+      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-8">
         <PageHeader
           title="Students Management"
           subtitle="Select a section or view all students in this campus"

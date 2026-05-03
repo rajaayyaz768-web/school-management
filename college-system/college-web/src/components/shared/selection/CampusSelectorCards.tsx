@@ -41,7 +41,7 @@ export function CampusSelectorCards({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {[0, 1, 2].map((i) => <Skeleton key={i} variant="card" />)}
       </div>
     )
@@ -54,17 +54,17 @@ export function CampusSelectorCards({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {showAllOption && (
         <button
           onClick={onSelectAll}
           className={cn(
-            'text-left rounded-[var(--radius-card)] border-2 p-6 transition-all duration-[var(--transition-base)]',
+            'text-left rounded-[var(--radius-card)] border-2 p-4 sm:p-6 transition-all duration-[var(--transition-base)]',
             'bg-[var(--surface)] border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--surface-hover)]'
           )}
         >
-          <p className="text-lg font-semibold text-[var(--text)]">All Campuses</p>
-          <p className="text-sm text-[var(--text-muted)] mt-1">View data across all campuses</p>
+          <p className="text-sm sm:text-lg font-semibold text-[var(--text)]">All Campuses</p>
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1">View data across all campuses</p>
         </button>
       )}
 
@@ -82,18 +82,18 @@ export function CampusSelectorCards({
             })
           }
           className={cn(
-            'text-left rounded-[var(--radius-card)] border-2 p-6 transition-all duration-[var(--transition-base)]',
+            'text-left rounded-[var(--radius-card)] border-2 p-4 sm:p-6 transition-all duration-[var(--transition-base)]',
             'bg-[var(--surface)] hover:border-[var(--primary)] hover:bg-[var(--surface-hover)]',
             selectedId === campus.id
               ? 'border-[var(--primary)] bg-[var(--surface-hover)]'
               : 'border-[var(--border)]'
           )}
         >
-          <div className="flex items-start justify-between mb-3">
-            <p className="text-lg font-semibold text-[var(--text)] leading-tight">{campus.name}</p>
-            <Badge variant="info">{campus.campus_code}</Badge>
+          <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
+            <p className="text-sm sm:text-lg font-semibold text-[var(--text)] leading-tight">{campus.name}</p>
+            <Badge variant="info" className="text-[10px] shrink-0 mt-0.5">{campus.campus_code}</Badge>
           </div>
-          <div className="flex gap-4 text-sm text-[var(--text-muted)]">
+          <div className="flex gap-3 text-xs sm:text-sm text-[var(--text-muted)]">
             <span>{campus.student_count ?? 0} students</span>
             <span>{campus.staff_count ?? 0} staff</span>
           </div>

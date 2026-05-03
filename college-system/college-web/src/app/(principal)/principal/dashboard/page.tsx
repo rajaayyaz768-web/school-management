@@ -36,14 +36,14 @@ function StatCard({ title, value, sub, icon, accent = 'default', delay = 0 }: {
   const a = ACCENT[accent]
   return (
     <motion.div {...fadeUp(delay)}
-      className={`flex items-start gap-3 rounded-[var(--radius-lg)] border p-4 ${a.card}`}>
-      <div className={`w-9 h-9 rounded-[var(--radius-sm)] flex items-center justify-center shrink-0 mt-0.5 ${a.icon}`}>
-        {icon}
+      className={`flex items-start gap-2 sm:gap-3 rounded-[var(--radius-lg)] border p-3 sm:p-4 ${a.card}`}>
+      <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-[var(--radius-sm)] flex items-center justify-center shrink-0 mt-0.5 ${a.icon}`}>
+        <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4">{icon}</span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="label-xs truncate">{title}</p>
-        <p className={`text-[1.55rem] font-bold leading-tight mt-1 tracking-tight truncate ${a.val}`}>{value}</p>
-        {sub && <p className="text-[10px] text-[var(--text-muted)] mt-0.5 truncate">{sub}</p>}
+        <p className="label-xs truncate text-[9px] sm:text-[10px] leading-tight">{title}</p>
+        <p className={`text-base sm:text-[1.55rem] font-bold leading-tight mt-0.5 tracking-tight truncate ${a.val}`}>{value}</p>
+        {sub && <p className="text-[9px] sm:text-[10px] text-[var(--text-muted)] mt-0.5 truncate">{sub}</p>}
       </div>
     </motion.div>
   )
@@ -116,7 +116,7 @@ export default function PrincipalDashboardPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-3.5rem)] gap-5 p-5 xl:p-6 bg-[var(--bg)]">
+    <div className="flex flex-col min-h-[calc(100vh-3.5rem)] gap-3 sm:gap-5 bg-[var(--bg)]">
 
       {/* Header */}
       <motion.div {...fadeUp(0)}>
@@ -136,13 +136,13 @@ export default function PrincipalDashboardPage() {
 
       {/* ── KPI Stats row ────────────────────────────────────────────────── */}
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-[90px] rounded-[var(--radius-lg)]" />
+            <Skeleton key={i} className="h-[72px] sm:h-[90px] rounded-[var(--radius-lg)]" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-3">
           <StatCard delay={0.05} title="Total Students" value={(stats?.totalStudents ?? 0).toLocaleString()}
             icon={<GraduationCap className="w-4 h-4" />} />
           <StatCard delay={0.08} title="Total Staff"    value={stats?.totalStaff ?? 0}
@@ -164,7 +164,7 @@ export default function PrincipalDashboardPage() {
       {breakdown.length > 1 && (
         <div>
           <SectionLabel>Campus Overview — click to drill in</SectionLabel>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3">
             {breakdown.map((c, i) => (
               <motion.div key={c.campusId} {...fadeUp(0.05 + i * 0.05)}>
                 <CampusSummaryCard campus={c} />

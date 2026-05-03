@@ -29,8 +29,8 @@ async function getCampusSnapshot(campusId: string, campusName: string) {
     prisma.studentProfile.count({ where: { status: 'ACTIVE', section: { grade: { program: { campusId } } } } }),
     prisma.staffCampusAssignment.count({ where: { campusId, removedAt: null } }),
     prisma.section.count({ where: { grade: { program: { campusId } } } }),
-    prisma.staffAttendance.groupBy({ by: ['status'], where: { campusId, date: { gte: todayStart, lt: todayEnd } }, _count: { status: true } }),
-    prisma.staffAttendance.count({ where: { campusId, date: { gte: todayStart, lt: todayEnd }, status: StaffAttendanceStatus.ABSENT } }),
+    prisma.staffAttendance.groupBy({ by: ['status'], where: { campusId, date: { gte: todayStart, lte: todayEnd } }, _count: { status: true } }),
+    prisma.staffAttendance.count({ where: { campusId, date: { gte: todayStart, lte: todayEnd }, status: StaffAttendanceStatus.ABSENT } }),
     prisma.feeRecord.aggregate({ _sum: { amountPaid: true }, where: { paidAt: { gte: todayStart, lt: todayEnd }, ...feeBase } }),
     prisma.feeRecord.aggregate({ _sum: { amountPaid: true }, where: { paidAt: { gte: monthStart, lt: monthEnd }, ...feeBase } }),
     prisma.feeRecord.aggregate({ _sum: { amountDue: true, amountPaid: true }, where: { status: { not: FeeStatus.PAID }, ...feeBase } }),
@@ -153,7 +153,7 @@ async function _getPrincipalDashboardData(campusId?: string) {
       by: ['status'],
       where: {
         ...campusFilter,
-        date: { gte: todayStart, lt: todayEnd },
+        date: { gte: todayStart, lte: todayEnd },
       },
       _count: { status: true },
     }),
@@ -257,7 +257,7 @@ async function _getPrincipalDashboardData(campusId?: string) {
   const absentStaffRecords = await prisma.staffAttendance.findMany({
     where: {
       ...campusFilter,
-      date: { gte: todayStart, lt: todayEnd },
+      date: { gte: todayStart, lte: todayEnd },
       status: StaffAttendanceStatus.ABSENT,
     },
     select: {

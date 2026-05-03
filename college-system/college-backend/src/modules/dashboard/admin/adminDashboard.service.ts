@@ -65,7 +65,7 @@ async function _getAdminDashboardData(campusId?: string) {
       by: ['status'],
       where: {
         ...campusFilter,
-        date: { gte: todayStart, lt: todayEnd },
+        date: { gte: todayStart, lte: todayEnd },
       },
       _count: { status: true },
     }),
