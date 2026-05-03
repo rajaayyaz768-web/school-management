@@ -230,6 +230,8 @@ npm run lint
 - `(teacher)/`, `(parent)/`, `(student)/` — respective role routes
 - Shared admin routes (`/exams`, `/results`, `/fees`, `/attendance`, `/announcements`, `/reports`) are accessible by both SUPER_ADMIN and ADMIN; the middleware enforces this before the page renders.
 
+The shared routes live **inside the `(admin)` route group** at `src/app/(admin)/exams`, `src/app/(admin)/results`, etc. — not under `(admin)/admin/`. SUPER_ADMIN is redirected to these same paths from sidebar links; ADMIN accesses them the same way. The middleware `ADMIN_ONLY_PATHS` list in `src/middleware.ts` is the authoritative guard.
+
 **Middleware** (`src/middleware.ts`) — reads `access-token` and `user-role` cookies; redirects unauthenticated users to `/login` and enforces role-based route access before the page renders.
 
 **Auth state**: Zustand store (`src/store/authStore.ts`) persisted to `localStorage` as `college-auth`. On `setAuth`, sets `access-token` and `user-role` cookies (1-day expiry) and connects Socket.io. On `logout`, calls `queryClient.clear()` (purges all React Query cache so a new user never sees stale data from the previous session), removes cookies, and disconnects socket.
@@ -244,7 +246,11 @@ hooks/       # React Query useQuery / useMutation wrappers; onSuccess invalidate
 types/       # TypeScript types
 ```
 
-**Shared UI components** live in `src/components/ui/` — use these rather than creating new primitives. Layout shell (`MainLayout`, `Sidebar`, `TopBar`) is in `src/components/layout/`.
+**Shared UI components** live in `src/components/ui/` — use these rather than creating new primitives. Layout shell (`MainLayout`, `Sidebar`, `TopBar`) is in `src/components/layout/`. Every page should use `PageHeader` from `src/components/layout/PageHeader.tsx` — it renders a title, optional subtitle, optional `breadcrumb` array, and optional `actions` slot.
+
+**Sidebar navigation** — role nav items are defined in the `NAV: Record<UserRole, NavConfig>` object inside `src/components/layout/Sidebar.tsx`. Each role entry has a `pinned` array (top-level, always visible) and `groups` array (collapsible sections). Add new routes here when adding a page.
+
+**Selection flow components** (`src/components/shared/selection/`): reusable card-based drill-down selectors for Campus → Program → Section navigation. Use `SelectionContainer` as the wrapper, then render `CampusSelectorCards`, `ProgramSelectorCards`, or `SectionSelectorCards` at each step. `SelectionState` (from `selection/types.ts`) tracks the chosen ids/names across steps. This pattern is used on attendance, exams, results, timetable, and reports pages.
 
 **Global state**:
 - `authStore` — user identity, tokens, socket connection

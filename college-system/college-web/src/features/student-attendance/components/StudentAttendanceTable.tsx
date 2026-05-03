@@ -1,6 +1,6 @@
-import { Avatar, Badge, Select, Input, Table } from '@/components/ui'
+import { motion } from 'motion/react'
+import { cn } from '@/lib/utils'
 import { StudentWithAttendance, AttendanceStatus, SingleStudentAttendanceInput } from '../types/student-attendance.types'
-import { TableColumn } from '@/components/ui/Table'
 
 interface Props {
   studentList: StudentWithAttendance[]
@@ -10,109 +10,102 @@ interface Props {
   onRemarksChange: (studentId: string, remarks: string) => void
 }
 
+const AVATAR_COLORS = [
+  'bg-[var(--primary)]',
+  'bg-[var(--gold)]',
+  'bg-purple-600',
+  'bg-blue-600',
+  'bg-rose-600',
+  'bg-emerald-600',
+]
+
+function getInitials(first: string, last: string) {
+  return `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase()
+}
+
+const STATUS_BTNS: { key: AttendanceStatus; label: string; activeClass: string }[] = [
+  { key: 'PRESENT', label: 'P',  activeClass: 'bg-[var(--primary)] text-white' },
+  { key: 'ABSENT',  label: 'A',  activeClass: 'bg-red-500 text-white' },
+  { key: 'LATE',    label: 'L',  activeClass: 'bg-amber-500 text-white' },
+  { key: 'LEAVE',   label: 'OL', activeClass: 'bg-blue-500 text-white' },
+]
+
 export function StudentAttendanceTable({
   studentList,
   isLoading,
   pendingAttendances,
   onStatusChange,
-  onRemarksChange
+  onRemarksChange,
 }: Props) {
-  const columns: TableColumn<StudentWithAttendance>[] = [
-    {
-      key: 'student',
-      header: 'Student',
-      render: (row) => {
-        const { firstName, lastName, photoUrl, rollNumber } = row.student
-        return (
-          <div className="flex items-center gap-3">
-            <Avatar src={photoUrl || undefined} name={`${firstName} ${lastName}`} />
-            <div>
-              <div className="font-medium">{`${firstName} ${lastName}`}</div>
-              {rollNumber && <div className="text-xs text-gray-500 mt-0.5">{rollNumber}</div>}
-            </div>
-          </div>
-        )
-      }
-    },
-    {
-      key: 'rollNo',
-      header: 'Roll No',
-      render: (row) => row.student.rollNumber || <Badge variant="warning">Unassigned</Badge>
-    },
-    {
-      key: 'currentStatus',
-      header: 'Current Status',
-      render: (row) => {
-        const status = row.attendance?.status
-        if (!status) {
-          return <Badge variant="neutral">Not Marked</Badge>
-        }
-        
-        const variants: Record<AttendanceStatus, any> = {
-          PRESENT: 'success',
-          ABSENT: 'danger',
-          LATE: 'warning',
-          LEAVE: 'info'
-        }
-        
-        const labels: Record<AttendanceStatus, string> = {
-          PRESENT: 'Present',
-          ABSENT: 'Absent',
-          LATE: 'Late',
-          LEAVE: 'Leave'
-        }
-        
-        return <Badge variant={variants[status]}>{labels[status]}</Badge>
-      }
-    },
-    {
-      key: 'markAs',
-      header: 'Mark As',
-      render: (row) => {
-        const studentId = row.student.id
-        const value = pendingAttendances[studentId]?.status ?? row.attendance?.status ?? 'PRESENT'
-        
-        return (
-          <Select
-            value={value}
-            onChange={(e) => onStatusChange(studentId, e.target.value as AttendanceStatus)}
-            options={[
-              { value: 'PRESENT', label: 'Present' },
-              { value: 'ABSENT', label: 'Absent' },
-              { value: 'LATE', label: 'Late' },
-              { value: 'LEAVE', label: 'Leave' }
-            ]}
-          />
-        )
-      }
-    },
-    {
-      key: 'remarks',
-      header: 'Remarks',
-      render: (row) => {
-        const studentId = row.student.id
-        const value = pendingAttendances[studentId]?.remarks ?? row.attendance?.remarks ?? ''
-        
-        return (
-          <Input
-            value={value}
-            onChange={(e) => onRemarksChange(studentId, e.target.value)}
-            placeholder="Optional remarks"
-          />
-        )
-      }
-    }
-  ]
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="h-[72px] rounded-xl bg-[var(--surface)] border border-[var(--border)] animate-pulse" />
+        ))}
+      </div>
+    )
+  }
 
-  // For 10 skeleton rows, the Table component automatically uses its own Skeleton variant, 
-  // but if we need exactly 10, passing loading={isLoading} handles it internally based on the Table implementation.
+  if (studentList.length === 0) {
+    return (
+      <p className="text-center text-sm text-[var(--text-muted)] py-8">
+        No students found in this section.
+      </p>
+    )
+  }
 
   return (
-    <Table
-      columns={columns}
-      data={studentList || []}
-      loading={isLoading}
-      emptyMessage="No students found in this section."
-    />
+    <div className="space-y-2">
+      {studentList.map(({ student, attendance }, i) => {
+        const current = pendingAttendances[student.id]?.status ?? attendance?.status ?? 'PRESENT'
+
+        return (
+          <motion.div
+            key={student.id}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.02 }}
+            className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-h-[72px]"
+          >
+            {/* Left: avatar + info */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={cn(
+                'w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0',
+                AVATAR_COLORS[i % AVATAR_COLORS.length]
+              )}>
+                {getInitials(student.firstName, student.lastName)}
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-sm text-[var(--text)] truncate">
+                  {student.firstName} {student.lastName}
+                </p>
+                {student.rollNumber && (
+                  <p className="text-xs text-[var(--text-muted)] font-mono mt-0.5">{student.rollNumber}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Right: P/A/L/OL toggles */}
+            <div className="flex bg-[var(--bg)] rounded-lg p-1 border border-[var(--border)] shrink-0 self-start sm:self-auto">
+              {STATUS_BTNS.map(btn => (
+                <button
+                  key={btn.key}
+                  onClick={() => onStatusChange(student.id, btn.key)}
+                  className={cn(
+                    'w-10 h-10 rounded-md font-bold text-sm flex items-center justify-center transition-colors',
+                    current === btn.key
+                      ? btn.activeClass
+                      : 'text-[var(--text-muted)] hover:bg-[var(--surface)]'
+                  )}
+                >
+                  {btn.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )
+      })}
+    </div>
   )
 }

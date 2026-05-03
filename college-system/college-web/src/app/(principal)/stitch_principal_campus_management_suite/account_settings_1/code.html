@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e9e8e9",
+                        "on-secondary-fixed-variant": "#42474b",
+                        "on-primary-fixed-variant": "#00419d",
+                        "surface-container-highest": "#e3e2e3",
+                        "on-tertiary-fixed-variant": "#524600",
+                        "on-tertiary-fixed": "#211b00",
+                        "primary-container": "#3366cc",
+                        "on-tertiary-container": "#4a3f00",
+                        "on-surface-variant": "#434653",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#c2c7cc",
+                        "surface-container": "#efedee",
+                        "background": "#faf9fa",
+                        "surface-bright": "#faf9fa",
+                        "tertiary-fixed": "#f9e37a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#faf9fa",
+                        "on-background": "#1b1c1d",
+                        "on-secondary-fixed": "#171c20",
+                        "inverse-surface": "#303031",
+                        "secondary": "#5a5f63",
+                        "tertiary": "#6d5e00",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#dfe3e8",
+                        "primary-fixed": "#d9e2ff",
+                        "surface-dim": "#dbdadb",
+                        "surface-variant": "#e3e2e3",
+                        "surface-tint": "#2259bf",
+                        "surface-container-low": "#f5f3f4",
+                        "tertiary-fixed-dim": "#dcc661",
+                        "outline": "#737784",
+                        "on-surface": "#1b1c1d",
+                        "on-secondary-container": "#606569",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f2f0f1",
+                        "primary-fixed-dim": "#b1c5ff",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#c3c6d5",
+                        "on-primary-fixed": "#001946",
+                        "secondary-container": "#dfe3e8",
+                        "error": "#ba1a1a",
+                        "primary": "#094cb2",
+                        "on-primary-container": "#e7ebff",
+                        "inverse-primary": "#b1c5ff",
+                        "tertiary-container": "#bfab49"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif", "serif"],
+                        "display": ["Noto Serif", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Public Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Light mode enforcement as per theme config */
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-slate-900 dark:bg-slate-950 flex justify-between items-center px-6 py-4 w-full docked full-width top-0 sticky z-40 transition-colors duration-200 flat no shadows bg-slate-800 dark:bg-slate-900">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-slate-800 dark:hover:bg-slate-900 transition-colors">
+<span class="material-symbols-outlined text-blue-700 dark:text-blue-400">arrow_back</span>
+</button>
+<h1 class="font-serif text-xl font-bold leading-tight text-blue-700 dark:text-blue-400">Account Settings</h1>
+<button class="font-label text-sm font-semibold text-blue-700 dark:text-blue-400 px-3 py-1.5 rounded-full hover:bg-slate-800 dark:hover:bg-slate-900 transition-colors">
+            Campus
+        </button>
+</header>
+<main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<!-- Profile Card -->
+<section class="bg-surface-container-lowest rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6 shadow-sm border border-outline-variant/15">
+<div class="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden shrink-0 border-4 border-surface-container-high">
+<img alt="Profile Picture" class="w-full h-full object-cover" data-alt="A highly detailed portrait of a professional man in a scholarly setting. He is wearing a sharp, dark suit, looking confident and approachable. The background is a soft, out-of-focus library or academic office with warm, natural lighting streaming in. The mood is authoritative yet welcoming, fitting a high-end editorial digital curation platform. The image is crisp and clean, reflecting a premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFq2Phs0fsywip9r_W30V2Bo-o7wFdBTMJvyUAT6OIX4Fe7KlidAzqr-92crjRXs1YOtKoHfAbuxjZeua2N960yzVqc3UuAzulIrwPvrVT4kJpcgTDpPArqF822Bfz4Lazdpu4FMO7XV1FIyEjYF4DgLWtomyCe0dvCYH40yOC3rh3By5uhSwOjuSRFGWmEfJ9F7YKMG50fLiiXn_UXmjFYah_J7_ltB4VRMETAU4UheI6zhrkuRDDOF922GJzaq2SM-hBtgQjpwE"/>
+</div>
+<div class="text-center sm:text-left flex-1">
+<div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-2">
+<h2 class="font-headline text-3xl font-bold text-on-surface">Ahmad Tufail</h2>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-tertiary-container text-on-tertiary-container font-label uppercase tracking-wide w-max mx-auto sm:mx-0">
+                        Principal
+                    </span>
+</div>
+<p class="font-body text-on-surface-variant mb-4">ahmad.tufail@alexandria.edu</p>
+<button class="bg-primary text-on-primary font-label text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-surface-tint transition-colors shadow-sm">
+                    Edit Profile
+                </button>
+</div>
+</section>
+<!-- Settings Tabs -->
+<div class="flex space-x-8 border-b border-outline-variant/30">
+<button class="pb-3 text-primary border-b-2 border-primary font-label font-semibold text-sm tracking-wide">Account</button>
+<button class="pb-3 text-on-surface-variant hover:text-on-surface border-b-2 border-transparent font-label font-semibold text-sm tracking-wide transition-colors">Backups</button>
+</div>
+<!-- Personal Information Section -->
+<section class="space-y-6">
+<h3 class="font-headline text-xl font-bold text-on-surface border-b border-outline-variant/15 pb-2">Personal Information</h3>
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/15 space-y-6">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/10 pb-4">
+<div class="text-sm font-label text-on-surface-variant uppercase tracking-wider">Full Name</div>
+<div class="font-body text-on-surface font-medium">Ahmad Tufail</div>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/10 pb-4">
+<div class="text-sm font-label text-on-surface-variant uppercase tracking-wider">Email</div>
+<div class="font-body text-on-surface font-medium">ahmad.tufail@alexandria.edu</div>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="text-sm font-label text-on-surface-variant uppercase tracking-wider">Phone</div>
+<div class="font-body text-on-surface font-medium">+1 (555) 123-4567</div>
+</div>
+</div>
+</section>
+<!-- Security Section -->
+<section class="space-y-6">
+<h3 class="font-headline text-xl font-bold text-on-surface border-b border-outline-variant/15 pb-2">Security</h3>
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/15 space-y-6">
+<div class="flex items-center justify-between border-b border-outline-variant/10 pb-4">
+<div>
+<div class="font-body font-semibold text-on-surface mb-1">Change Password</div>
+<div class="text-sm text-on-surface-variant">Update your password regularly to keep your account secure.</div>
+</div>
+<button class="text-primary hover:bg-surface-container-high p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="flex items-center justify-between border-b border-outline-variant/10 pb-4">
+<div>
+<div class="font-body font-semibold text-on-surface mb-1">Two-Factor Authentication</div>
+<div class="text-sm text-on-surface-variant">Add an extra layer of security to your account.</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<div class="font-body font-semibold text-on-surface mb-1">Active Sessions</div>
+<div class="text-sm text-on-surface-variant">Manage devices currently logged into your account.</div>
+</div>
+<button class="text-primary hover:bg-surface-container-high p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Danger Zone -->
+<section class="space-y-6 pt-4">
+<h3 class="font-headline text-xl font-bold text-error border-b border-error/20 pb-2">Danger Zone</h3>
+<div class="bg-error-container/30 rounded-xl p-6 border border-error/20 space-y-4">
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+<div>
+<div class="font-body font-semibold text-on-surface mb-1">Sign Out All Devices</div>
+<div class="text-sm text-on-surface-variant">Force log out from all browsers and devices.</div>
+</div>
+<button class="bg-surface-container-lowest text-error font-label text-sm font-semibold px-4 py-2 rounded-lg border border-error/30 hover:bg-error-container transition-colors shrink-0">
+                        Sign Out All
+                    </button>
+</div>
+<hr class="border-error/10"/>
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+<div>
+<div class="font-body font-semibold text-on-surface mb-1">Delete Account</div>
+<div class="text-sm text-on-surface-variant">Permanently remove your account and all associated data.</div>
+</div>
+<button class="bg-error text-on-error font-label text-sm font-semibold px-4 py-2 rounded-lg hover:bg-error/90 transition-colors shrink-0">
+                        Delete Account
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-800/50 shadow-2xl dark:shadow-none docked full-width bottom-0 rounded-t-xl scale-95 active:scale-90 duration-150">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all font-sans text-[10px] uppercase tracking-wider font-semibold" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all font-sans text-[10px] uppercase tracking-wider font-semibold" href="#">
+<span class="material-symbols-outlined mb-1">analytics</span>
+<span>Live</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all font-sans text-[10px] uppercase tracking-wider font-semibold" href="#">
+<span class="material-symbols-outlined mb-1">school</span>
+<span>Teachers</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all font-sans text-[10px] uppercase tracking-wider font-semibold" href="#">
+<span class="material-symbols-outlined mb-1">groups</span>
+<span>People</span>
+</a>
+<!-- Active State applied here based on 'More' being the closest logical fit for Settings in this nav structure -->
+<a class="flex flex-col items-center justify-center text-blue-600 dark:text-blue-400 bg-blue-50/10 dark:bg-blue-900/20 rounded-xl px-3 py-1 font-sans text-[10px] uppercase tracking-wider font-semibold hover:text-blue-500 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">more_horiz</span>
+<span>More</span>
+</a>
+</nav>
+</body></html>

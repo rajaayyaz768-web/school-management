@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Teachers Live</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&amp;family=Inter:wght@400;500;600;700&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "surface-container-high": "#e9e8e9",
+                  "on-secondary-fixed-variant": "#42474b",
+                  "on-primary-fixed-variant": "#00419d",
+                  "surface-container-highest": "#e3e2e3",
+                  "on-tertiary-fixed-variant": "#524600",
+                  "on-tertiary-fixed": "#211b00",
+                  "primary-container": "#3366cc",
+                  "on-tertiary-container": "#4a3f00",
+                  "on-surface-variant": "#434653",
+                  "on-primary": "#ffffff",
+                  "secondary-fixed-dim": "#c2c7cc",
+                  "surface-container": "#efedee",
+                  "background": "#faf9fa",
+                  "surface-bright": "#faf9fa",
+                  "tertiary-fixed": "#f9e37a",
+                  "surface-container-lowest": "#ffffff",
+                  "surface": "#faf9fa",
+                  "on-background": "#1b1c1d",
+                  "on-secondary-fixed": "#171c20",
+                  "inverse-surface": "#303031",
+                  "secondary": "#5a5f63",
+                  "tertiary": "#6d5e00",
+                  "on-error": "#ffffff",
+                  "secondary-fixed": "#dfe3e8",
+                  "primary-fixed": "#d9e2ff",
+                  "surface-dim": "#dbdadb",
+                  "surface-variant": "#e3e2e3",
+                  "surface-tint": "#2259bf",
+                  "surface-container-low": "#f5f3f4",
+                  "tertiary-fixed-dim": "#dcc661",
+                  "outline": "#737784",
+                  "on-surface": "#1b1c1d",
+                  "on-secondary-container": "#606569",
+                  "on-error-container": "#93000a",
+                  "error-container": "#ffdad6",
+                  "inverse-on-surface": "#f2f0f1",
+                  "primary-fixed-dim": "#b1c5ff",
+                  "on-secondary": "#ffffff",
+                  "on-tertiary": "#ffffff",
+                  "outline-variant": "#c3c6d5",
+                  "on-primary-fixed": "#001946",
+                  "secondary-container": "#dfe3e8",
+                  "error": "#ba1a1a",
+                  "primary": "#094cb2",
+                  "on-primary-container": "#e7ebff",
+                  "inverse-primary": "#b1c5ff",
+                  "tertiary-container": "#bfab49"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "spacing": {},
+          "fontFamily": {
+                  "headline": [
+                          "Noto Serif"
+                  ],
+                  "display": [
+                          "Noto Serif"
+                  ],
+                  "body": [
+                          "Inter"
+                  ],
+                  "label": [
+                          "Public Sans"
+                  ]
+          },
+          "fontSize": {}
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body min-h-screen pb-24 md:pb-0 pt-16 md:pt-20 antialiased">
+<!-- TopAppBar Web & Mobile -->
+<header class="fixed top-0 left-0 w-full z-40 bg-surface-container-lowest flex justify-between items-center px-6 py-4 shadow-[0_4px_24px_rgba(0,0,0,0.02)] border-b border-surface-container-highest">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high md:hidden">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div>
+<h1 class="font-headline text-xl font-bold leading-tight text-on-surface">Teachers Live</h1>
+<p class="font-label text-sm text-on-surface-variant">Real-time status</p>
+</div>
+</div>
+<div class="hidden md:flex items-center gap-6">
+<nav class="flex items-center gap-4">
+<a class="text-on-surface-variant hover:text-primary font-label text-sm font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-surface-container" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary font-label text-sm font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-surface-container" href="#">Live</a>
+<a class="text-primary font-label text-sm font-bold bg-primary-container/10 px-3 py-2 rounded-lg" href="#">Teachers</a>
+<a class="text-on-surface-variant hover:text-primary font-label text-sm font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-surface-container" href="#">People</a>
+</nav>
+<div class="w-px h-6 bg-outline-variant/30"></div>
+</div>
+<button class="text-primary hover:text-primary-container transition-colors flex items-center justify-center p-2 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+<!-- Campus Overview Cards Grid -->
+<section class="space-y-6">
+<h2 class="font-headline text-2xl font-bold text-on-surface border-b border-surface-container-highest pb-2 inline-block">Campus Overview</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Boys Campus Card -->
+<article class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.03)] border border-surface-container-highest transition-transform hover:-translate-y-1 duration-300 cursor-pointer">
+<header class="flex justify-between items-start mb-6">
+<h3 class="font-headline text-xl font-bold text-on-surface">Boys Campus</h3>
+<span class="bg-surface-container px-3 py-1 rounded-full text-xs font-label font-bold text-on-surface-variant tracking-wider">80% Occupied</span>
+</header>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low p-4 rounded-lg">
+<p class="font-label text-sm text-on-surface-variant mb-1">Free Now</p>
+<p class="font-display text-3xl font-black text-tertiary">12</p>
+</div>
+<div class="bg-primary/5 p-4 rounded-lg">
+<p class="font-label text-sm text-on-surface-variant mb-1">Teaching</p>
+<p class="font-display text-3xl font-black text-primary">48</p>
+</div>
+</div>
+<div class="mb-6 space-y-2">
+<div class="flex justify-between text-xs font-label text-on-surface-variant">
+<span>Teaching Load</span>
+<span>80%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full w-[80%]"></div>
+</div>
+</div>
+<div>
+<p class="font-label text-xs text-on-surface-variant mb-3 uppercase tracking-wider">Available Teachers</p>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-sm font-body border border-outline-variant/30 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+                Mr. Smith
+              </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-sm font-body border border-outline-variant/30 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+                Mr. Davis
+              </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-sm font-body border border-outline-variant/30 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+                Mr. Wilson
+              </span>
+<span class="inline-flex items-center px-3 py-1.5 rounded-full bg-surface-container text-sm font-body text-on-surface-variant">
+                +9 more
+              </span>
+</div>
+</div>
+</article>
+<!-- Girls Campus Card -->
+<article class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.03)] border border-surface-container-highest transition-transform hover:-translate-y-1 duration-300 cursor-pointer">
+<header class="flex justify-between items-start mb-6">
+<h3 class="font-headline text-xl font-bold text-on-surface">Girls Campus</h3>
+<span class="bg-surface-container px-3 py-1 rounded-full text-xs font-label font-bold text-on-surface-variant tracking-wider">92% Occupied</span>
+</header>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low p-4 rounded-lg">
+<p class="font-label text-sm text-on-surface-variant mb-1">Free Now</p>
+<p class="font-display text-3xl font-black text-tertiary">4</p>
+</div>
+<div class="bg-primary/5 p-4 rounded-lg">
+<p class="font-label text-sm text-on-surface-variant mb-1">Teaching</p>
+<p class="font-display text-3xl font-black text-primary">56</p>
+</div>
+</div>
+<div class="mb-6 space-y-2">
+<div class="flex justify-between text-xs font-label text-on-surface-variant">
+<span>Teaching Load</span>
+<span>92%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full w-[92%]"></div>
+</div>
+</div>
+<div>
+<p class="font-label text-xs text-on-surface-variant mb-3 uppercase tracking-wider">Available Teachers</p>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-sm font-body border border-outline-variant/30 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+                Ms. Adams
+              </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-sm font-body border border-outline-variant/30 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+                Mrs. Lee
+              </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-sm font-body border border-outline-variant/30 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+                Ms. Brown
+              </span>
+<span class="inline-flex items-center px-3 py-1.5 rounded-full bg-surface-container text-sm font-body text-on-surface-variant">
+                +1 more
+              </span>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl border-t border-surface-container-highest shadow-[0_-8px_32px_rgba(0,0,0,0.05)] md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-150 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span class="font-label text-[10px] uppercase tracking-wider font-semibold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-150 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1">analytics</span>
+<span class="font-label text-[10px] uppercase tracking-wider font-semibold">Live</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/10 rounded-xl px-4 py-2 transition-all duration-150 scale-100" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="font-label text-[10px] uppercase tracking-wider font-bold">Teachers</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-150 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1">groups</span>
+<span class="font-label text-[10px] uppercase tracking-wider font-semibold">People</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-150 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1">more_horiz</span>
+<span class="font-label text-[10px] uppercase tracking-wider font-semibold">More</span>
+</a>
+</nav>
+</body></html>

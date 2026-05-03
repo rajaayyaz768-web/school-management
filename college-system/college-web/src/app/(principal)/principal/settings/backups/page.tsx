@@ -376,12 +376,22 @@ export default function BackupsPage() {
         isPending={restoreMutation.isPending}
       />
     )}
+    <div className="min-h-screen bg-[var(--bg)]">
+    {/* Mobile header */}
+    <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center justify-between md:hidden">
+      <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>System Backups</h1>
+      <Button size="sm" onClick={() => triggerMutation.mutate()} disabled={isBackingUp} loading={isBackingUp}>
+        <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+        {isBackingUp ? 'Creating...' : 'Backup Now'}
+      </Button>
+    </header>
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      <PageHeader 
-        title="Database Backups" 
+      <div className="hidden sm:block">
+      <PageHeader
+        title="Database Backups"
         actions={
-          <Button 
-            onClick={() => triggerMutation.mutate()} 
+          <Button
+            onClick={() => triggerMutation.mutate()}
             disabled={isBackingUp}
             loading={isBackingUp}
           >
@@ -396,6 +406,7 @@ export default function BackupsPage() {
           </Button>
         }
       />
+      </div>
 
       {/* Restore result banner */}
       {restoreResult === 'success' && (
@@ -581,6 +592,7 @@ export default function BackupsPage() {
           </div>
         )}
       </Card>
+    </div>
     </div>
     </>
   )

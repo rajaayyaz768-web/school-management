@@ -1,48 +1,59 @@
 'use client'
 
 import Link from 'next/link'
-import { BookOpen, Users, GraduationCap, Building2, ChevronRight } from 'lucide-react'
-import { PageHeader } from '@/components/layout/PageHeader'
-import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
-import { Skeleton } from '@/components/ui/Skeleton'
+import { motion } from 'motion/react'
+import { Users, Building2, ChevronRight } from 'lucide-react'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useTeacherDashboard } from '@/features/dashboard/teacher/hooks/useTeacherDashboard'
 import { TeacherSection } from '@/features/dashboard/teacher/types/teacher-dashboard.types'
 
-function SectionCard({ section }: { section: TeacherSection }) {
+const AVATAR_COLORS = [
+  'bg-[var(--primary)]',
+  'bg-[var(--gold)]',
+  'bg-purple-600',
+  'bg-blue-600',
+  'bg-rose-600',
+]
+
+function SectionCard({ section, index }: { section: TeacherSection; index: number }) {
   return (
-    <Link href={`/teacher/my-classes/${section.id}`} className="block">
-      <Card hoverable className="space-y-4 cursor-pointer">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[var(--radius)] bg-[var(--primary)]/10 border border-[var(--primary)]/20 flex items-center justify-center flex-shrink-0">
-              <BookOpen className="w-5 h-5 text-[var(--primary)]" />
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.06 }}
+    >
+      <Link
+        href={`/teacher/my-classes/${section.id}`}
+        className="block bg-[var(--surface)] border border-[var(--border)] rounded-xl relative overflow-hidden flex items-center hover:bg-[var(--surface-hover)] transition-colors active:scale-[0.99] group"
+      >
+        {/* Left accent border */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--primary)]" />
+
+        <div className="flex-1 pl-5 pr-3 py-4">
+          <h2 className="text-lg font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">
+            Section {section.name}
+          </h2>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
+            {section.programName} · {section.gradeName}
+          </p>
+          <div className="flex flex-wrap items-center gap-4 mt-3">
+            <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
+              <Users className="w-4 h-4" />
+              <span className="text-sm font-medium text-[var(--text)]">{section.studentCount}</span>
+              <span className="text-sm">students</span>
             </div>
-            <div>
-              <h3 className="font-semibold text-[var(--text)] text-base">Section {section.name}</h3>
-              <p className="text-sm text-[var(--text-muted)]">{section.gradeName}</p>
+            <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
+              <Building2 className="w-4 h-4" />
+              <span className="text-sm">{section.programName}</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="info">{section.programName}</Badge>
-            <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" />
           </div>
         </div>
 
-        <div className="flex items-center gap-4 pt-2 border-t border-[var(--border)]">
-          <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
-            <Users className="w-4 h-4" />
-            <span className="text-sm font-medium text-[var(--text)]">{section.studentCount}</span>
-            <span className="text-sm">students</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
-            <GraduationCap className="w-4 h-4" />
-            <span className="text-sm">{section.gradeName}</span>
-          </div>
+        <div className="pr-4 shrink-0">
+          <ChevronRight className="w-5 h-5 text-[var(--gold)]" />
         </div>
-      </Card>
-    </Link>
+      </Link>
+    </motion.div>
   )
 }
 
@@ -51,37 +62,41 @@ export default function TeacherMyClassesPage() {
   const sections = data?.mySections ?? []
 
   return (
-    <div className="p-6 space-y-6">
-      <PageHeader
-        title="My Classes"
-        breadcrumb={[{ label: 'Home', href: '/teacher/dashboard' }, { label: 'My Classes' }]}
-      />
+    <div className="min-h-screen bg-[var(--bg)]">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center justify-between">
+        <div>
+          <h1 className="font-bold text-lg text-[var(--text)]">My Classes</h1>
+          {!isLoading && (
+            <p className="text-xs text-[var(--text-muted)]">
+              {sections.length} class{sections.length !== 1 ? 'es' : ''} assigned
+            </p>
+          )}
+        </div>
+      </header>
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => <Skeleton key={i} variant="card" className="h-36" />)}
-        </div>
-      ) : !sections.length ? (
-        <div className="rounded-xl" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-          <EmptyState
-            icon={<Building2 size={28} style={{ color: 'var(--primary)' }} />}
-            title="No Classes Assigned"
-            description="You haven't been assigned to any sections yet. Contact your administrator."
-          />
-        </div>
-      ) : (
-        <>
-          <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-            <Users className="w-4 h-4" />
-            <span>{sections.length} class{sections.length !== 1 ? 'es' : ''} assigned</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sections.map((section) => (
-              <SectionCard key={section.id} section={section} />
+      <div className="p-4">
+        {isLoading ? (
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-24 rounded-xl bg-[var(--surface)] border border-[var(--border)] animate-pulse" />
             ))}
           </div>
-        </>
-      )}
+        ) : sections.length === 0 ? (
+          <div className="mt-12">
+            <EmptyState
+              icon={<Building2 size={32} className="text-[var(--primary)]" />}
+              title="No Classes Assigned"
+              description="You haven't been assigned to any sections yet. Contact your administrator."
+            />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {sections.map((section, i) => (
+              <SectionCard key={section.id} section={section} index={i} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -361,14 +361,14 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
           x: isMobile ? (mobileOpen ? 0 : -260) : 0,
         }}
         transition={{ duration: 0.26, ease: "easeInOut" }}
-        className="fixed md:relative inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col overflow-hidden text-white"
+        className="fixed md:relative inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col text-white"
         style={{
           background: "linear-gradient(180deg, #1c1c1e 0%, #141415 100%)",
           boxShadow: "1px 0 0 rgba(255,255,255,0.055), 4px 0 24px rgba(0,0,0,0.38)",
         }}
       >
         {/* Logo */}
-        <div className="flex h-14 shrink-0 items-center gap-3 border-b border-white/[0.06] px-3.5">
+        <div className="flex h-14 shrink-0 items-center gap-3 border-b border-white/[0.06] px-3.5 overflow-hidden">
           <FalconEagleLogo size={collapsed && !isMobile ? 28 : 36} />
           <AnimatePresence initial={false}>
             {(!collapsed || isMobile) && (

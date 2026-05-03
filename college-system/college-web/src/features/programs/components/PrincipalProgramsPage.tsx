@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import PageHeader from '@/components/layout/PageHeader'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
+import { ArrowLeft, BookOpen } from 'lucide-react'
 import { CampusSelectorCards } from '@/components/shared/selection/CampusSelectorCards'
 import { ProgramsPage } from './ProgramsPage'
 import type { CampusCardData } from '@/components/shared/selection/types'
@@ -32,39 +30,35 @@ export function PrincipalProgramsPage() {
 
   if (step === 'campus') {
     return (
-      <div className="flex flex-col gap-6 p-8">
-        <PageHeader
-          title="Programs Management"
-          subtitle="Select a campus to view programs"
-        />
-        <CampusSelectorCards
-          onSelect={handleCampusSelect}
-          showAllOption
-          onSelectAll={handleAllCampuses}
-          selectedId={selectedCampusId}
-        />
+      <div className="min-h-screen bg-[var(--bg)]">
+        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+          <BookOpen className="w-5 h-5 text-[var(--primary)]" />
+          <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Programs</h1>
+        </header>
+        <div className="p-4 space-y-4">
+          <p className="text-sm text-[var(--text-muted)]">Select a campus to view programs</p>
+          <CampusSelectorCards
+            onSelect={handleCampusSelect}
+            showAllOption
+            onSelectAll={handleAllCampuses}
+            selectedId={selectedCampusId}
+          />
+        </div>
       </div>
     )
   }
 
   const navigation = (
-    <div className="flex items-center gap-3 mb-4 -mt-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => {
-          setViewAllCampuses(false)
-          setSelectedCampusId(null)
-          setSelectedCampusName(null)
-          setStep('campus')
-        }}
+    <div className="flex items-center gap-2 mb-3 md:mb-4 -mt-2 md:mt-0">
+      <button
+        onClick={() => { setViewAllCampuses(false); setSelectedCampusId(null); setSelectedCampusName(null); setStep('campus') }}
+        className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors md:hidden active:scale-95"
       >
-        ← Change Campus
-      </Button>
-      {viewAllCampuses
-        ? <Badge variant="info">All Campuses</Badge>
-        : selectedCampusName && <Badge variant="info">{selectedCampusName}</Badge>
-      }
+        <ArrowLeft className="w-4 h-4 text-[var(--text)]" />
+      </button>
+      <span className="text-xs font-semibold text-[var(--primary)] bg-[var(--primary)]/10 px-2.5 py-1 rounded-full">
+        {viewAllCampuses ? 'All Campuses' : selectedCampusName}
+      </span>
     </div>
   )
 

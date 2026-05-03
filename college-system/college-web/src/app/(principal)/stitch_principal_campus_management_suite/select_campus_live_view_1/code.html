@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Live Timetable View - Alexandria Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#e9e8e9",
+                      "on-secondary-fixed-variant": "#42474b",
+                      "on-primary-fixed-variant": "#00419d",
+                      "surface-container-highest": "#e3e2e3",
+                      "on-tertiary-fixed-variant": "#524600",
+                      "on-tertiary-fixed": "#211b00",
+                      "primary-container": "#3366cc",
+                      "on-tertiary-container": "#4a3f00",
+                      "on-surface-variant": "#434653",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed-dim": "#c2c7cc",
+                      "surface-container": "#efedee",
+                      "background": "#faf9fa",
+                      "surface-bright": "#faf9fa",
+                      "tertiary-fixed": "#f9e37a",
+                      "surface-container-lowest": "#ffffff",
+                      "surface": "#faf9fa",
+                      "on-background": "#1b1c1d",
+                      "on-secondary-fixed": "#171c20",
+                      "inverse-surface": "#303031",
+                      "secondary": "#5a5f63",
+                      "tertiary": "#6d5e00",
+                      "on-error": "#ffffff",
+                      "secondary-fixed": "#dfe3e8",
+                      "primary-fixed": "#d9e2ff",
+                      "surface-dim": "#dbdadb",
+                      "surface-variant": "#e3e2e3",
+                      "surface-tint": "#2259bf",
+                      "surface-container-low": "#f5f3f4",
+                      "tertiary-fixed-dim": "#dcc661",
+                      "outline": "#737784",
+                      "on-surface": "#1b1c1d",
+                      "on-secondary-container": "#606569",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "inverse-on-surface": "#f2f0f1",
+                      "primary-fixed-dim": "#b1c5ff",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "outline-variant": "#c3c6d5",
+                      "on-primary-fixed": "#001946",
+                      "secondary-container": "#dfe3e8",
+                      "error": "#ba1a1a",
+                      "primary": "#094cb2",
+                      "on-primary-container": "#e7ebff",
+                      "inverse-primary": "#b1c5ff",
+                      "tertiary-container": "#bfab49"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Noto Serif"
+                      ],
+                      "display": [
+                              "Noto Serif"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Public Sans"
+                      ]
+              },
+              "fontSize": {}
+      },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-24 selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-slate-900 dark:bg-slate-950 text-blue-700 dark:text-blue-400 docked full-width top-0 bg-slate-800 dark:bg-slate-900 flat no shadows flex justify-between items-center px-6 py-4 w-full sticky z-40">
+<div class="flex items-center gap-4">
+<button class="hover:bg-slate-800 dark:hover:bg-slate-900 transition-colors duration-200 p-2 rounded-full -ml-2 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-serif text-xl font-bold leading-tight text-lg font-bold text-blue-700 dark:text-blue-400">Alexandria Admin</h1>
+</div>
+<div>
+<button class="hover:bg-slate-800 dark:hover:bg-slate-900 transition-colors duration-200 px-4 py-2 rounded-full text-sm font-semibold tracking-wide text-slate-400 dark:text-slate-500">
+                Campus
+             </button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="max-w-3xl mx-auto px-4 py-8 md:py-12">
+<div class="mb-8 md:mb-12">
+<h2 class="font-headline text-3xl md:text-4xl text-on-background mb-2">Live Timetable View</h2>
+<p class="font-body text-on-surface-variant text-lg">Select a campus</p>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Campus Card 1 (Selected) -->
+<label class="relative block cursor-pointer group">
+<input checked="" class="peer sr-only" name="campus_selection" type="radio" value="boys"/>
+<div class="bg-surface-container-lowest rounded-xl p-6 transition-all duration-300 ring-2 ring-primary bg-primary/5">
+<div class="flex justify-between items-start mb-4">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline text-xl text-on-background font-bold">Boys Campus</h3>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-label font-semibold bg-primary-container text-on-primary-container w-fit uppercase tracking-wider">
+                                COLLEGE
+                            </span>
+</div>
+<div class="text-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="flex items-center gap-6 text-sm text-on-surface-variant font-body">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">group</span>
+<span>1,240 Students</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">school</span>
+<span>85 Staff</span>
+</div>
+</div>
+</div>
+</label>
+<!-- Campus Card 2 -->
+<label class="relative block cursor-pointer group">
+<input class="peer sr-only" name="campus_selection" type="radio" value="girls"/>
+<div class="bg-surface-container-lowest rounded-xl p-6 transition-all duration-300 ring-1 ring-outline-variant/30 hover:ring-primary/50 hover:bg-surface-container-low peer-checked:ring-2 peer-checked:ring-primary peer-checked:bg-primary/5">
+<div class="flex justify-between items-start mb-4">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline text-xl text-on-background font-bold">Girls Campus</h3>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-label font-semibold bg-secondary-container text-on-secondary-container w-fit uppercase tracking-wider">
+                                COLLEGE
+                            </span>
+</div>
+<div class="text-transparent group-hover:text-outline-variant peer-checked:text-primary transition-colors">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="flex items-center gap-6 text-sm text-on-surface-variant font-body">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">group</span>
+<span>1,150 Students</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">school</span>
+<span>92 Staff</span>
+</div>
+</div>
+</div>
+</label>
+<!-- Campus Card 3 -->
+<label class="relative block cursor-pointer group">
+<input class="peer sr-only" name="campus_selection" type="radio" value="primary"/>
+<div class="bg-surface-container-lowest rounded-xl p-6 transition-all duration-300 ring-1 ring-outline-variant/30 hover:ring-primary/50 hover:bg-surface-container-low peer-checked:ring-2 peer-checked:ring-primary peer-checked:bg-primary/5">
+<div class="flex justify-between items-start mb-4">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline text-xl text-on-background font-bold">Primary School</h3>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-label font-semibold bg-tertiary-container text-on-tertiary-container w-fit uppercase tracking-wider">
+                                PRIMARY
+                            </span>
+</div>
+<div class="text-transparent group-hover:text-outline-variant peer-checked:text-primary transition-colors">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="flex items-center gap-6 text-sm text-on-surface-variant font-body">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">group</span>
+<span>850 Students</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">school</span>
+<span>60 Staff</span>
+</div>
+</div>
+</div>
+</label>
+</div>
+<div class="mt-8 flex justify-end md:justify-end">
+<button class="bg-primary text-on-primary font-label font-bold py-3 px-8 rounded-full hover:bg-primary/90 transition-colors shadow-sm w-full md:w-auto">
+                Continue to Timetable
+            </button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only per Shell Logic, but preserving classes as requested) -->
+<nav class="md:hidden bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-xl text-blue-600 dark:text-blue-400 font-sans text-[10px] uppercase tracking-wider font-semibold text-blue-600 dark:text-blue-400 docked full-width bottom-0 rounded-t-xl border-t border-slate-800/50 shadow-2xl dark:shadow-none fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:text-blue-500" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-blue-600 dark:text-blue-400 bg-blue-50/10 dark:bg-blue-900/20 rounded-xl px-3 py-1 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span>Live</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:text-blue-500" style="font-variation-settings: 'FILL' 0;">school</span>
+<span>Teachers</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:text-blue-500" style="font-variation-settings: 'FILL' 0;">groups</span>
+<span>People</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:text-blue-500" style="font-variation-settings: 'FILL' 0;">more_horiz</span>
+<span>More</span>
+</a>
+</nav>
+</body></html>

@@ -99,7 +99,7 @@ export function TopBar({ title, onMobileMenuToggle }: TopBarProps) {
   const showChat = user.role === "SUPER_ADMIN" || user.role === "TEACHER";
 
   return (
-    <header className="flex h-14 w-full shrink-0 flex-row items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-4 md:px-6">
+    <header className="relative z-[60] flex h-14 w-full shrink-0 flex-row items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-4 md:px-6">
       {/* LEFT SIDE */}
       <div className="flex items-center">
         {/* Hamburger — mobile only */}

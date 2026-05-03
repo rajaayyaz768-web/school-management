@@ -1,373 +1,302 @@
 'use client'
 
 import Link from 'next/link'
+import { motion } from 'motion/react'
 import {
-  CalendarDays,
-  Clock,
-  BookOpen,
-  Users,
-  ArrowRight,
-  ClipboardCheck,
-  Coffee,
-  UserRound,
+  Clock, BookOpen, Users, ClipboardCheck, Coffee,
+  CalendarDays, ChevronRight, UserRound, BookMarked, FileText,
 } from 'lucide-react'
-import { PageHeader } from '@/components/layout/PageHeader'
-import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { cn } from '@/lib/utils'
 import { useTeacherDashboard } from '@/features/dashboard/teacher/hooks/useTeacherDashboard'
+import { useCurrentUser } from '@/store/authStore'
 import {
   TodayScheduleSlot,
   TeacherSection,
   TeacherUpcomingExam,
-  RecentAttendanceSession,
 } from '@/features/dashboard/teacher/types/teacher-dashboard.types'
 
-// ── Helpers ───────────────────────────────────────────────────────────────
-
-function timeToMinutes(time: string): number {
-  const [h, m] = time.split(':').map(Number)
+// ── helpers ───────────────────────────────────────────────────────────────────
+function timeToMinutes(t: string) {
+  const [h, m] = t.split(':').map(Number)
   return h * 60 + m
 }
 
-function getPeriodState(startTime: string, endTime: string): 'past' | 'current' | 'upcoming' {
+function getPeriodState(start: string, end: string): 'past' | 'current' | 'upcoming' {
   const now = new Date()
   const nowMins = now.getHours() * 60 + now.getMinutes()
-  const start = timeToMinutes(startTime)
-  const end = timeToMinutes(endTime)
-  if (nowMins > end) return 'past'
-  if (nowMins >= start && nowMins <= end) return 'current'
+  const s = timeToMinutes(start)
+  const e = timeToMinutes(end)
+  if (nowMins > e) return 'past'
+  if (nowMins >= s) return 'current'
   return 'upcoming'
 }
 
-// ── Period Card ───────────────────────────────────────────────────────────
+function getInitials(name: string) {
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+}
 
-function PeriodCard({ slot }: { slot: TodayScheduleSlot }) {
+// ── Schedule card ─────────────────────────────────────────────────────────────
+function PeriodCard({ slot, index }: { slot: TodayScheduleSlot; index: number }) {
   const isBreak = slot.slotType === 'BREAK'
   const state = isBreak ? 'upcoming' : getPeriodState(slot.startTime, slot.endTime)
 
+  if (isBreak) {
+    return (
+      <div className="min-w-[180px] shrink-0 bg-[var(--surface)] border border-dashed border-[var(--border)] rounded-xl p-4 flex flex-col items-center justify-center gap-2 opacity-60">
+        <Coffee className="w-5 h-5 text-[var(--text-muted)]" />
+        <p className="text-sm font-medium text-[var(--text-muted)]">Break</p>
+        <p className="text-xs text-[var(--text-muted)]">{slot.startTime} – {slot.endTime}</p>
+      </div>
+    )
+  }
+
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.05 }}
       className={cn(
-        'flex-shrink-0 w-44 rounded-[var(--radius-lg)] p-4 border transition-all duration-200',
-        state === 'current' &&
-          'border-[var(--gold)] bg-[var(--gold)]/10 shadow-[0_0_16px_rgba(212,168,67,0.2)]',
-        state === 'past' &&
-          'border-[var(--border)] bg-[var(--surface)] opacity-50',
-        state === 'upcoming' &&
-          'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--gold)]/50 hover:bg-[var(--gold)]/5'
+        'min-w-[260px] shrink-0 rounded-xl p-4 border flex flex-col gap-2 transition-all',
+        state === 'current' && 'border-l-4 border-l-[var(--gold)] border-[var(--gold)]/30 bg-[var(--gold)]/8 shadow-[0_0_16px_rgba(212,168,67,0.15)]',
+        state === 'past' && 'border-[var(--border)] bg-[var(--surface)] opacity-50',
+        state === 'upcoming' && 'border-[var(--border)] bg-[var(--surface)]',
       )}
     >
-      <div className="flex items-center justify-between mb-2">
-        <span
-          className={cn(
-            'text-xs font-bold uppercase tracking-wider',
-            state === 'current' ? 'text-[var(--gold)]' : 'text-[var(--text-muted)]'
-          )}
-        >
-          {isBreak ? 'Break' : `Period ${slot.slotNumber}`}
+      <div className="flex items-center justify-between">
+        <span className={cn(
+          'text-xs font-semibold px-2 py-0.5 rounded-full',
+          state === 'current'
+            ? 'bg-[var(--gold)]/20 text-[var(--gold)]'
+            : 'bg-[var(--surface-hover)] text-[var(--text-muted)]'
+        )}>
+          Period {slot.slotNumber}
         </span>
-        {state === 'current' && (
-          <span className="flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-[var(--gold)] opacity-75" />
+        <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
+          <Clock className="w-3 h-3" />
+          {slot.startTime} – {slot.endTime}
+        </span>
+      </div>
+      <h3 className="font-semibold text-[var(--text)] leading-tight">{slot.subjectName ?? '—'}</h3>
+      <p className="text-xs text-[var(--text-muted)]">{slot.sectionName}</p>
+      {state === 'current' && (
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--gold)] opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--gold)]" />
           </span>
-        )}
-        {isBreak && <Coffee className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
-      </div>
-
-      <div className="flex items-center gap-1 text-xs text-[var(--text-muted)] mb-3">
-        <Clock className="w-3 h-3" />
-        <span>{slot.startTime} – {slot.endTime}</span>
-      </div>
-
-      {isBreak ? (
-        <p className="text-sm font-medium text-[var(--text-muted)]">Break Time</p>
-      ) : (
-        <>
-          <p className={cn(
-            'text-sm font-semibold truncate',
-            state === 'current' ? 'text-[var(--text)]' : 'text-[var(--text)]'
-          )}>
-            {slot.subjectName ?? '—'}
-          </p>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">{slot.sectionName}</p>
-        </>
+          <span className="text-[10px] font-bold text-[var(--gold)] uppercase tracking-wider">Live Now</span>
+        </div>
       )}
+    </motion.div>
+  )
+}
+
+// ── Quick action tile ─────────────────────────────────────────────────────────
+function QuickAction({ href, icon: Icon, label, colorClass }: {
+  href: string; icon: React.ElementType; label: string; colorClass: string
+}) {
+  return (
+    <Link
+      href={href}
+      className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 flex flex-col items-center justify-center gap-3 aspect-square hover:bg-[var(--surface-hover)] transition-colors active:scale-95"
+    >
+      <div className={cn('h-12 w-12 rounded-full flex items-center justify-center', colorClass)}>
+        <Icon className="w-6 h-6" />
+      </div>
+      <span className="text-xs font-semibold text-[var(--text)] text-center leading-tight">{label}</span>
+    </Link>
+  )
+}
+
+// ── Section row ───────────────────────────────────────────────────────────────
+function SectionRow({ section }: { section: TeacherSection }) {
+  return (
+    <Link
+      href={`/teacher/my-classes/${section.id}`}
+      className="bg-[var(--surface)] border border-[var(--border)] border-l-4 border-l-[var(--primary)] rounded-r-xl p-4 flex items-center justify-between hover:bg-[var(--surface-hover)] transition-colors active:scale-[0.99]"
+    >
+      <div className="min-w-0">
+        <h3 className="font-semibold text-[var(--text)]">Section {section.name}</h3>
+        <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">
+          {section.programName} · {section.gradeName}
+        </p>
+      </div>
+      <div className="flex items-center gap-3 shrink-0 ml-3">
+        <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+          <UserRound className="w-3.5 h-3.5" />
+          <span>{section.studentCount}</span>
+        </div>
+        <ChevronRight className="w-4 h-4 text-[var(--gold)]" />
+      </div>
+    </Link>
+  )
+}
+
+// ── Exam card ─────────────────────────────────────────────────────────────────
+const EXAM_STATUS: Record<string, { bg: string; text: string }> = {
+  SCHEDULED: { bg: 'bg-blue-500/15',   text: 'text-blue-400' },
+  ONGOING:   { bg: 'bg-emerald-500/15',text: 'text-emerald-400' },
+  COMPLETED: { bg: 'bg-white/5',       text: 'text-[var(--text-muted)]' },
+  CANCELLED: { bg: 'bg-red-500/15',    text: 'text-red-400' },
+}
+
+function ExamCard({ exam }: { exam: TeacherUpcomingExam }) {
+  const style = EXAM_STATUS[exam.status] ?? EXAM_STATUS.SCHEDULED
+  const date = new Date(exam.date)
+  const day = date.toLocaleDateString('en-PK', { day: 'numeric' })
+  const month = date.toLocaleDateString('en-PK', { month: 'short' })
+
+  return (
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl flex overflow-hidden">
+      <div className="w-16 bg-[var(--primary)] flex flex-col items-center justify-center py-3 shrink-0">
+        <span className="text-[10px] font-semibold text-white/70 uppercase">{month}</span>
+        <span className="text-2xl font-bold text-white leading-tight">{day}</span>
+      </div>
+      <div className="p-3 flex-1 flex flex-col justify-center min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold text-sm text-[var(--text)] truncate">{exam.subjectName}</h3>
+          <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0', style.bg, style.text)}>
+            {exam.status}
+          </span>
+        </div>
+        <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">{exam.sectionName} · {exam.startTime}</p>
+      </div>
     </div>
   )
 }
 
-// ── Today's Schedule ─────────────────────────────────────────────────────
-
-function TodayScheduleSection({
-  slots,
-  isLoading,
-}: {
-  slots: TodayScheduleSlot[]
-  isLoading: boolean
-}) {
-  return (
-    <Card className="flex flex-col">
-      <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[var(--border)]">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="w-4 h-4 text-[var(--text-muted)]" />
-          <h3 className="text-sm font-semibold text-[var(--text)]">Today's Schedule</h3>
-        </div>
-        <span className="text-xs text-[var(--text-muted)]">
-          {new Date().toLocaleDateString('en-PK', { weekday: 'long', month: 'long', day: 'numeric' })}
-        </span>
-      </div>
-
-      <div className="p-5">
-        {isLoading ? (
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-44 h-28 rounded-[var(--radius-lg)] bg-[var(--surface)] border border-[var(--border)] animate-pulse" />
-            ))}
-          </div>
-        ) : slots.length === 0 ? (
-          <EmptyState
-            title="No classes today"
-            description="You have no scheduled periods for today"
-            icon={<CalendarDays className="w-8 h-8" />}
-          />
-        ) : (
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {slots.map((slot) => (
-              <PeriodCard key={slot.id} slot={slot} />
-            ))}
-          </div>
-        )}
-      </div>
-    </Card>
-  )
-}
-
-// ── My Sections Card ─────────────────────────────────────────────────────
-
-function MySectionsCard({
-  sections,
-  isLoading,
-}: {
-  sections: TeacherSection[]
-  isLoading: boolean
-}) {
-  return (
-    <Card className="flex flex-col">
-      <div className="flex items-center gap-2 px-5 pt-5 pb-3 border-b border-[var(--border)]">
-        <Users className="w-4 h-4 text-[var(--text-muted)]" />
-        <h3 className="text-sm font-semibold text-[var(--text)]">My Sections</h3>
-      </div>
-      <div className="flex-1 p-4 space-y-2">
-        {isLoading ? (
-          [...Array(3)].map((_, i) => <Skeleton key={i} variant="text" className="h-12" />)
-        ) : sections.length === 0 ? (
-          <p className="text-sm text-[var(--text-muted)] text-center py-6">
-            No sections assigned
-          </p>
-        ) : (
-          sections.map((section) => (
-            <div
-              key={section.id}
-              className="flex items-center justify-between px-3 py-2.5 rounded-[var(--radius)] bg-[var(--background)] border border-[var(--border)] hover:border-[var(--gold)]/40 transition-colors group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-[var(--radius)] bg-[var(--gold)]/10 border border-[var(--gold)]/20 flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="w-3.5 h-3.5 text-[var(--gold)]" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-[var(--text)] truncate">{section.name}</p>
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">
-                    {section.programName} · {section.gradeName}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
-                  <UserRound className="w-3 h-3" />
-                  <span>{section.studentCount}</span>
-                </div>
-                <Link
-                  href="/attendance/students"
-                  className="flex items-center gap-1 text-xs text-[var(--text-muted)] group-hover:text-[var(--gold)] transition-colors opacity-0 group-hover:opacity-100"
-                >
-                  <ClipboardCheck className="w-3.5 h-3.5" />
-                  Mark
-                </Link>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Quick link at bottom */}
-      <div className="px-4 pb-4 border-t border-[var(--border)] pt-3">
-        <Link
-          href="/attendance/students"
-          className="flex items-center justify-center gap-2 w-full py-2 rounded-[var(--radius)] text-xs font-medium text-[var(--gold)] border border-[var(--gold)]/30 hover:bg-[var(--gold)]/10 transition-colors"
-        >
-          <ClipboardCheck className="w-3.5 h-3.5" />
-          Mark Attendance
-          <ArrowRight className="w-3 h-3" />
-        </Link>
-      </div>
-    </Card>
-  )
-}
-
-// ── Upcoming Exams Card ───────────────────────────────────────────────────
-
-const EXAM_STATUS_STYLES: Record<string, string> = {
-  SCHEDULED: 'bg-blue-500/15 text-blue-400 border-blue-500/25',
-  ONGOING: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-  COMPLETED: 'bg-white/5 text-[var(--text-muted)] border-[var(--border)]',
-  CANCELLED: 'bg-red-500/15 text-red-400 border-red-500/25',
-}
-
-function ExamStatusPill({ status }: { status: string }) {
-  const cls = EXAM_STATUS_STYLES[status] ?? EXAM_STATUS_STYLES.SCHEDULED
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${cls}`}>
-      {status}
-    </span>
-  )
-}
-
-function UpcomingExamsCard({
-  exams,
-  isLoading,
-}: {
-  exams: TeacherUpcomingExam[]
-  isLoading: boolean
-}) {
-  return (
-    <Card className="flex flex-col">
-      <div className="flex items-center gap-2 px-5 pt-5 pb-3 border-b border-[var(--border)]">
-        <BookOpen className="w-4 h-4 text-[var(--text-muted)]" />
-        <h3 className="text-sm font-semibold text-[var(--text)]">Upcoming Exams</h3>
-        {exams.length > 0 && (
-          <span className="ml-auto text-xs text-[var(--text-muted)] font-medium">{exams.length} scheduled</span>
-        )}
-      </div>
-      <div className="flex-1 overflow-auto">
-        {isLoading ? (
-          <div className="p-4 space-y-2">
-            {[...Array(3)].map((_, i) => <Skeleton key={i} variant="text" className="h-10" />)}
-          </div>
-        ) : exams.length === 0 ? (
-          <div className="p-4">
-            <EmptyState
-              title="No upcoming exams"
-              description="No exams scheduled in your sections"
-              icon={<BookOpen className="w-8 h-8" />}
-            />
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[var(--border)] bg-white/2">
-                {['Date', 'Section', 'Subject', 'Type', 'Status'].map((h) => (
-                  <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--border)]">
-              {exams.map((exam) => (
-                <tr key={exam.id} className="hover:bg-[var(--surface)] transition-colors">
-                  <td className="px-4 py-3">
-                    <p className="text-xs font-semibold text-[var(--text)]">
-                      {new Date(exam.date).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' })}
-                    </p>
-                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{exam.startTime}</p>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-[var(--text)]">{exam.sectionName}</td>
-                  <td className="px-4 py-3 text-xs font-medium text-[var(--text)]">{exam.subjectName}</td>
-                  <td className="px-4 py-3 text-[10px] text-[var(--text-muted)]">{exam.examTypeName}</td>
-                  <td className="px-4 py-3">
-                    <ExamStatusPill status={exam.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </Card>
-  )
-}
-
-// ── Recent Attendance Card ────────────────────────────────────────────────
-
-function RecentAttendanceCard({
-  sessions,
-  isLoading,
-}: {
-  sessions: RecentAttendanceSession[]
-  isLoading: boolean
-}) {
-  if (isLoading || sessions.length === 0) return null
-
-  return (
-    <Card className="flex flex-col">
-      <div className="flex items-center gap-2 px-5 pt-5 pb-3 border-b border-[var(--border)]">
-        <ClipboardCheck className="w-4 h-4 text-[var(--text-muted)]" />
-        <h3 className="text-sm font-semibold text-[var(--text)]">Recently Marked</h3>
-      </div>
-      <ul className="divide-y divide-[var(--border)]">
-        {sessions.map((s, i) => (
-          <li key={i} className="flex items-center justify-between px-5 py-3">
-            <div>
-              <p className="text-sm font-medium text-[var(--text)]">{s.sectionName}</p>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">{s.subjectName}</p>
-            </div>
-            <div className="text-right">
-              <Badge variant="present" size="sm">Marked</Badge>
-              <p className="text-xs text-[var(--text-muted)] mt-1">
-                {new Date(s.date).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' })}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </Card>
-  )
-}
-
-// ── Page ──────────────────────────────────────────────────────────────────
-
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function TeacherDashboardPage() {
   const { data, isLoading } = useTeacherDashboard()
+  const user = useCurrentUser()
+
+  const today = new Date().toLocaleDateString('en-PK', {
+    weekday: 'long', month: 'long', day: 'numeric'
+  })
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)] p-8 gap-6">
-      <PageHeader
-        title="My Dashboard"
-        subtitle="Your classes, sections, and upcoming exams at a glance"
-        breadcrumb={[{ label: 'Home', href: '/teacher/dashboard' }, { label: 'Dashboard' }]}
-      />
+    <div className="min-h-screen bg-[var(--bg)]">
+      {/* Sticky header */}
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center justify-between">
+        <div>
+          <h1 className="font-bold text-lg text-[var(--text)] leading-tight">Good Morning, Sir 👋</h1>
+          <p className="text-xs text-[var(--gold)] font-medium">{today}</p>
+        </div>
+        <div className="w-9 h-9 rounded-full bg-[var(--primary)] flex items-center justify-center text-white text-sm font-bold shrink-0">
+          {user?.fullName ? getInitials(user.fullName) : 'AT'}
+        </div>
+      </header>
 
-      {/* Today's schedule timeline */}
-      <TodayScheduleSection
-        slots={data?.todaySchedule ?? []}
-        isLoading={isLoading}
-      />
+      <div className="p-4 space-y-8">
+        {/* Today's Schedule */}
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">
+            Today&apos;s Schedule
+          </h2>
+          {isLoading ? (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[260px] shrink-0 h-28 rounded-xl bg-[var(--surface)] border border-[var(--border)] animate-pulse" />
+              ))}
+            </div>
+          ) : (data?.todaySchedule ?? []).length === 0 ? (
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center text-sm text-[var(--text-muted)]">
+              No classes scheduled today
+            </div>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {(data?.todaySchedule ?? []).map((slot, i) => (
+                <PeriodCard key={slot.id} slot={slot} index={i} />
+              ))}
+            </div>
+          )}
+        </section>
 
-      {/* My sections + upcoming exams */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <MySectionsCard sections={data?.mySections ?? []} isLoading={isLoading} />
-        <UpcomingExamsCard exams={data?.upcomingExams ?? []} isLoading={isLoading} />
+        {/* Quick Actions */}
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">
+            Quick Actions
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            <QuickAction href="/teacher/attendance/history" icon={ClipboardCheck} label="Mark Attendance" colorClass="bg-[var(--primary)]/15 text-[var(--primary)]" />
+            <QuickAction href="/teacher/results" icon={BookMarked} label="Enter Results" colorClass="bg-[var(--gold)]/15 text-[var(--gold)]" />
+            <QuickAction href="/teacher/exams" icon={FileText} label="View Exams" colorClass="bg-purple-500/15 text-purple-400" />
+          </div>
+        </section>
+
+        {/* My Sections */}
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">
+            My Sections
+          </h2>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="h-16 rounded-xl bg-[var(--surface)] border border-[var(--border)] animate-pulse" />
+              ))}
+            </div>
+          ) : (data?.mySections ?? []).length === 0 ? (
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center text-sm text-[var(--text-muted)]">
+              No sections assigned
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {(data?.mySections ?? []).map(section => (
+                <SectionRow key={section.id} section={section} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Upcoming Exams */}
+        {(isLoading || (data?.upcomingExams ?? []).length > 0) && (
+          <section>
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">
+              Upcoming Exams
+            </h2>
+            {isLoading ? (
+              <div className="space-y-2">
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="h-16 rounded-xl bg-[var(--surface)] border border-[var(--border)] animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {(data?.upcomingExams ?? []).map(exam => (
+                  <ExamCard key={exam.id} exam={exam} />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Recently Marked */}
+        {(data?.recentAttendance ?? []).length > 0 && (
+          <section>
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">
+              Recently Marked
+            </h2>
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl divide-y divide-[var(--border)]">
+              {(data?.recentAttendance ?? []).map((s, i) => (
+                <div key={i} className="flex items-center justify-between px-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium text-[var(--text)]">{s.sectionName}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{s.subjectName}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">Marked</span>
+                    <p className="text-xs text-[var(--text-muted)] mt-1">
+                      {new Date(s.date).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
-
-      {/* Recently marked attendance — only shown when data exists */}
-      <RecentAttendanceCard
-        sessions={data?.recentAttendance ?? []}
-        isLoading={isLoading}
-      />
     </div>
   )
 }

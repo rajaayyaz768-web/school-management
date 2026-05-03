@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useRole } from '@/store/authStore';
 import { usePrograms, useToggleProgramStatus } from '@/features/programs/hooks/usePrograms';
 import { Program } from '@/features/programs/types/programs.types';
@@ -102,25 +103,39 @@ export function ProgramsPage({ campusId, groupByCampus = false, navigation }: Pr
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
-      <PageHeader
-        title="Programs Management"
-        breadcrumb={[
-          { label: 'Home', href: '/' },
-          { label: 'Programs' },
-        ]}
-        actions={
-          isAdminOrSuper ? (
-            <Button variant="gold" onClick={() => setIsAddModalOpen(true)}>
-              Add Program
-            </Button>
-          ) : undefined
-        }
-      />
+    <div className="min-h-screen bg-[var(--bg)]">
+      {/* Mobile header */}
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center justify-between md:hidden">
+        <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Programs</h1>
+        {isAdminOrSuper && (
+          <button onClick={() => setIsAddModalOpen(true)} className="p-2 rounded-full bg-[var(--primary)] text-white active:opacity-80 transition-opacity">
+            <Plus className="w-5 h-5" />
+          </button>
+        )}
+      </header>
 
-      {navigation}
+      {/* Desktop header */}
+      <div className="hidden md:block max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <PageHeader
+          title="Programs Management"
+          breadcrumb={[
+            { label: 'Home', href: '/' },
+            { label: 'Programs' },
+          ]}
+          actions={
+            isAdminOrSuper ? (
+              <Button variant="gold" onClick={() => setIsAddModalOpen(true)}>
+                Add Program
+              </Button>
+            ) : undefined
+          }
+        />
+      </div>
 
-      <div className="mt-8">{renderContent()}</div>
+      <div className="p-4 md:max-w-7xl md:mx-auto md:px-6 lg:px-8 md:py-0 space-y-4">
+        {navigation}
+        <div>{renderContent()}</div>
+      </div>
 
       <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add Program" size="md">
         <ProgramForm onSuccess={() => setIsAddModalOpen(false)} onCancel={() => setIsAddModalOpen(false)} />

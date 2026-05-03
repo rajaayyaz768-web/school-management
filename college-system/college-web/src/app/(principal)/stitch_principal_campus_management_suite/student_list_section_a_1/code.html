@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Students - Alexandria Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&amp;family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-high": "#e9e8e9",
+                    "on-secondary-fixed-variant": "#42474b",
+                    "on-primary-fixed-variant": "#00419d",
+                    "surface-container-highest": "#e3e2e3",
+                    "on-tertiary-fixed-variant": "#524600",
+                    "on-tertiary-fixed": "#211b00",
+                    "primary-container": "#3366cc",
+                    "on-tertiary-container": "#4a3f00",
+                    "on-surface-variant": "#434653",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#c2c7cc",
+                    "surface-container": "#efedee",
+                    "background": "#faf9fa",
+                    "surface-bright": "#faf9fa",
+                    "tertiary-fixed": "#f9e37a",
+                    "surface-container-lowest": "#ffffff",
+                    "surface": "#faf9fa",
+                    "on-background": "#1b1c1d",
+                    "on-secondary-fixed": "#171c20",
+                    "inverse-surface": "#303031",
+                    "secondary": "#5a5f63",
+                    "tertiary": "#6d5e00",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#dfe3e8",
+                    "primary-fixed": "#d9e2ff",
+                    "surface-dim": "#dbdadb",
+                    "surface-variant": "#e3e2e3",
+                    "surface-tint": "#2259bf",
+                    "surface-container-low": "#f5f3f4",
+                    "tertiary-fixed-dim": "#dcc661",
+                    "outline": "#737784",
+                    "on-surface": "#1b1c1d",
+                    "on-secondary-container": "#606569",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f2f0f1",
+                    "primary-fixed-dim": "#b1c5ff",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "outline-variant": "#c3c6d5",
+                    "on-primary-fixed": "#001946",
+                    "secondary-container": "#dfe3e8",
+                    "error": "#ba1a1a",
+                    "primary": "#094cb2",
+                    "on-primary-container": "#e7ebff",
+                    "inverse-primary": "#b1c5ff",
+                    "tertiary-container": "#bfab49"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+              "safe": "env(safe-area-inset-bottom)"
+            },
+            "fontFamily": {
+                    "headline": [
+                            "Noto Serif", "serif"
+                    ],
+                    "display": [
+                            "Noto Serif", "serif"
+                    ],
+                    "body": [
+                            "Inter", "sans-serif"
+                    ],
+                    "label": [
+                            "Public Sans", "sans-serif"
+                    ]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-serif { font-family: 'Noto Serif', serif; }
+        .font-sans.text-\[10px\] { font-family: 'Public Sans', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-background min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-slate-900 dark:bg-slate-950 docked full-width top-0 sticky z-40">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4 text-blue-700 dark:text-blue-400">
+<button aria-label="Go back" class="flex items-center justify-center hover:bg-slate-800 dark:hover:bg-slate-900 rounded-full p-2 transition-colors duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-serif text-xl font-bold leading-tight text-lg font-bold text-blue-700 dark:text-blue-400">Alexandria Admin</h1>
+</div>
+<button class="font-label text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-slate-800 dark:hover:bg-slate-900 px-4 py-2 rounded-lg transition-colors duration-200">
+                Campus
+            </button>
+</div>
+<div class="h-[1px] w-full bg-slate-800 dark:bg-slate-900"></div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow flex flex-col w-full max-w-7xl mx-auto pb-24 md:pb-8">
+<!-- Header Content -->
+<section class="px-6 pt-8 pb-6">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<div class="flex items-center gap-2 mb-2 text-on-surface-variant font-label text-sm">
+<span>Classes</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="font-semibold text-primary">Section A</span>
+</div>
+<h2 class="font-headline text-4xl text-on-background font-black tracking-tight">Section A</h2>
+<p class="text-on-surface-variant font-body mt-2 text-lg">32 Enrolled Students</p>
+</div>
+</div>
+<!-- Search and Filter Bar -->
+<div class="flex flex-col md:flex-row gap-4 bg-surface-container-lowest p-2 rounded-xl shadow-sm border border-outline-variant/20 mb-8">
+<div class="relative flex-grow">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border-0 rounded-lg focus:ring-2 focus:ring-primary text-body focus:outline-none placeholder-outline" placeholder="Search students..." type="text"/>
+</div>
+<div class="flex gap-2 items-center overflow-x-auto pb-2 md:pb-0 px-2 md:px-0 scrollbar-hide">
+<button class="px-4 py-2 bg-primary text-on-primary rounded-full font-label text-sm font-semibold whitespace-nowrap transition-transform active:scale-95">All</button>
+<button class="px-4 py-2 bg-surface-container-high text-on-surface hover:bg-surface-variant rounded-full font-label text-sm font-semibold whitespace-nowrap transition-colors">Active</button>
+<button class="px-4 py-2 bg-surface-container-high text-on-surface hover:bg-surface-variant rounded-full font-label text-sm font-semibold whitespace-nowrap transition-colors">Inactive</button>
+</div>
+</div>
+<!-- Student List Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<!-- Student Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md cursor-pointer border border-outline-variant/15 relative overflow-hidden group">
+<div class="absolute inset-y-0 left-0 w-1 bg-primary transform origin-left transition-transform duration-300 scale-x-0 group-hover:scale-x-100"></div>
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-headline font-bold text-lg shrink-0">
+                        EJ
+                    </div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-body font-bold text-on-background truncate text-base">Eleanor James</h3>
+<div class="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ml-2" title="Active"></div>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="text-on-surface-variant font-label">#1042</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-on-surface-variant font-label bg-surface-container px-2 py-0.5 rounded-md text-xs">Sec A</span>
+</div>
+</div>
+<button class="shrink-0 font-label text-xs font-bold text-primary bg-primary-container/20 hover:bg-primary-container/40 px-3 py-1.5 rounded-full transition-colors">
+                        View
+                    </button>
+</div>
+<!-- Student Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md cursor-pointer border border-outline-variant/15 relative overflow-hidden group">
+<div class="absolute inset-y-0 left-0 w-1 bg-primary transform origin-left transition-transform duration-300 scale-x-0 group-hover:scale-x-100"></div>
+<div class="w-12 h-12 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-headline font-bold text-lg shrink-0">
+                        MW
+                    </div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-body font-bold text-on-background truncate text-base">Marcus Webb</h3>
+<div class="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ml-2" title="Active"></div>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="text-on-surface-variant font-label">#1045</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-on-surface-variant font-label bg-surface-container px-2 py-0.5 rounded-md text-xs">Sec A</span>
+</div>
+</div>
+<button class="shrink-0 font-label text-xs font-bold text-primary bg-primary-container/20 hover:bg-primary-container/40 px-3 py-1.5 rounded-full transition-colors">
+                        View
+                    </button>
+</div>
+<!-- Student Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md cursor-pointer border border-outline-variant/15 relative overflow-hidden group">
+<div class="absolute inset-y-0 left-0 w-1 bg-primary transform origin-left transition-transform duration-300 scale-x-0 group-hover:scale-x-100"></div>
+<div class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-headline font-bold text-lg shrink-0">
+                        SK
+                    </div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-body font-bold text-on-background truncate text-base">Sarah Kensington</h3>
+<div class="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ml-2" title="Active"></div>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="text-on-surface-variant font-label">#1048</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-on-surface-variant font-label bg-surface-container px-2 py-0.5 rounded-md text-xs">Sec A</span>
+</div>
+</div>
+<button class="shrink-0 font-label text-xs font-bold text-primary bg-primary-container/20 hover:bg-primary-container/40 px-3 py-1.5 rounded-full transition-colors">
+                        View
+                    </button>
+</div>
+<!-- Student Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md cursor-pointer border border-outline-variant/15 relative overflow-hidden group">
+<div class="absolute inset-y-0 left-0 w-1 bg-primary transform origin-left transition-transform duration-300 scale-x-0 group-hover:scale-x-100"></div>
+<div class="w-12 h-12 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-headline font-bold text-lg shrink-0">
+                        TR
+                    </div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-body font-bold text-on-background truncate text-base text-on-surface-variant">Thomas Reed</h3>
+<div class="w-2 h-2 rounded-full bg-outline shrink-0 ml-2" title="Inactive"></div>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="text-on-surface-variant font-label opacity-70">#1051</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-on-surface-variant font-label bg-surface-container px-2 py-0.5 rounded-md text-xs opacity-70">Sec A</span>
+</div>
+</div>
+<button class="shrink-0 font-label text-xs font-bold text-on-surface-variant bg-surface-container hover:bg-surface-container-high px-3 py-1.5 rounded-full transition-colors">
+                        View
+                    </button>
+</div>
+<!-- Student Card 5 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md cursor-pointer border border-outline-variant/15 relative overflow-hidden group">
+<div class="absolute inset-y-0 left-0 w-1 bg-primary transform origin-left transition-transform duration-300 scale-x-0 group-hover:scale-x-100"></div>
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-headline font-bold text-lg shrink-0">
+                        AP
+                    </div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-body font-bold text-on-background truncate text-base">Aisha Patel</h3>
+<div class="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ml-2" title="Active"></div>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="text-on-surface-variant font-label">#1052</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-on-surface-variant font-label bg-surface-container px-2 py-0.5 rounded-md text-xs">Sec A</span>
+</div>
+</div>
+<button class="shrink-0 font-label text-xs font-bold text-primary bg-primary-container/20 hover:bg-primary-container/40 px-3 py-1.5 rounded-full transition-colors">
+                        View
+                    </button>
+</div>
+<!-- Student Card 6 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md cursor-pointer border border-outline-variant/15 relative overflow-hidden group">
+<div class="absolute inset-y-0 left-0 w-1 bg-primary transform origin-left transition-transform duration-300 scale-x-0 group-hover:scale-x-100"></div>
+<div class="w-12 h-12 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-headline font-bold text-lg shrink-0">
+                        LC
+                    </div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-body font-bold text-on-background truncate text-base">Liam Chen</h3>
+<div class="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ml-2" title="Active"></div>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="text-on-surface-variant font-label">#1055</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-on-surface-variant font-label bg-surface-container px-2 py-0.5 rounded-md text-xs">Sec A</span>
+</div>
+</div>
+<button class="shrink-0 font-label text-xs font-bold text-primary bg-primary-container/20 hover:bg-primary-container/40 px-3 py-1.5 rounded-full transition-colors">
+                        View
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-xl docked full-width bottom-0 rounded-t-xl border-t border-slate-800/50 shadow-2xl dark:shadow-none fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">dashboard</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">analytics</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Live</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">school</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Teachers</span>
+</a>
+<!-- Active Tab: People -->
+<a class="flex flex-col items-center justify-center text-blue-600 dark:text-blue-400 bg-blue-50/10 dark:bg-blue-900/20 rounded-xl px-3 py-1 scale-95 active:scale-90 duration-150 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">People</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">more_horiz</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">More</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#e9e8e9",
+                      "on-secondary-fixed-variant": "#42474b",
+                      "on-primary-fixed-variant": "#00419d",
+                      "surface-container-highest": "#e3e2e3",
+                      "on-tertiary-fixed-variant": "#524600",
+                      "on-tertiary-fixed": "#211b00",
+                      "primary-container": "#3366cc",
+                      "on-tertiary-container": "#4a3f00",
+                      "on-surface-variant": "#434653",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed-dim": "#c2c7cc",
+                      "surface-container": "#efedee",
+                      "background": "#faf9fa",
+                      "surface-bright": "#faf9fa",
+                      "tertiary-fixed": "#f9e37a",
+                      "surface-container-lowest": "#ffffff",
+                      "surface": "#faf9fa",
+                      "on-background": "#1b1c1d",
+                      "on-secondary-fixed": "#171c20",
+                      "inverse-surface": "#303031",
+                      "secondary": "#5a5f63",
+                      "tertiary": "#6d5e00",
+                      "on-error": "#ffffff",
+                      "secondary-fixed": "#dfe3e8",
+                      "primary-fixed": "#d9e2ff",
+                      "surface-dim": "#dbdadb",
+                      "surface-variant": "#e3e2e3",
+                      "surface-tint": "#2259bf",
+                      "surface-container-low": "#f5f3f4",
+                      "tertiary-fixed-dim": "#dcc661",
+                      "outline": "#737784",
+                      "on-surface": "#1b1c1d",
+                      "on-secondary-container": "#606569",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "inverse-on-surface": "#f2f0f1",
+                      "primary-fixed-dim": "#b1c5ff",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "outline-variant": "#c3c6d5",
+                      "on-primary-fixed": "#001946",
+                      "secondary-container": "#dfe3e8",
+                      "error": "#ba1a1a",
+                      "primary": "#094cb2",
+                      "on-primary-container": "#e7ebff",
+                      "inverse-primary": "#b1c5ff",
+                      "tertiary-container": "#bfab49"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Noto Serif"
+                      ],
+                      "display": [
+                              "Noto Serif"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Public Sans"
+                      ]
+              },
+              "fontSize": {},
+              "keyframes": {
+                "fade-in-up": {
+                  "0%": { opacity: "0", transform: "translateY(10px)" },
+                  "100%": { opacity: "1", transform: "translateY(0)" }
+                },
+                "slide-in-right": {
+                  "0%": { opacity: "0", transform: "translateX(20px)" },
+                  "100%": { opacity: "1", transform: "translateX(0)" }
+                },
+                "shimmer": {
+                  "0%": { backgroundPosition: "-200% 0" },
+                  "100%": { backgroundPosition: "200% 0" }
+                }
+              },
+              "animation": {
+                "fade-in-up": "fade-in-up 0.4s ease-out forwards",
+                "slide-in-right": "slide-in-right 0.3s ease-out forwards",
+                "shimmer": "shimmer 2s infinite linear"
+              }
+      },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--tw-colors-surface-container-high) 25%, var(--tw-colors-surface-container) 50%, var(--tw-colors-surface-container-high) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-slate-900 dark:bg-slate-950 flex justify-between items-center px-6 py-4 w-full docked full-width top-0 sticky z-40 bg-slate-800 dark:bg-slate-900 flat no shadows transition-colors duration-200">
+<div class="flex items-center gap-4">
+<button class="text-blue-700 dark:text-blue-400 font-bold hover:bg-slate-800 dark:hover:bg-slate-900 p-2 rounded-full transition-colors flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-serif text-xl font-bold leading-tight text-blue-700 dark:text-blue-400">Alexandria Admin</h1>
+</div>
+<button class="text-blue-700 dark:text-blue-400 font-bold hover:bg-slate-800 dark:hover:bg-slate-900 px-4 py-2 rounded-full transition-colors font-label uppercase tracking-wider text-sm active:scale-95 transition-transform">
+            Campus
+        </button>
+</header>
+<!-- Page Content Canvas -->
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8 animate-fade-in-up">
+<!-- Header & Tabs Area -->
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline text-3xl font-bold text-on-background tracking-tight">Admin Management</h2>
+<button class="bg-primary text-on-primary w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</div>
+<!-- Custom Tabs -->
+<div class="flex space-x-1 border-b border-surface-variant overflow-x-auto hide-scrollbar">
+<button class="px-4 py-3 border-b-2 border-primary text-primary font-label font-semibold whitespace-nowrap active:scale-95 transition-transform">
+                    Admins
+                </button>
+<button class="px-4 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label font-semibold whitespace-nowrap flex items-center gap-2 active:scale-95 transition-transform">
+                    Device Requests
+                    <span class="bg-tertiary text-on-tertiary text-xs py-0.5 px-2 rounded-full font-bold">3</span>
+</button>
+<button class="px-4 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label font-semibold whitespace-nowrap active:scale-95 transition-transform">
+                    Networks
+                </button>
+</div>
+</div>
+<!-- Skeleton Loading State (Hidden by default, shown when loading) -->
+<div class="hidden grid-cols-1 md:grid-cols-2 gap-6" id="skeleton-container">
+<div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden h-[120px] skeleton"></div>
+<div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden h-[120px] skeleton"></div>
+</div>
+<!-- Admins List Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-in-right">
+<!-- Card 1 (Collapsed) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden group hover:shadow-md transition-shadow active:scale-[0.98] transition-transform opacity-0 animate-[fade-in-up_0.4s_ease-out_0.1s_forwards]">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center relative">
+<span class="font-headline font-bold text-lg text-primary">JD</span>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface-container-lowest rounded-full transition-transform group-hover:scale-110"></div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-background text-lg group-hover:text-primary transition-colors">John Doe</h3>
+<p class="text-on-surface-variant text-sm">john.doe@example.com</p>
+</div>
+</div>
+<span class="bg-primary-container text-on-primary-container text-xs font-label px-3 py-1 rounded-full font-semibold transition-colors group-hover:bg-primary group-hover:text-on-primary">Boys Campus</span>
+</div>
+<button class="mt-4 text-primary font-label text-sm font-semibold hover:underline flex items-center gap-1 w-full justify-center group/btn">
+                    View Details <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-y-0.5">expand_more</span>
+</button>
+</div>
+<!-- Card 2 (Expanded) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden shadow-sm outline outline-1 outline-outline-variant/30 hover:shadow-md transition-shadow active:scale-[0.98] transition-transform opacity-0 animate-[fade-in-up_0.4s_ease-out_0.2s_forwards]">
+<div class="flex items-start justify-between mb-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center relative">
+<span class="font-headline font-bold text-lg text-primary">AS</span>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface-container-lowest rounded-full transition-transform hover:scale-110"></div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-background text-lg">Alice Smith</h3>
+<p class="text-on-surface-variant text-sm">alice.s@example.com</p>
+</div>
+</div>
+<span class="bg-primary-container text-on-primary-container text-xs font-label px-3 py-1 rounded-full font-semibold">Girls Campus</span>
+</div>
+<div class="space-y-4 border-t border-surface-variant pt-4 transition-all duration-300 ease-in-out origin-top">
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<p class="text-on-surface-variant font-label mb-1">Device</p>
+<p class="font-semibold text-on-background flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">laptop_mac</span> MacBook Pro</p>
+</div>
+<div>
+<p class="text-on-surface-variant font-label mb-1">Browser</p>
+<p class="font-semibold text-on-background">Chrome 114</p>
+</div>
+<div class="col-span-2">
+<p class="text-on-surface-variant font-label mb-1">Last Active</p>
+<p class="font-semibold text-on-background">Today, 10:42 AM</p>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="font-label font-semibold text-on-background">Network Access</span>
+<div class="w-11 h-6 bg-primary rounded-full relative cursor-pointer active:scale-95 transition-transform hover:bg-primary/90">
+<div class="absolute right-1 top-1 w-4 h-4 bg-on-primary rounded-full transition-transform"></div>
+</div>
+</div>
+</div>
+<button class="mt-6 text-on-surface-variant font-label text-sm font-semibold hover:text-on-background flex items-center gap-1 w-full justify-center transition-colors group/btn">
+                    Hide Details <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:-translate-y-0.5">expand_less</span>
+</button>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden group hover:shadow-md transition-shadow active:scale-[0.98] transition-transform opacity-0 animate-[fade-in-up_0.4s_ease-out_0.3s_forwards]">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center relative">
+<span class="font-headline font-bold text-lg text-on-surface-variant">MJ</span>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-outline border-2 border-surface-container-lowest rounded-full transition-transform group-hover:scale-110"></div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-background text-lg group-hover:text-primary transition-colors">Mike Johnson</h3>
+<p class="text-on-surface-variant text-sm">mj@example.com</p>
+</div>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant text-xs font-label px-3 py-1 rounded-full font-semibold transition-colors group-hover:bg-outline-variant">Staff</span>
+</div>
+<button class="mt-4 text-primary font-label text-sm font-semibold hover:underline flex items-center gap-1 w-full justify-center group/btn">
+                    View Details <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-y-0.5">expand_more</span>
+</button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-800/50 shadow-2xl dark:shadow-none fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe docked full-width bottom-0 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1">analytics</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Live</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1">school</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Teachers</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1">groups</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">People</span>
+</a>
+<!-- Active Tab -->
+<a class="flex flex-col items-center justify-center text-blue-600 dark:text-blue-400 bg-blue-50/10 dark:bg-blue-900/20 rounded-xl px-3 py-1 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">more_horiz</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">More</span>
+</a>
+</nav>
+</body></html>

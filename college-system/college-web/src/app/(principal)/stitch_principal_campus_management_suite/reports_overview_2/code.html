@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reports - Boys Campus</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-container-high": "#e9e8e9",
+                "on-secondary-fixed-variant": "#42474b",
+                "on-primary-fixed-variant": "#00419d",
+                "surface-container-highest": "#e3e2e3",
+                "on-tertiary-fixed-variant": "#524600",
+                "on-tertiary-fixed": "#211b00",
+                "primary-container": "#3366cc",
+                "on-tertiary-container": "#4a3f00",
+                "on-surface-variant": "#434653",
+                "on-primary": "#ffffff",
+                "secondary-fixed-dim": "#c2c7cc",
+                "surface-container": "#efedee",
+                "background": "#faf9fa",
+                "surface-bright": "#faf9fa",
+                "tertiary-fixed": "#f9e37a",
+                "surface-container-lowest": "#ffffff",
+                "surface": "#faf9fa",
+                "on-background": "#1b1c1d",
+                "on-secondary-fixed": "#171c20",
+                "inverse-surface": "#303031",
+                "secondary": "#5a5f63",
+                "tertiary": "#6d5e00",
+                "on-error": "#ffffff",
+                "secondary-fixed": "#dfe3e8",
+                "primary-fixed": "#d9e2ff",
+                "surface-dim": "#dbdadb",
+                "surface-variant": "#e3e2e3",
+                "surface-tint": "#2259bf",
+                "surface-container-low": "#f5f3f4",
+                "tertiary-fixed-dim": "#dcc661",
+                "outline": "#737784",
+                "on-surface": "#1b1c1d",
+                "on-secondary-container": "#606569",
+                "on-error-container": "#93000a",
+                "error-container": "#ffdad6",
+                "inverse-on-surface": "#f2f0f1",
+                "primary-fixed-dim": "#b1c5ff",
+                "on-secondary": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "outline-variant": "#c3c6d5",
+                "on-primary-fixed": "#001946",
+                "secondary-container": "#dfe3e8",
+                "error": "#ba1a1a",
+                "primary": "#094cb2",
+                "on-primary-container": "#e7ebff",
+                "inverse-primary": "#b1c5ff",
+                "tertiary-container": "#bfab49"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {},
+        "fontFamily": {
+                "headline": [
+                        "Noto Serif"
+                ],
+                "display": [
+                        "Noto Serif"
+                ],
+                "body": [
+                        "Inter"
+                ],
+                "label": [
+                        "Public Sans"
+                ]
+        },
+        "fontSize": {},
+        "keyframes": {
+            "fade-in-up": {
+                "0%": { opacity: "0", transform: "translateY(10px)" },
+                "100%": { opacity: "1", transform: "translateY(0)" }
+            },
+            "grow-width": {
+                "0%": { width: "0%" }
+            },
+            "pulse-fast": {
+                "0%, 100%": { opacity: "1" },
+                "50%": { opacity: ".5" }
+            }
+        },
+        "animation": {
+            "fade-in-up": "fade-in-up 0.4s ease-out forwards",
+            "grow-width": "grow-width 1s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+            "pulse-fast": "pulse-fast 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite"
+        }
+},
+    },
+  }
+</script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<script>
+    function generateReport() {
+        const btn = document.getElementById('generate-btn');
+        const btnText = document.getElementById('generate-btn-text');
+        const btnIcon = document.getElementById('generate-btn-icon');
+        const spinner = document.getElementById('generate-btn-spinner');
+        const previewSection = document.getElementById('report-preview-section');
+        const skeleton = document.getElementById('report-skeleton');
+        const content = document.getElementById('report-content');
+
+        // Button loading state
+        btnText.textContent = 'Generating...';
+        btnIcon.classList.add('hidden');
+        spinner.classList.remove('hidden');
+        btn.disabled = true;
+        btn.classList.add('opacity-80', 'cursor-not-allowed');
+
+        // Show preview section with skeleton
+        previewSection.classList.remove('hidden');
+        previewSection.classList.add('animate-fade-in-up');
+        skeleton.classList.remove('hidden');
+        content.classList.add('hidden');
+
+        // Remove animation class from bars to reset them
+        const bars = content.querySelectorAll('.bar-fill');
+        bars.forEach(bar => {
+            bar.classList.remove('animate-grow-width');
+            // trigger reflow
+            void bar.offsetWidth;
+        });
+
+        setTimeout(() => {
+            // Reset button
+            btnText.textContent = 'Generate Report';
+            btnIcon.classList.remove('hidden');
+            spinner.classList.add('hidden');
+            btn.disabled = false;
+            btn.classList.remove('opacity-80', 'cursor-not-allowed');
+
+            // Hide skeleton, show content
+            skeleton.classList.add('hidden');
+            content.classList.remove('hidden');
+            content.classList.add('animate-fade-in-up');
+
+            // Trigger bar animations
+            bars.forEach(bar => {
+                bar.classList.add('animate-grow-width');
+            });
+        }, 1500);
+    }
+  </script>
+</head>
+<body class="bg-background text-on-background font-body pb-24">
+<!-- TopAppBar Component -->
+<nav class="flex justify-between items-center px-6 py-4 w-full bg-slate-900 dark:bg-slate-950 transition-colors duration-200 docked full-width top-0 sticky z-50">
+<div class="flex items-center gap-4">
+<button class="text-blue-700 dark:text-blue-400 hover:bg-slate-800 dark:hover:bg-slate-900 p-2 rounded-full transition-all duration-200 active:scale-95 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">arrow_back</span>
+</button>
+<h1 class="font-serif text-xl font-bold leading-tight text-blue-700 dark:text-blue-400">Alexandria Admin</h1>
+</div>
+<div class="flex items-center">
+<button class="text-blue-700 dark:text-blue-400 font-label text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-900 px-3 py-1.5 rounded-full transition-all duration-200 active:scale-95">
+            Campus
+        </button>
+</div>
+</nav>
+<!-- Page Header Area -->
+<header class="px-6 pt-8 pb-4 bg-surface-container-lowest">
+<div class="flex flex-col gap-2 opacity-0 animate-fade-in-up">
+<p class="font-label text-xs tracking-wider text-secondary uppercase">Management</p>
+<h2 class="font-headline text-3xl font-bold text-on-surface">Reports — Boys Campus</h2>
+</div>
+</header>
+<!-- Report Types Tabs (Scrollable on mobile) -->
+<div class="px-6 bg-surface-container-lowest border-b border-surface-container-highest sticky top-[72px] z-40 overflow-x-auto no-scrollbar">
+<div class="flex gap-8 min-w-max">
+<button class="py-4 border-b-2 border-primary text-primary font-label font-semibold text-sm active:scale-95 transition-transform duration-150">Attendance</button>
+<button class="py-4 border-b-2 border-transparent text-secondary hover:text-on-surface font-label font-semibold text-sm active:scale-95 transition-all duration-150">Fees</button>
+<button class="py-4 border-b-2 border-transparent text-secondary hover:text-on-surface font-label font-semibold text-sm active:scale-95 transition-all duration-150">Results</button>
+<button class="py-4 border-b-2 border-transparent text-secondary hover:text-on-surface font-label font-semibold text-sm active:scale-95 transition-all duration-150">Staff</button>
+</div>
+</div>
+<main class="px-6 py-8 flex flex-col gap-8 max-w-5xl mx-auto">
+<!-- Configuration Section (Bento style grid) -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Date Range Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col gap-4 opacity-0 animate-fade-in-up" style="animation-delay: 100ms;">
+<h3 class="font-headline text-lg font-bold text-on-surface">Timeframe</h3>
+<div class="flex gap-4 items-center">
+<div class="flex-1 bg-surface p-4 rounded-lg flex justify-between items-center cursor-pointer hover:bg-surface-container-low transition-all duration-150 active:scale-95">
+<div class="flex flex-col">
+<span class="font-label text-xs text-secondary mb-1">From Date</span>
+<span class="font-body font-medium text-on-surface">Sep 01, 2023</span>
+</div>
+<span class="material-symbols-outlined text-outline">calendar_month</span>
+</div>
+<div class="text-outline">
+<span class="material-symbols-outlined">arrow_forward</span>
+</div>
+<div class="flex-1 bg-surface p-4 rounded-lg flex justify-between items-center cursor-pointer hover:bg-surface-container-low transition-all duration-150 active:scale-95">
+<div class="flex flex-col">
+<span class="font-label text-xs text-secondary mb-1">To Date</span>
+<span class="font-body font-medium text-on-surface">Oct 31, 2023</span>
+</div>
+<span class="material-symbols-outlined text-outline">calendar_month</span>
+</div>
+</div>
+</div>
+<!-- Section/Filters Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col gap-4 opacity-0 animate-fade-in-up" style="animation-delay: 200ms;">
+<div class="flex justify-between items-center">
+<h3 class="font-headline text-lg font-bold text-on-surface">Target Groups</h3>
+<button class="text-primary font-label text-xs font-semibold hover:underline active:scale-95 transition-transform duration-150">Select All</button>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full bg-primary-container text-on-primary-container font-label text-sm font-medium transition-all duration-150 active:scale-95 opacity-0 animate-fade-in-up" style="animation-delay: 300ms;">Grade 10-A</button>
+<button class="px-4 py-2 rounded-full bg-primary-container text-on-primary-container font-label text-sm font-medium transition-all duration-150 active:scale-95 opacity-0 animate-fade-in-up" style="animation-delay: 350ms;">Grade 10-B</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest font-label text-sm font-medium transition-all duration-150 active:scale-95 opacity-0 animate-fade-in-up" style="animation-delay: 400ms;">Grade 11-A</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest font-label text-sm font-medium transition-all duration-150 active:scale-95 opacity-0 animate-fade-in-up" style="animation-delay: 450ms;">Grade 11-B</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest font-label text-sm font-medium transition-all duration-150 active:scale-95 flex items-center gap-1 opacity-0 animate-fade-in-up" style="animation-delay: 500ms;">
+<span class="material-symbols-outlined text-[16px]">add</span> More
+                 </button>
+</div>
+</div>
+<!-- Generate Button -->
+<div class="md:col-span-2 mt-2 opacity-0 animate-fade-in-up" style="animation-delay: 600ms;">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-label font-bold text-base py-4 rounded-xl shadow-sm hover:opacity-90 transition-all duration-150 active:scale-[0.98] flex justify-center items-center gap-2" id="generate-btn" onclick="generateReport()">
+<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-on-primary hidden" fill="none" id="generate-btn-spinner" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path>
+</svg>
+<span class="material-symbols-outlined" id="generate-btn-icon">analytics</span>
+<span id="generate-btn-text">Generate Report</span>
+</button>
+</div>
+</section>
+<!-- Report Preview Area -->
+<section class="flex flex-col gap-6 hidden" id="report-preview-section">
+<div class="flex justify-between items-end">
+<h2 class="font-headline text-2xl font-bold text-on-surface">Report Preview</h2>
+<p class="font-label text-xs text-secondary">Generated just now</p>
+</div>
+<!-- Skeleton Loading State -->
+<div class="bg-surface-container-lowest p-8 rounded-xl flex flex-col gap-8 shadow-sm hidden" id="report-skeleton">
+<div class="flex justify-between items-center pb-6 border-b border-surface-container-highest">
+<div class="flex items-center gap-3 w-full">
+<div class="w-12 h-12 rounded-full bg-surface-container-high animate-pulse-fast"></div>
+<div class="flex flex-col gap-2 flex-1">
+<div class="h-5 bg-surface-container-high rounded w-40 animate-pulse-fast"></div>
+<div class="h-4 bg-surface-container-high rounded w-32 animate-pulse-fast"></div>
+</div>
+</div>
+<div class="text-right flex flex-col gap-2 items-end">
+<div class="h-8 bg-surface-container-high rounded w-20 animate-pulse-fast"></div>
+<div class="h-3 bg-surface-container-high rounded w-24 animate-pulse-fast"></div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="flex flex-col gap-2">
+<div class="flex justify-between">
+<div class="h-4 bg-surface-container-high rounded w-16 animate-pulse-fast"></div>
+<div class="h-4 bg-surface-container-high rounded w-12 animate-pulse-fast"></div>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden animate-pulse-fast"></div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between">
+<div class="h-4 bg-surface-container-high rounded w-16 animate-pulse-fast"></div>
+<div class="h-4 bg-surface-container-high rounded w-12 animate-pulse-fast"></div>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden animate-pulse-fast"></div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between">
+<div class="h-4 bg-surface-container-high rounded w-16 animate-pulse-fast"></div>
+<div class="h-4 bg-surface-container-high rounded w-12 animate-pulse-fast"></div>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden animate-pulse-fast"></div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<div class="flex-1 h-12 bg-surface-container-high rounded-lg animate-pulse-fast"></div>
+<div class="flex-1 h-12 bg-surface-container-high rounded-lg animate-pulse-fast"></div>
+</div>
+</div>
+<!-- Actual Content -->
+<div class="bg-surface-container-lowest p-8 rounded-xl flex flex-col gap-8 shadow-sm" id="report-content">
+<div class="flex justify-between items-center pb-6 border-b border-surface-container-highest">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface">Overall Attendance</h4>
+<p class="font-body text-sm text-secondary">Boys Campus • Grade 10</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline text-3xl font-bold text-primary">92.4%</span>
+<p class="font-body text-xs text-secondary mt-1">+1.2% from last month</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Stat Item -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between font-label text-sm">
+<span class="text-on-surface-variant">Present</span>
+<span class="font-bold text-on-surface">1,420</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full bar-fill" style="width: 85%;"></div>
+</div>
+</div>
+<!-- Stat Item -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between font-label text-sm">
+<span class="text-on-surface-variant">Absent</span>
+<span class="font-bold text-on-surface">145</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full bar-fill" style="width: 10%;"></div>
+</div>
+</div>
+<!-- Stat Item -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between font-label text-sm">
+<span class="text-on-surface-variant">Late</span>
+<span class="font-bold text-on-surface">85</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container rounded-full bar-fill" style="width: 5%;"></div>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="flex-1 bg-tertiary text-on-tertiary font-label font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-all duration-150 active:scale-[0.98] flex justify-center items-center gap-2">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+                    Download PDF
+                </button>
+<button class="flex-1 border border-outline-variant text-on-surface font-label font-bold py-3 px-6 rounded-lg hover:bg-surface-container transition-all duration-150 active:scale-[0.98] flex justify-center items-center gap-2">
+<span class="material-symbols-outlined">table</span>
+                    Download Excel
+                </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Component -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-800/50 shadow-2xl dark:shadow-none block md:hidden">
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all duration-150 active:scale-90 gap-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all duration-150 active:scale-90 gap-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Live</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all duration-150 active:scale-90 gap-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Teachers</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all duration-150 active:scale-90 gap-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">People</span>
+</button>
+<button class="flex flex-col items-center justify-center text-blue-600 dark:text-blue-400 bg-blue-50/10 dark:bg-blue-900/20 rounded-xl px-3 py-1 hover:text-blue-500 transition-all duration-150 active:scale-90 gap-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">more_horiz</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">More</span>
+</button>
+</nav>
+</body></html>

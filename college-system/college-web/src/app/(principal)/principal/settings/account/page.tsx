@@ -71,15 +71,20 @@ export default function AccountSettingsPage() {
   };
 
   return (
-    <div className="max-w-2xl">
-      <PageHeader
-        title="Account Settings"
-        breadcrumb={[
-          { label: 'Settings', href: '/principal/settings/backups' },
-          { label: 'Account' },
-        ]}
-      />
-
+    <div className="min-h-screen bg-[var(--bg)]">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center md:hidden">
+        <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Account Settings</h1>
+      </header>
+      <div className="hidden sm:block">
+        <PageHeader
+          title="Account Settings"
+          breadcrumb={[
+            { label: 'Settings', href: '/principal/settings/backups' },
+            { label: 'Account' },
+          ]}
+        />
+      </div>
+      <div className="max-w-2xl p-4 sm:p-0">
       <div className="flex flex-col gap-6 mt-2">
 
         {/* ── Update Name ── */}
@@ -265,6 +270,7 @@ export default function AccountSettingsPage() {
           <RecoveryEmailSection />
         </motion.div>
 
+      </div>
       </div>
     </div>
   );

@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { PageHeader } from '@/components/layout/PageHeader'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
+import { ArrowLeft, ClipboardList } from 'lucide-react'
 import { CampusSelectorCards } from '@/components/shared/selection/CampusSelectorCards'
 import { AdminReportsContent } from '@/app/(admin)/reports/page'
 import type { CampusCardData } from '@/components/shared/selection/types'
@@ -23,33 +21,36 @@ export default function PrincipalReportsPage() {
 
   if (step === 'campus') {
     return (
-      <div className="flex flex-col gap-6 p-8">
-        <PageHeader
-          title="Reports"
-          subtitle="Select a campus to generate reports"
-        />
-        <CampusSelectorCards onSelect={handleCampusSelect} selectedId={selectedCampusId} />
+      <div className="min-h-screen bg-[var(--bg)]">
+        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+          <ClipboardList className="w-5 h-5 text-[var(--primary)]" />
+          <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Reports</h1>
+        </header>
+        <div className="p-4 space-y-4">
+          <p className="text-sm text-[var(--text-muted)]">Select a campus to generate reports</p>
+          <CampusSelectorCards onSelect={handleCampusSelect} selectedId={selectedCampusId} />
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] p-8">
-      <PageHeader
-        title="Reports"
-        subtitle="Generate and download attendance, fee, and results reports"
-      />
-      <div className="flex items-center gap-3 -mt-4 mb-2">
-        <Button
-          variant="ghost"
-          size="sm"
+    <div className="min-h-screen bg-[var(--bg)]">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+        <button
           onClick={() => { setSelectedCampusId(null); setStep('campus') }}
+          className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors shrink-0 active:scale-95"
         >
-          ← Change Campus
-        </Button>
-        {selectedCampusName && <Badge variant="info">{selectedCampusName}</Badge>}
+          <ArrowLeft className="w-5 h-5 text-[var(--text)]" />
+        </button>
+        <div>
+          <h1 className="font-bold text-base text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Reports</h1>
+          <p className="text-xs text-[var(--text-muted)]">{selectedCampusName}</p>
+        </div>
+      </header>
+      <div className="p-4">
+        <AdminReportsContent campusId={selectedCampusId ?? undefined} />
       </div>
-      <AdminReportsContent campusId={selectedCampusId ?? undefined} />
     </div>
   )
 }

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Live Timetable View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-high": "#e9e8e9",
+            "on-secondary-fixed-variant": "#42474b",
+            "on-primary-fixed-variant": "#00419d",
+            "surface-container-highest": "#e3e2e3",
+            "on-tertiary-fixed-variant": "#524600",
+            "on-tertiary-fixed": "#211b00",
+            "primary-container": "#3366cc",
+            "on-tertiary-container": "#4a3f00",
+            "on-surface-variant": "#434653",
+            "on-primary": "#ffffff",
+            "secondary-fixed-dim": "#c2c7cc",
+            "surface-container": "#efedee",
+            "background": "#faf9fa",
+            "surface-bright": "#faf9fa",
+            "tertiary-fixed": "#f9e37a",
+            "surface-container-lowest": "#ffffff",
+            "surface": "#faf9fa",
+            "on-background": "#1b1c1d",
+            "on-secondary-fixed": "#171c20",
+            "inverse-surface": "#303031",
+            "secondary": "#5a5f63",
+            "tertiary": "#6d5e00",
+            "on-error": "#ffffff",
+            "secondary-fixed": "#dfe3e8",
+            "primary-fixed": "#d9e2ff",
+            "surface-dim": "#dbdadb",
+            "surface-variant": "#e3e2e3",
+            "surface-tint": "#2259bf",
+            "surface-container-low": "#f5f3f4",
+            "tertiary-fixed-dim": "#dcc661",
+            "outline": "#737784",
+            "on-surface": "#1b1c1d",
+            "on-secondary-container": "#606569",
+            "on-error-container": "#93000a",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#f2f0f1",
+            "primary-fixed-dim": "#b1c5ff",
+            "on-secondary": "#ffffff",
+            "on-tertiary": "#ffffff",
+            "outline-variant": "#c3c6d5",
+            "on-primary-fixed": "#001946",
+            "secondary-container": "#dfe3e8",
+            "error": "#ba1a1a",
+            "primary": "#094cb2",
+            "on-primary-container": "#e7ebff",
+            "inverse-primary": "#b1c5ff",
+            "tertiary-container": "#bfab49"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {},
+          "fontFamily": {
+            "headline": ["Noto Serif"],
+            "display": ["Noto Serif"],
+            "body": ["Inter"],
+            "label": ["Public Sans"]
+          },
+          "fontSize": {}
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-slate-900 dark:bg-slate-950 text-blue-700 dark:text-blue-400 font-serif text-xl font-bold leading-tight docked full-width top-0 bg-slate-800 dark:bg-slate-900 flat no shadows flex justify-between items-center px-6 py-4 w-full sticky z-40 transition-colors duration-200">
+<div class="flex items-center gap-4">
+<button aria-label="Go back" class="hover:bg-slate-800 dark:hover:bg-slate-900 rounded-full p-2 text-slate-400 dark:text-slate-500 transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold text-blue-700 dark:text-blue-400">Alexandria Admin</h1>
+</div>
+<button class="hover:bg-slate-800 dark:hover:bg-slate-900 px-4 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors duration-200">
+      Campus
+    </button>
+</header>
+<main class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-8">
+<!-- Header Section -->
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<h2 class="font-headline text-3xl sm:text-4xl text-on-background tracking-tight">Section A — Timetable</h2>
+</div>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label text-sm tracking-wide">
+          Boys Campus · FSC
+        </span>
+</div>
+</div>
+<!-- Day Tabs -->
+<div class="mb-8 overflow-x-auto no-scrollbar pb-2">
+<div class="flex gap-2 min-w-max">
+<button class="px-5 py-2.5 rounded-full bg-primary text-on-primary font-label text-sm tracking-wider font-semibold shadow-sm transition-all hover:bg-primary/90">MON</button>
+<button class="px-5 py-2.5 rounded-full bg-surface text-on-surface-variant font-label text-sm tracking-wider font-semibold hover:bg-surface-container transition-all">TUE</button>
+<button class="px-5 py-2.5 rounded-full bg-surface text-on-surface-variant font-label text-sm tracking-wider font-semibold hover:bg-surface-container transition-all">WED</button>
+<button class="px-5 py-2.5 rounded-full bg-surface text-on-surface-variant font-label text-sm tracking-wider font-semibold hover:bg-surface-container transition-all">THU</button>
+<button class="px-5 py-2.5 rounded-full bg-surface text-on-surface-variant font-label text-sm tracking-wider font-semibold hover:bg-surface-container transition-all">FRI</button>
+<button class="px-5 py-2.5 rounded-full bg-surface text-on-surface-variant font-label text-sm tracking-wider font-semibold hover:bg-surface-container transition-all opacity-50 cursor-not-allowed">SAT</button>
+</div>
+</div>
+<!-- Schedule List -->
+<div class="space-y-4">
+<!-- Past Period -->
+<div class="flex items-stretch gap-4 opacity-50">
+<div class="w-16 flex flex-col items-center shrink-0">
+<span class="font-label font-bold text-primary text-sm mt-4">08:00</span>
+<div class="w-0.5 h-full bg-outline-variant/30 mt-2"></div>
+</div>
+<div class="flex-1 bg-surface-container-lowest rounded-xl p-4 md:p-5 flex items-center justify-between shadow-sm border border-outline-variant/10">
+<div>
+<h3 class="font-headline text-lg text-on-surface">Physics</h3>
+<p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="person">person</span>
+              Dr. Sarah
+            </p>
+</div>
+<span class="bg-surface-container px-3 py-1 rounded-md font-label text-xs font-bold text-on-surface-variant tracking-widest">P1</span>
+</div>
+</div>
+<!-- Past Period -->
+<div class="flex items-stretch gap-4 opacity-50">
+<div class="w-16 flex flex-col items-center shrink-0">
+<span class="font-label font-bold text-primary text-sm mt-4">08:45</span>
+<div class="w-0.5 h-full bg-outline-variant/30 mt-2"></div>
+</div>
+<div class="flex-1 bg-surface-container-lowest rounded-xl p-4 md:p-5 flex items-center justify-between shadow-sm border border-outline-variant/10">
+<div>
+<h3 class="font-headline text-lg text-on-surface">Chemistry</h3>
+<p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="person">person</span>
+              Ms. Fatima
+            </p>
+</div>
+<span class="bg-surface-container px-3 py-1 rounded-md font-label text-xs font-bold text-on-surface-variant tracking-widest">P2</span>
+</div>
+</div>
+<!-- Current Period -->
+<div class="flex items-stretch gap-4 relative z-10">
+<div class="w-16 flex flex-col items-center shrink-0">
+<span class="font-label font-bold text-primary text-sm mt-4">09:30</span>
+<div class="w-0.5 h-full bg-primary/30 mt-2 relative">
+<div class="absolute top-0 -left-1 w-2.5 h-2.5 bg-primary rounded-full ring-4 ring-primary/20"></div>
+</div>
+</div>
+<div class="flex-1 bg-surface-container-lowest rounded-xl p-4 md:p-5 flex items-center justify-between shadow-md border-l-4 border-l-primary relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent pointer-events-none"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-1">
+<span class="w-2 h-2 bg-primary rounded-full"></span>
+<span class="text-primary font-label text-xs font-bold tracking-wider">NOW</span>
+</div>
+<h3 class="font-headline text-xl text-on-surface">Mathematics</h3>
+<p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="person">person</span>
+              Mr. Ahmed
+            </p>
+</div>
+<span class="bg-primary/10 px-3 py-1 rounded-md font-label text-xs font-bold text-primary tracking-widest relative z-10">P3</span>
+</div>
+</div>
+<!-- Break -->
+<div class="flex items-stretch gap-4">
+<div class="w-16 flex flex-col items-center shrink-0">
+<span class="font-label font-bold text-on-surface-variant text-sm mt-3">10:15</span>
+<div class="w-0.5 h-full bg-outline-variant/30 mt-2"></div>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-xl p-3 flex items-center justify-center gap-2 shadow-inner border border-outline-variant/5">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="coffee">coffee</span>
+<span class="font-label text-sm font-semibold tracking-wide text-on-surface-variant">Break · 15 min</span>
+</div>
+</div>
+<!-- Future Period -->
+<div class="flex items-stretch gap-4">
+<div class="w-16 flex flex-col items-center shrink-0">
+<span class="font-label font-bold text-primary text-sm mt-4">10:30</span>
+<div class="w-0.5 h-full bg-outline-variant/30 mt-2"></div>
+</div>
+<div class="flex-1 bg-surface-container-lowest rounded-xl p-4 md:p-5 flex items-center justify-between shadow-sm border border-outline-variant/10">
+<div>
+<h3 class="font-headline text-lg text-on-surface">English Literature</h3>
+<p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="person">person</span>
+              Mrs. Smith
+            </p>
+</div>
+<span class="bg-surface-container px-3 py-1 rounded-md font-label text-xs font-bold text-on-surface-variant tracking-widest">P4</span>
+</div>
+</div>
+<!-- Future Period -->
+<div class="flex items-stretch gap-4">
+<div class="w-16 flex flex-col items-center shrink-0">
+<span class="font-label font-bold text-primary text-sm mt-4">11:15</span>
+</div>
+<div class="flex-1 bg-surface-container-lowest rounded-xl p-4 md:p-5 flex items-center justify-between shadow-sm border border-outline-variant/10">
+<div>
+<h3 class="font-headline text-lg text-on-surface">Computer Science</h3>
+<p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="person">person</span>
+              Mr. Ali
+            </p>
+</div>
+<span class="bg-surface-container px-3 py-1 rounded-md font-label text-xs font-bold text-on-surface-variant tracking-widest">P5</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-xl docked full-width bottom-0 rounded-t-xl border-t border-slate-800/50 shadow-2xl dark:shadow-none fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="dashboard">dashboard</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-blue-600 dark:text-blue-400 bg-blue-50/10 dark:bg-blue-900/20 rounded-xl px-3 py-1 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="analytics" data-weight="fill" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold text-blue-600 dark:text-blue-400">Live</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="school">school</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">Teachers</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="groups">groups</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">People</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="more_horiz">more_horiz</span>
+<span class="font-sans text-[10px] uppercase tracking-wider font-semibold">More</span>
+</a>
+</nav>
+<!-- Desktop SideNav/TopNav Equivalent (Hidden on Mobile) -->
+<nav class="hidden md:flex fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/20 flex-col py-6 px-4 z-30">
+<div class="space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label font-semibold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="analytics" data-weight="fill" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-label font-semibold">Live</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-label font-semibold">Teachers</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label font-semibold">People</span>
+</a>
+</div>
+</nav>
+<style>
+    /* Hide scrollbar for horizontal scroll areas but keep functionality */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    @media (min-width: 768px) {
+        main {
+            margin-left: 16rem; /* Make room for desktop sidebar */
+            max-width: calc(100% - 16rem);
+        }
+    }
+  </style>
+</body></html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Section Assignments</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e9e8e9",
+                        "on-secondary-fixed-variant": "#42474b",
+                        "on-primary-fixed-variant": "#00419d",
+                        "surface-container-highest": "#e3e2e3",
+                        "on-tertiary-fixed-variant": "#524600",
+                        "on-tertiary-fixed": "#211b00",
+                        "primary-container": "#3366cc",
+                        "on-tertiary-container": "#4a3f00",
+                        "on-surface-variant": "#434653",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#c2c7cc",
+                        "surface-container": "#efedee",
+                        "background": "#faf9fa",
+                        "surface-bright": "#faf9fa",
+                        "tertiary-fixed": "#f9e37a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#faf9fa",
+                        "on-background": "#1b1c1d",
+                        "on-secondary-fixed": "#171c20",
+                        "inverse-surface": "#303031",
+                        "secondary": "#5a5f63",
+                        "tertiary": "#6d5e00",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#dfe3e8",
+                        "primary-fixed": "#d9e2ff",
+                        "surface-dim": "#dbdadb",
+                        "surface-variant": "#e3e2e3",
+                        "surface-tint": "#2259bf",
+                        "surface-container-low": "#f5f3f4",
+                        "tertiary-fixed-dim": "#dcc661",
+                        "outline": "#737784",
+                        "on-surface": "#1b1c1d",
+                        "on-secondary-container": "#606569",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f2f0f1",
+                        "primary-fixed-dim": "#b1c5ff",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#c3c6d5",
+                        "on-primary-fixed": "#001946",
+                        "secondary-container": "#dfe3e8",
+                        "error": "#ba1a1a",
+                        "primary": "#094cb2",
+                        "on-primary-container": "#e7ebff",
+                        "inverse-primary": "#b1c5ff",
+                        "tertiary-container": "#bfab49"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": [
+                            "Noto Serif"
+                        ],
+                        "display": [
+                            "Noto Serif"
+                        ],
+                        "body": [
+                            "Inter"
+                        ],
+                        "label": [
+                            "Public Sans"
+                        ]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+<style>
+        /* Base styling overrides for high-end editorial feel */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        h1, h2, h3, h4, h5, h6, .font-headline {
+            font-family: 'Noto Serif', serif;
+        }
+        .font-label {
+            font-family: 'Public Sans', sans-serif;
+        }
+        /* Mobile Specific Overrides matching user prompt - light mode enforced by config but styled to look premium */
+        .page-bg { background-color: theme('colors.surface-container-lowest'); }
+        .card-bg { background-color: theme('colors.surface-dim'); }
+        .glass-nav {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        @keyframes alertGlow {
+            0% { box-shadow: 0 0 4px theme('colors.tertiary-fixed'), inset 0 0 4px theme('colors.tertiary-fixed'); opacity: 0.8; }
+            100% { box-shadow: 0 0 12px theme('colors.tertiary-fixed'), inset 0 0 8px theme('colors.tertiary-fixed'); opacity: 1; }
+        }
+        .alert-glow {
+            animation: alertGlow 2s infinite alternate ease-in-out;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="page-bg min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- TopAppBar (From JSON) -->
+<header class="flex justify-between items-center px-6 py-4 w-full bg-slate-900 dark:bg-slate-950 docked full-width top-0 sticky z-40 shadow-sm border-b border-surface-variant md:hidden">
+<div class="flex items-center gap-3">
+<button class="text-blue-700 dark:text-blue-400 hover:bg-slate-800 dark:hover:bg-slate-900 transition-colors duration-200 p-2 rounded-full flex items-center justify-center active:scale-95">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-serif text-xl font-bold leading-tight text-blue-700 dark:text-blue-400 text-lg font-bold">Section Assignments</h1>
+</div>
+<div>
+<span class="text-blue-700 dark:text-blue-400 text-sm font-semibold tracking-wide">Campus</span>
+</div>
+</header>
+<!-- Web Top Nav (Hidden on Mobile) -->
+<header class="hidden md:flex justify-between items-center px-8 py-5 w-full bg-surface-container-lowest border-b border-surface-variant sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<h1 class="font-headline text-2xl font-bold text-primary">Alexandria Admin</h1>
+<nav class="ml-8 flex gap-6">
+<a class="text-on-surface-variant hover:text-primary font-label text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary font-label text-sm font-medium transition-colors" href="#">Live</a>
+<a class="text-on-surface-variant hover:text-primary font-label text-sm font-medium transition-colors" href="#">Teachers</a>
+<a class="text-on-surface-variant hover:text-primary font-label text-sm font-medium transition-colors" href="#">People</a>
+<a class="text-primary font-bold font-label text-sm border-b-2 border-primary pb-1" href="#">More</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-on-surface font-label text-sm font-semibold bg-surface-variant px-3 py-1 rounded-full">Campus</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-5xl mx-auto px-4 md:px-8 py-6 flex flex-col gap-8">
+<!-- Header Section (Web focus, acts as title on mobile too) -->
+<div class="hidden md:flex flex-col gap-2">
+<h2 class="font-headline text-3xl font-bold text-on-surface">Section Assignments</h2>
+<p class="text-on-surface-variant font-body text-sm">Manage subject assignments across all sections and grades.</p>
+</div>
+<!-- Filter Row: Section Chips -->
+<section class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+<button class="bg-primary text-on-primary font-label text-sm font-medium px-5 py-2 rounded-full whitespace-nowrap shadow-sm transition-all duration-300 active:scale-95">All</button>
+<button class="bg-surface-container text-on-surface font-label text-sm font-medium px-5 py-2 rounded-full whitespace-nowrap hover:bg-surface-variant transition-all duration-300 active:scale-95 outline outline-1 outline-outline-variant outline-offset-[-1px] opacity-80">Section A</button>
+<button class="bg-surface-container text-on-surface font-label text-sm font-medium px-5 py-2 rounded-full whitespace-nowrap hover:bg-surface-variant transition-all duration-300 active:scale-95 outline outline-1 outline-outline-variant outline-offset-[-1px] opacity-80">Section B</button>
+<button class="bg-surface-container text-on-surface font-label text-sm font-medium px-5 py-2 rounded-full whitespace-nowrap hover:bg-surface-variant transition-all duration-300 active:scale-95 outline outline-1 outline-outline-variant outline-offset-[-1px] opacity-80">Section C</button>
+</section>
+<!-- Assignment Cards List -->
+<section class="flex flex-col gap-6">
+<!-- Card 1: Section A -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm flex flex-col relative group outline outline-1 outline-outline-variant outline-offset-[-1px] opacity-0 animate-fade-in-up" style="animation-delay: 100ms;">
+<!-- Header -->
+<div class="px-5 py-4 border-b border-surface-variant flex justify-between items-center bg-surface-container-lowest z-10 relative">
+<div class="flex items-center gap-2">
+<h3 class="font-headline text-lg font-bold text-on-surface">Section A</h3>
+<span class="text-outline text-sm font-body">· Grade 11 · FSC</span>
+</div>
+<button class="text-primary hover:text-primary-container font-label text-sm font-semibold flex items-center gap-1 transition-all duration-200 active:scale-95">
+                        Add Assignment <span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Subjects List -->
+<div class="flex flex-col divide-y divide-surface-variant bg-surface-dim">
+<!-- Subject Row 1 (Assigned) -->
+<div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest relative">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span class="font-body font-medium text-on-surface">Advanced Physics</span>
+</div>
+<div class="flex items-center">
+<button class="bg-primary/10 text-primary hover:bg-primary/20 font-label text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-[14px]">person</span> Mr. Ahmad
+                            </button>
+</div>
+</div>
+<!-- Subject Row 2 (Unassigned) -->
+<div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest relative">
+<!-- Amber Left Accent for Unassigned -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary-fixed rounded-r-sm alert-glow"></div>
+<div class="flex items-center gap-3 pl-2">
+<span class="material-symbols-outlined text-secondary text-xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">calculate</span>
+<span class="font-body font-medium text-on-surface">Calculus II</span>
+</div>
+<div class="flex items-center">
+<button class="border border-error border-dashed text-error bg-error-container/20 hover:bg-error-container/40 font-label text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-[14px]">person_off</span> Unassigned
+                            </button>
+</div>
+</div>
+<!-- Subject Row 3 (Assigned) -->
+<div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest relative">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">science</span>
+<span class="font-body font-medium text-on-surface">Organic Chemistry</span>
+</div>
+<div class="flex items-center">
+<button class="bg-primary/10 text-primary hover:bg-primary/20 font-label text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-[14px]">person</span> Dr. Sarah
+                            </button>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2: Section B -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm flex flex-col relative group outline outline-1 outline-outline-variant outline-offset-[-1px] opacity-0 animate-fade-in-up" style="animation-delay: 200ms;">
+<div class="px-5 py-4 border-b border-surface-variant flex justify-between items-center bg-surface-container-lowest z-10 relative">
+<div class="flex items-center gap-2">
+<h3 class="font-headline text-lg font-bold text-on-surface">Section B</h3>
+<span class="text-outline text-sm font-body">· Grade 11 · FSC</span>
+</div>
+<button class="text-primary hover:text-primary-container font-label text-sm font-semibold flex items-center gap-1 transition-all duration-200 active:scale-95">
+                        Add Assignment <span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<div class="flex flex-col divide-y divide-surface-variant bg-surface-dim">
+<!-- Subject Row 1 (Unassigned) -->
+<div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary-fixed rounded-r-sm alert-glow"></div>
+<div class="flex items-center gap-3 pl-2">
+<span class="material-symbols-outlined text-secondary text-xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span class="font-body font-medium text-on-surface">Advanced Physics</span>
+</div>
+<div class="flex items-center">
+<button class="border border-error border-dashed text-error bg-error-container/20 hover:bg-error-container/40 font-label text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-[14px]">person_off</span> Unassigned
+                            </button>
+</div>
+</div>
+<!-- Subject Row 2 (Assigned) -->
+<div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest relative">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">translate</span>
+<span class="font-body font-medium text-on-surface">English Literature</span>
+</div>
+<div class="flex items-center">
+<button class="bg-primary/10 text-primary hover:bg-primary/20 font-label text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-[14px]">person</span> Mrs. Khan
+                            </button>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3: Section C (Skeleton Loading State) -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm flex flex-col relative group outline outline-1 outline-outline-variant outline-offset-[-1px] opacity-0 animate-fade-in-up" style="animation-delay: 300ms;">
+<div class="px-5 py-4 border-b border-surface-variant flex justify-between items-center bg-surface-container-lowest z-10 relative">
+<div class="flex items-center gap-2">
+<h3 class="font-headline text-lg font-bold text-on-surface">Section C</h3>
+<span class="text-outline text-sm font-body">· Grade 11 · FSC</span>
+</div>
+<button class="text-primary hover:text-primary-container font-label text-sm font-semibold flex items-center gap-1 transition-all duration-200 active:scale-95">
+                        Add Assignment <span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<div class="flex flex-col divide-y divide-surface-variant bg-surface-dim">
+<!-- Skeleton Row 1 -->
+<div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest relative">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 bg-surface-variant rounded animate-pulse"></div>
+<div class="h-5 bg-surface-variant rounded w-32 animate-pulse"></div>
+</div>
+<div class="flex items-center mt-2 sm:mt-0">
+<div class="h-6 bg-surface-variant rounded-full w-24 animate-pulse"></div>
+</div>
+</div>
+<!-- Skeleton Row 2 -->
+<div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest relative">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 bg-surface-variant rounded animate-pulse"></div>
+<div class="h-5 bg-surface-variant rounded w-40 animate-pulse"></div>
+</div>
+<div class="flex items-center mt-2 sm:mt-0">
+<div class="h-6 bg-surface-variant rounded-full w-28 animate-pulse"></div>
+</div>
+</div>
+</div>
+</article>
+</section>
+</main>
+<!-- Floating Action Button (FAB) - Contextual to Assignment list -->
+<button aria-label="Add Assignment" class="md:hidden fixed bottom-24 right-6 bg-tertiary-fixed text-on-tertiary-fixed p-4 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:scale-95 transition-all duration-200 z-50 flex items-center justify-center border border-on-tertiary-fixed/10">
+<span class="material-symbols-outlined text-2xl font-bold">add</span>
+</button>
+<!-- BottomNavBar (From JSON) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-800/50 shadow-2xl dark:shadow-none font-sans text-[10px] uppercase tracking-wider font-semibold">
+<!-- Dashboard -->
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 text-xl group-hover:scale-110 transition-transform" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Live -->
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 text-xl group-hover:scale-110 transition-transform" data-icon="analytics">analytics</span>
+<span>Live</span>
+</a>
+<!-- Teachers -->
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 text-xl group-hover:scale-110 transition-transform" data-icon="school">school</span>
+<span>Teachers</span>
+</a>
+<!-- People -->
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined mb-1 text-xl group-hover:scale-110 transition-transform" data-icon="groups">groups</span>
+<span>People</span>
+</a>
+<!-- More (Active based on user intent "Section Assignments") -->
+<a class="flex flex-col items-center justify-center text-blue-600 dark:text-blue-400 bg-blue-50/10 dark:bg-blue-900/20 rounded-xl px-3 py-1 hover:text-blue-500 transition-all scale-95 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-xl" data-icon="more_horiz" data-weight="fill" style="font-variation-settings: 'FILL' 1;">more_horiz</span>
+<span>More</span>
+</a>
+</nav>
+</body></html>

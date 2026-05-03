@@ -499,9 +499,19 @@ export default function AdminsPage() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-[var(--bg)]">
+      {/* Mobile header */}
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center justify-between md:hidden">
+        <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Admin Management</h1>
+        {activeTab === 'admins' && (
+          <button onClick={() => setIsOpen(true)} className="p-2 rounded-full bg-[var(--primary)] text-white active:opacity-80 transition-opacity">
+            <Plus className="h-5 w-5" />
+          </button>
+        )}
+      </header>
+    <div className="p-4 sm:p-6 space-y-6">
+      {/* Desktop Header */}
+      <div className="hidden sm:flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--gold)]/15">
             <ShieldCheck className="h-5 w-5 text-[var(--gold)]" />
@@ -553,24 +563,62 @@ export default function AdminsPage() {
               )}
 
               {!isLoading && !error && admins && admins.length > 0 && (
-                <div className="rounded-[var(--radius-lg)] border border-[var(--border)] overflow-hidden bg-[var(--surface)]">
-                  <table className="w-full text-sm font-body">
-                    <thead>
-                      <tr className="border-b border-[var(--border)] bg-[var(--surface-alt,var(--surface))]">
-                        <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Name</th>
-                        <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Email</th>
-                        <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Campus</th>
-                        <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Status</th>
-                        <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Created</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {admins.map((admin) => (
-                        <AdminRow key={admin.id} admin={admin} />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <>
+                  {/* Desktop table */}
+                  <div className="hidden md:block rounded-[var(--radius-lg)] border border-[var(--border)] overflow-hidden bg-[var(--surface)]">
+                    <table className="w-full text-sm font-body">
+                      <thead>
+                        <tr className="border-b border-[var(--border)] bg-[var(--surface-alt,var(--surface))]">
+                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Name</th>
+                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Email</th>
+                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Campus</th>
+                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Status</th>
+                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Created</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {admins.map((admin) => (
+                          <AdminRow key={admin.id} admin={admin} />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile card list */}
+                  <div className="space-y-2 md:hidden">
+                    {admins.map((admin, idx) => {
+                      const name = admin.staffProfile
+                        ? `${admin.staffProfile.firstName} ${admin.staffProfile.lastName}`.trim()
+                        : admin.email;
+                      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                      const colors = ['bg-[var(--primary)]', 'bg-[var(--gold)]', 'bg-purple-600', 'bg-blue-600', 'bg-rose-600'];
+                      return (
+                        <motion.div
+                          key={admin.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.03, duration: 0.25 }}
+                          className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5"
+                        >
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 ${colors[idx % colors.length]}`}>
+                            {initials}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm text-[var(--text)] truncate">{name}</p>
+                            <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
+                              {admin.campus?.name || 'No campus'} · {admin.email}
+                            </p>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                            admin.isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                          }`}>
+                            {admin.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </>
           )}
@@ -642,6 +690,7 @@ export default function AdminsPage() {
           </div>
         </div>
       </Modal>
+    </div>
     </div>
   );
 }

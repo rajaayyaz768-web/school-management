@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
+import { MobileBottomNav } from "./MobileBottomNav";
 
 export interface MainLayoutProps {
   children: ReactNode;
@@ -24,10 +25,11 @@ export function MainLayout({ children, title }: MainLayoutProps) {
           title={title}
           onMobileMenuToggle={() => setMobileSidebarOpen(o => !o)}
         />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 pb-24 md:pb-6">
           {children}
         </main>
       </div>
+      <MobileBottomNav />
     </div>
   );
 }
