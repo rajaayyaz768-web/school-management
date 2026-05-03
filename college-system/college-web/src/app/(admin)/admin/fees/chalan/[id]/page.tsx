@@ -281,9 +281,9 @@ export default function FeeChalanPage() {
       {/* Challan — landscape 3-column */}
       <div className="p-6 bg-gray-100 min-h-screen">
         <div id="challan-print-area" className="flex flex-row bg-white max-w-5xl mx-auto shadow divide-x divide-gray-300">
-          <ChalanStub data={data} copyLabel="Bank Copy" />
-          <ChalanStub data={data} copyLabel="School Copy" />
-          <ChalanStub data={data} copyLabel="Student Copy" />
+          <ChalanStub data={data} copyLabel="Admin Office Copy" />
+          <ChalanStub data={data} copyLabel="Account Office Copy" />
+          <ChalanStub data={data} copyLabel="Parent Copy" />
         </div>
       </div>
     </div>

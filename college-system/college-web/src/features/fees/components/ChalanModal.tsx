@@ -542,9 +542,9 @@ export function ChalanModal({ recordId, onClose }: Props) {
                     id="challan-print-area"
                     style={{ display: 'flex', flexDirection: 'row', gap: '12px', alignItems: 'stretch' }}
                   >
-                    <ChalanStub data={data} copyLabel="Bank Copy" />
-                    <ChalanStub data={data} copyLabel="School Copy" />
-                    <ChalanStub data={data} copyLabel="Student Copy" />
+                    <ChalanStub data={data} copyLabel="Admin Office Copy" />
+                    <ChalanStub data={data} copyLabel="Account Office Copy" />
+                    <ChalanStub data={data} copyLabel="Parent Copy" />
                   </div>
                 )}
               </div>
