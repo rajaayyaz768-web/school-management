@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { FalconEagleLogo } from "@/components/landing/FalconEagleLogo";
@@ -13,7 +13,7 @@ import {
   ChevronLeft, ChevronRight, ChevronRight as Caret,
   MessageSquare, Home, UserCog, Building2, FileText, Paintbrush,
   BookMarked, Heart, Shuffle, Network, Radio, PieChart, Layers,
-  CreditCard, BarChart2, UserCheck, ArrowUpCircle,
+  CreditCard, BarChart2, UserCheck, ArrowUpCircle, X,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -31,8 +31,13 @@ interface NavGroup {
 }
 
 interface NavConfig {
-  pinned: NavItem[];        // always-visible top items (no group)
+  pinned: NavItem[];
   groups: NavGroup[];
+}
+
+interface SidebarProps {
+  mobileOpen: boolean;
+  onMobileClose: () => void;
 }
 
 // ─── Nav definitions ─────────────────────────────────────────────────────────
@@ -155,14 +160,14 @@ const NAV: Record<UserRole, NavConfig> = {
 
   TEACHER: {
     pinned: [
-      { label: "My Day",       href: "/teacher/dashboard",  icon: LayoutDashboard },
-      { label: "My Teaching",  href: "/teacher/teaching",   icon: BookMarked },
-      { label: "My Classes",   href: "/teacher/my-classes", icon: Users },
-      { label: "Attendance",   href: "/teacher/attendance", icon: CalendarCheck },
-      { label: "Enter Results",href: "/teacher/results",    icon: BookOpen },
-      { label: "Timetable",    href: "/teacher/timetable",  icon: Clock },
-      { label: "Exams",        href: "/teacher/exams",      icon: FileText },
-      { label: "Chat",         href: "/teacher/chat",       icon: MessageSquare },
+      { label: "My Day",        href: "/teacher/dashboard",  icon: LayoutDashboard },
+      { label: "My Teaching",   href: "/teacher/teaching",   icon: BookMarked },
+      { label: "My Classes",    href: "/teacher/my-classes", icon: Users },
+      { label: "Attendance",    href: "/teacher/attendance", icon: CalendarCheck },
+      { label: "Enter Results", href: "/teacher/results",    icon: BookOpen },
+      { label: "Timetable",     href: "/teacher/timetable",  icon: Clock },
+      { label: "Exams",         href: "/teacher/exams",      icon: FileText },
+      { label: "Chat",          href: "/teacher/chat",       icon: MessageSquare },
     ],
     groups: [],
   },
@@ -181,12 +186,12 @@ const NAV: Record<UserRole, NavConfig> = {
 
   STUDENT: {
     pinned: [
-      { label: "Home",       href: "/student/dashboard",     icon: Home },
-      { label: "Timetable",  href: "/student/timetable",    icon: Clock },
-      { label: "Attendance", href: "/student/attendance",   icon: CalendarCheck },
-      { label: "Exams",      href: "/student/exams",        icon: FileText },
-      { label: "Results",    href: "/student/results",      icon: ClipboardList },
-      { label: "Notices",    href: "/student/announcements",icon: Megaphone },
+      { label: "Home",       href: "/student/dashboard",      icon: Home },
+      { label: "Timetable",  href: "/student/timetable",      icon: Clock },
+      { label: "Attendance", href: "/student/attendance",     icon: CalendarCheck },
+      { label: "Exams",      href: "/student/exams",          icon: FileText },
+      { label: "Results",    href: "/student/results",        icon: ClipboardList },
+      { label: "Notices",    href: "/student/announcements",  icon: Megaphone },
     ],
     groups: [],
   },
@@ -252,16 +257,13 @@ function NavGroupSection({ group, collapsed, pathname }: {
     i => pathname === i.href || (i.href !== "/" && pathname.startsWith(i.href + "/"))
   );
 
-  // Auto-open the group if it contains the active route
   const [open, setOpen] = useState(group.defaultOpen || hasActive);
 
   return (
     <div>
       {collapsed ? (
-        // Collapsed: just a thin divider
         <div className="sidebar-collapsed-divider" />
       ) : (
-        // Expanded: clickable group header
         <button
           onClick={() => setOpen(o => !o)}
           className={cn(
@@ -277,7 +279,6 @@ function NavGroupSection({ group, collapsed, pathname }: {
         </button>
       )}
 
-      {/* Dropdown items */}
       <AnimatePresence initial={false}>
         {(open || collapsed) && (
           <motion.div
@@ -289,9 +290,7 @@ function NavGroupSection({ group, collapsed, pathname }: {
             className="overflow-hidden"
           >
             <div className={cn("relative flex flex-col gap-0.5 py-0.5", !collapsed && "pl-1")}>
-              {/* Left rail — visible only in expanded mode */}
               {!collapsed && <span className="sidebar-group-rail pointer-events-none" />}
-
               {group.items.map(item => {
                 const isActive =
                   pathname === item.href ||
@@ -309,10 +308,25 @@ function NavGroupSection({ group, collapsed, pathname }: {
 }
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const user    = useCurrentUser();
+  const [isMobile, setIsMobile] = useState(false);
+  const user     = useCurrentUser();
   const pathname = usePathname();
+
+  // Detect mobile breakpoint (SSR-safe: starts false, corrects after hydration)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Auto-close drawer when navigating on mobile
+  useEffect(() => {
+    if (isMobile) onMobileClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   if (!user) return null;
 
@@ -321,90 +335,118 @@ export default function Sidebar() {
     ? [...config.pinned, { label: "Design System", href: "/showcase", icon: Paintbrush }]
     : config.pinned;
 
+  // On mobile: 260px fixed drawer; on desktop: 228/60 collapsible
+  const desktopWidth = collapsed ? 60 : 228;
+
   return (
-    <motion.aside
-      animate={{ width: collapsed ? 60 : 228 }}
-      transition={{ duration: 0.26, ease: "easeInOut" }}
-      className="relative z-40 flex h-screen shrink-0 flex-col overflow-hidden text-white"
-      style={{
-        background: "linear-gradient(180deg, #1c1c1e 0%, #141415 100%)",
-        boxShadow: "1px 0 0 rgba(255,255,255,0.055), 4px 0 24px rgba(0,0,0,0.38)",
-      }}
-    >
-      {/* Logo */}
-      <div className="flex h-14 shrink-0 items-center gap-3 border-b border-white/[0.06] px-3.5">
-        <FalconEagleLogo size={collapsed ? 28 : 36} />
-        <AnimatePresence initial={false}>
-          {!collapsed && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="truncate text-[14.5px] font-bold tracking-tight text-white"
-            >
-              Falcon School
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2.5 scrollbar-none">
-        <div className="flex flex-col gap-0.5 px-2">
-
-          {/* Pinned (always visible, no group) */}
-          {pinned.map(item => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href + "/"));
-            return (
-              <NavLink key={item.href} item={item} collapsed={collapsed} isActive={isActive} />
-            );
-          })}
-
-          {/* Collapsible groups */}
-          {config.groups.map(group => (
-            <NavGroupSection
-              key={group.id}
-              group={group}
-              collapsed={collapsed}
-              pathname={pathname}
-            />
-          ))}
-
-        </div>
-      </nav>
-
-      {/* User footer */}
-      <AnimatePresence initial={false}>
-        {!collapsed && (
+    <>
+      {/* Backdrop — mobile only, behind sidebar, in front of content */}
+      <AnimatePresence>
+        {isMobile && mobileOpen && (
           <motion.div
+            key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.13 }}
-            className="shrink-0 border-t border-white/[0.06] px-4 py-3"
-          >
-            <p className="text-[9.5px] text-white/28 uppercase tracking-widest mb-0.5">Signed in as</p>
-            <p className="truncate text-[12.5px] font-semibold text-white/80">
-              {user.fullName || ROLE_LABEL[user.role]}
-            </p>
-            <p className="text-[10px] text-white/28 mt-0.5">{ROLE_LABEL[user.role]}</p>
-          </motion.div>
+            transition={{ duration: 0.22 }}
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            onClick={onMobileClose}
+          />
         )}
       </AnimatePresence>
 
-      {/* Collapse toggle */}
-      <button
-        onClick={() => setCollapsed(c => !c)}
-        className="absolute -right-3 top-[18px] flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-[#252527] text-white/45 shadow-md transition-colors hover:bg-[#2e2e30] hover:text-white focus:outline-none"
-        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      <motion.aside
+        animate={{
+          width: isMobile ? 260 : desktopWidth,
+          x: isMobile ? (mobileOpen ? 0 : -260) : 0,
+        }}
+        transition={{ duration: 0.26, ease: "easeInOut" }}
+        className="fixed md:relative inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col overflow-hidden text-white"
+        style={{
+          background: "linear-gradient(180deg, #1c1c1e 0%, #141415 100%)",
+          boxShadow: "1px 0 0 rgba(255,255,255,0.055), 4px 0 24px rgba(0,0,0,0.38)",
+        }}
       >
-        {collapsed
-          ? <ChevronRight className="h-3.5 w-3.5" />
-          : <ChevronLeft  className="h-3.5 w-3.5" />}
-      </button>
-    </motion.aside>
+        {/* Logo */}
+        <div className="flex h-14 shrink-0 items-center gap-3 border-b border-white/[0.06] px-3.5">
+          <FalconEagleLogo size={collapsed && !isMobile ? 28 : 36} />
+          <AnimatePresence initial={false}>
+            {(!collapsed || isMobile) && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="truncate text-[14.5px] font-bold tracking-tight text-white"
+              >
+                Falcon School
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Mobile close button */}
+        <button
+          onClick={onMobileClose}
+          className="absolute right-3 top-4 md:hidden flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/60 hover:bg-white/20 hover:text-white transition-colors"
+          aria-label="Close navigation"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2.5 scrollbar-none">
+          <div className="flex flex-col gap-0.5 px-2">
+            {pinned.map(item => {
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/" && pathname.startsWith(item.href + "/"));
+              return (
+                <NavLink key={item.href} item={item} collapsed={collapsed && !isMobile} isActive={isActive} />
+              );
+            })}
+
+            {config.groups.map(group => (
+              <NavGroupSection
+                key={group.id}
+                group={group}
+                collapsed={collapsed && !isMobile}
+                pathname={pathname}
+              />
+            ))}
+          </div>
+        </nav>
+
+        {/* User footer */}
+        <AnimatePresence initial={false}>
+          {(!collapsed || isMobile) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.13 }}
+              className="shrink-0 border-t border-white/[0.06] px-4 py-3"
+            >
+              <p className="text-[9.5px] text-white/28 uppercase tracking-widest mb-0.5">Signed in as</p>
+              <p className="truncate text-[12.5px] font-semibold text-white/80">
+                {user.fullName || ROLE_LABEL[user.role]}
+              </p>
+              <p className="text-[10px] text-white/28 mt-0.5">{ROLE_LABEL[user.role]}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Collapse toggle — desktop only */}
+        <button
+          onClick={() => setCollapsed(c => !c)}
+          className="hidden md:flex absolute -right-3 top-[18px] h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-[#252527] text-white/45 shadow-md transition-colors hover:bg-[#2e2e30] hover:text-white focus:outline-none"
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed
+            ? <ChevronRight className="h-3.5 w-3.5" />
+            : <ChevronLeft  className="h-3.5 w-3.5" />}
+        </button>
+      </motion.aside>
+    </>
   );
 }

@@ -386,11 +386,11 @@ export default function BackupsPage() {
             loading={isBackingUp}
           >
             {isBackingUp ? (
-              'Creating Backup...'
+              'Creating...'
             ) : (
               <>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Create Backup Now
+                <RefreshCw className="w-4 h-4 mr-0 sm:mr-2" />
+                <span className="hidden sm:inline">Create Backup Now</span>
               </>
             )}
           </Button>
@@ -518,7 +518,7 @@ export default function BackupsPage() {
         ) : (
           <div className="divide-y divide-white/5">
             {backups.map(file => (
-              <div key={file.id} className="p-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
+              <div key={file.id} className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded bg-white/5 flex items-center justify-center">
                     <Database className="w-5 h-5 text-[var(--text-muted)]" />

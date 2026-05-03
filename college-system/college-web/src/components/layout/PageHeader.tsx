@@ -49,9 +49,9 @@ export function PageHeader({
           ))}
         </nav>
       )}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[var(--text)]">
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-[var(--text)]">
             {title}
           </h1>
           {subtitle && (
@@ -60,7 +60,7 @@ export function PageHeader({
             </p>
           )}
         </div>
-        {actions && <div className="flex gap-3">{actions}</div>}
+        {actions && <div className="flex flex-wrap gap-2 sm:gap-3">{actions}</div>}
       </div>
     </div>
   )

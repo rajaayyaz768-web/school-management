@@ -6,7 +6,7 @@ import { useLogout } from "@/features/auth/hooks/useAuth";
 import { useCampusStore } from "@/store/campusStore";
 import { useCampuses } from "@/features/campus/hooks/useCampus";
 import { cn } from "@/lib/utils";
-import { MessageSquare, Bell, ChevronDown, User, LogOut, Building2 } from "lucide-react";
+import { MessageSquare, Bell, ChevronDown, User, LogOut, Building2, Menu } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -14,6 +14,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export interface TopBarProps {
   title?: string;
+  onMobileMenuToggle?: () => void;
 }
 
 const ROLE_LABEL_MAP: Record<string, string> = {
@@ -62,7 +63,7 @@ function AdminCampusBadge({ campusId }: { campusId: string | null }) {
   )
 }
 
-export function TopBar({ title }: TopBarProps) {
+export function TopBar({ title, onMobileMenuToggle }: TopBarProps) {
   const user = useCurrentUser();
   const { mutate: logout } = useLogout();
 
@@ -98,28 +99,37 @@ export function TopBar({ title }: TopBarProps) {
   const showChat = user.role === "SUPER_ADMIN" || user.role === "TEACHER";
 
   return (
-    <header className="flex h-14 w-full shrink-0 flex-row items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-6">
+    <header className="flex h-14 w-full shrink-0 flex-row items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-4 md:px-6">
       {/* LEFT SIDE */}
-      <div>
+      <div className="flex items-center">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMobileMenuToggle}
+          className="mr-2 md:hidden flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text)] transition-colors cursor-pointer"
+          aria-label="Open navigation"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
         {title ? (
-          <h1 className="font-display text-xl font-bold text-[var(--primary)]">
+          <h1 className="font-display text-base md:text-xl font-bold text-[var(--primary)] truncate max-w-[140px] sm:max-w-none">
             {title}
           </h1>
         ) : (
-          <span className="font-display text-xl font-bold text-[var(--primary)]">
+          <span className="font-display text-base md:text-xl font-bold text-[var(--primary)] truncate max-w-[140px] sm:max-w-none">
             College Portal
           </span>
         )}
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="flex items-center gap-2">
-        {/* SUPER_ADMIN: global campus picker */}
+      <div className="flex items-center gap-1 md:gap-2">
+        {/* SUPER_ADMIN: global campus picker — hidden on mobile */}
         {user.role === 'SUPER_ADMIN' && (
-          <>
+          <div className="hidden md:flex items-center gap-1.5">
             <CampusPicker />
             <div className="mx-1 h-6 w-px bg-[var(--border)]" />
-          </>
+          </div>
         )}
 
         {/* ADMIN: read-only campus badge */}
@@ -160,13 +170,13 @@ export function TopBar({ title }: TopBarProps) {
         <ThemeToggle />
 
         {/* Vertical Divider */}
-        <div className="mx-2 h-6 w-px bg-[var(--border)]" />
+        <div className="mx-1 md:mx-2 h-6 w-px bg-[var(--border)]" />
 
         {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-3 rounded-full hover:bg-[var(--bg-secondary)] p-1 pr-3 transition-colors focus:outline-none"
+            className="flex items-center gap-3 rounded-full hover:bg-[var(--bg-secondary)] p-1 pr-3 transition-colors focus:outline-none cursor-pointer"
           >
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)] text-[var(--gold)] shadow-sm">
               {user.profilePhotoUrl ? (
@@ -181,7 +191,7 @@ export function TopBar({ title }: TopBarProps) {
                 </span>
               )}
             </div>
-            
+
             <div className="hidden flex-col items-start leading-none sm:flex">
               <span className="text-sm font-medium text-[var(--text)]">
                 {user.fullName || user.email.split("@")[0]}
@@ -195,7 +205,7 @@ export function TopBar({ title }: TopBarProps) {
 
           {/* Dropdown Menu */}
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 mt-2 w-[min(90vw,14rem)] z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <Card padding="sm" className="shadow-[var(--shadow-lg)]">
                 <div className="flex flex-col">
                   {/* Mobile Profile Info */}

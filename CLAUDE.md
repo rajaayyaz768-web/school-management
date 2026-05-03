@@ -65,6 +65,27 @@ BACKUP_DIR        /var/backups/college  (VPS only — enables the backups dashbo
 BACKUP_SCRIPT     /opt/college/scripts/backup-now.sh  (VPS only)
 ```
 
+Additional vars required for optional integrations:
+```
+# File uploads
+UPLOAD_DIR           path for multer disk storage
+MAX_FILE_SIZE_MB     defaults to 5
+
+# Email (Nodemailer / Gmail SMTP)
+SMTP_HOST  SMTP_PORT  SMTP_USER  SMTP_PASS  SMTP_FROM
+
+# WhatsApp Meta Business API
+META_WHATSAPP_ENABLED              true/false
+META_WHATSAPP_TOKEN
+META_WHATSAPP_PHONE_NUMBER_ID
+META_WHATSAPP_TEMPLATE_NAME        fee payment template name
+META_WHATSAPP_CREDENTIALS_TEMPLATE student/staff credential template name
+META_WHATSAPP_LANGUAGE_CODE        e.g. en_US
+
+# Google Drive backup (OAuth2)
+GOOGLE_CLIENT_ID  GOOGLE_CLIENT_SECRET  GOOGLE_REDIRECT_URI
+```
+
 See `.env.example` for the full production set.
 
 ### Architecture
@@ -129,7 +150,17 @@ Roles.ALL                 // all five roles
 - Fee record generation has a **30-day duplicate check** using `createdAt >= now - 30 days` — re-running within 30 days skips students who already have a record for that fee structure.
 - New students in a section get roll numbers continuing from the highest existing sequence (`maxSeq + 1`). Existing roll numbers are never reset.
 
-**Caching**: `node-cache` instance available for short-lived in-memory caching (e.g. timetable computations). Do not introduce a second caching layer.
+**Caching** (`src/utils/cache.ts`): wrapper around `node-cache` — do not introduce a second caching layer. Use `cacheGet()`, `cacheSet()`, `cacheDel()`, `cacheDelPattern()`. TTL constants: `MASTER_DATA` 30 min (campuses/programs/subjects), `SECTIONS` 10 min, `DASHBOARD` 5 min, `FEES` 3 min, `ANNOUNCEMENTS` 2 min, `RESULTS` 60 s.
+
+**Rate limiting** (`src/middlewares/rateLimit.middleware.ts`): two limiters — `generalLimiter` (100 req/min) and `authLimiter` (10 req/15 min), both using express-rate-limit with `standardHeaders: true`.
+
+**File uploads** (`src/middlewares/upload.middleware.ts`): multer with disk storage to `UPLOAD_DIR`. Use `uploadSingle(field)` or `uploadMultiple(field, max=5)`. Allowed types: jpeg/jpg/png/pdf/doc/docx/xlsx/xls; max size from `MAX_FILE_SIZE_MB`.
+
+**Email service** (`src/services/email.service.ts`): Nodemailer over SMTP (Gmail app passwords). Sends password-reset OTPs, recovery verification, backup OTPs, and staff welcome emails via HTML templates.
+
+**WhatsApp service** (`src/services/whatsapp/metaClient.ts`): Meta Business API. Normalises Pakistani phone numbers (03001234567 → 923001234567). Used to send student/parent credentials and fee payment confirmations via pre-approved template messages. Returns `MetaSendResult { messageId? | error }`. Disabled when `META_WHATSAPP_ENABLED` is not `"true"`.
+
+**Google Drive backup** (in `src/modules/system/`): OAuth2 flow; OTP-verified before connecting. Endpoints under `/api/v1/system/google/` (`auth-url`, `callback`, `send-otp`, `verify-otp`, `status`, `disconnect`) plus backup CRUD. Requires `GOOGLE_*` env vars.
 
 **Active backend modules**: admin-management, announcements, app-version, attendance, auth, campus, chat, dashboard, exams, fees, grades, import, leave, notifications, parents, programs, promotion, reports, results, section-assignment, sections, staff, staff-attendance, student-attendance, students, subjects, system, timetable.
 
@@ -185,9 +216,10 @@ npm run build
 npm run lint
 ```
 
-### Required Environment Variables
+### Required Environment Variables (`.env.local`)
 
 - `NEXT_PUBLIC_API_URL` — backend base URL, e.g., `http://localhost:5000/api/v1`
+- `NEXT_PUBLIC_SOCKET_URL` — Socket.io server URL (usually same host without `/api/v1`)
 
 ### Architecture
 
@@ -196,6 +228,7 @@ npm run lint
 - `(principal)/principal/` — SUPER_ADMIN routes (dashboard, students, staff, settings/backups, …)
 - `(admin)/admin/` — ADMIN routes
 - `(teacher)/`, `(parent)/`, `(student)/` — respective role routes
+- Shared admin routes (`/exams`, `/results`, `/fees`, `/attendance`, `/announcements`, `/reports`) are accessible by both SUPER_ADMIN and ADMIN; the middleware enforces this before the page renders.
 
 **Middleware** (`src/middleware.ts`) — reads `access-token` and `user-role` cookies; redirects unauthenticated users to `/login` and enforces role-based route access before the page renders.
 
@@ -228,6 +261,10 @@ types/       # TypeScript types
 **Animations**: always use the `motion` package (`import { motion, AnimatePresence, … } from "motion/react"`) for every new component — never raw CSS transitions or other animation libraries.
 
 **Utilities** (`src/lib/utils.ts`): `cn()` for class merging, `formatDate()` / `formatTime()` (locale `en-PK`), `getInitials()`, `capitalizeFirst()` — use these before writing new helpers.
+
+**Custom hooks** (`src/hooks/`): `useDebounce`, `useIntersectionObserver` (infinite scroll), `useOnline` (network status), `usePermission`, `useToast` — check here before writing new hooks.
+
+**API error parsing** (`src/lib/apiError.ts`): utility that extracts a human-readable message from Axios errors — use in React Query `onError` callbacks instead of accessing `error.response.data` directly.
 
 **Data fetching**: React Query via `src/lib/queryClient.ts`. Default config: `staleTime: 5 min`, `refetchOnWindowFocus: false`, no retry on 401/403/404. All API calls go through React Query hooks in `features/<name>/hooks/`.
 
