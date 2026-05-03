@@ -101,29 +101,29 @@ export function TopBar({ title, onMobileMenuToggle }: TopBarProps) {
   return (
     <header className="relative z-[60] flex h-14 w-full shrink-0 flex-row items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-4 md:px-6">
       {/* LEFT SIDE */}
-      <div className="flex items-center">
+      <div className="flex items-center min-w-0 pr-2">
         {/* Hamburger — mobile only */}
         <button
           onClick={onMobileMenuToggle}
-          className="mr-2 md:hidden flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text)] transition-colors cursor-pointer"
+          className="mr-2 md:hidden flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text)] transition-colors cursor-pointer shrink-0"
           aria-label="Open navigation"
         >
           <Menu className="h-5 w-5" />
         </button>
 
         {title ? (
-          <h1 className="font-display text-base md:text-xl font-bold text-[var(--primary)] truncate max-w-[140px] sm:max-w-none">
+          <h1 className="font-display text-base md:text-xl font-bold text-[var(--primary)] truncate flex-1 min-w-0 sm:max-w-none">
             {title}
           </h1>
         ) : (
-          <span className="font-display text-base md:text-xl font-bold text-[var(--primary)] truncate max-w-[140px] sm:max-w-none">
+          <span className="font-display text-base md:text-xl font-bold text-[var(--primary)] truncate flex-1 min-w-0 sm:max-w-none">
             College Portal
           </span>
         )}
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="flex items-center gap-1 md:gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
         {/* SUPER_ADMIN: global campus picker — hidden on mobile */}
         {user.role === 'SUPER_ADMIN' && (
           <div className="hidden md:flex items-center gap-1.5">
@@ -170,15 +170,15 @@ export function TopBar({ title, onMobileMenuToggle }: TopBarProps) {
         <ThemeToggle />
 
         {/* Vertical Divider */}
-        <div className="mx-1 md:mx-2 h-6 w-px bg-[var(--border)]" />
+        <div className="mx-0.5 sm:mx-1 md:mx-2 h-6 w-px bg-[var(--border)]" />
 
         {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-3 rounded-full hover:bg-[var(--bg-secondary)] p-1 pr-3 transition-colors focus:outline-none cursor-pointer"
+            className="flex items-center sm:gap-3 rounded-full hover:bg-[var(--bg-secondary)] p-1 sm:pr-3 transition-colors focus:outline-none cursor-pointer shrink-0"
           >
-            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)] text-[var(--gold)] shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)] text-[var(--gold)] shadow-sm shrink-0">
               {user.profilePhotoUrl ? (
                 <img
                   src={user.profilePhotoUrl}
@@ -200,7 +200,7 @@ export function TopBar({ title, onMobileMenuToggle }: TopBarProps) {
                 {ROLE_LABEL_MAP[user.role] || user.role}
               </span>
             </div>
-            <ChevronDown className="h-4 w-4 text-[var(--text-muted)]" />
+            <ChevronDown className="hidden sm:block h-4 w-4 text-[var(--text-muted)]" />
           </button>
 
           {/* Dropdown Menu */}

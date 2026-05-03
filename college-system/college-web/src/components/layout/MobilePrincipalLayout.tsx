@@ -15,20 +15,18 @@ export function MobilePrincipalLayout({ children }: MobilePrincipalLayoutProps) 
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--bg)]">
-      {/* Sidebar — desktop only */}
-      <div className="hidden md:block">
-        <Sidebar
-          mobileOpen={mobileSidebarOpen}
-          onMobileClose={() => setMobileSidebarOpen(false)}
-        />
-      </div>
+      {/* Sidebar (handles its own mobile visibility via props/internal state) */}
+      <Sidebar
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+      />
 
-      <div className="flex flex-1 flex-col overflow-hidden relative">
+      <div className="flex flex-1 flex-col overflow-y-auto md:overflow-hidden relative bg-[var(--bg)]">
         {/* Top Bar (Visible on all devices so mobile gets hamburger & profile) */}
         <TopBar onMobileMenuToggle={() => setMobileSidebarOpen(true)} />
 
         {/* Content Area - pb-24 accounts for bottom nav on mobile */}
-        <main className="flex-1 overflow-y-auto pb-24 md:pb-6 md:p-6 bg-[var(--bg)]">
+        <main className="flex-1 overflow-visible md:overflow-y-auto min-h-0 pb-24 md:pb-6 md:p-6">
           {children}
         </main>
 
