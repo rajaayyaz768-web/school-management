@@ -4,7 +4,10 @@ import {
   fetchStaffForAttendance,
   markDailyAttendance,
   fetchDailyReport,
-  fetchAbsentStaffToday
+  fetchAbsentStaffToday,
+  fetchMonthlySummary,
+  fetchAbsentByCampus,
+  fetchStaffAttendanceHistory,
 } from '../api/staff-attendance.api'
 import { MarkAttendanceInput } from '../types/staff-attendance.types'
 
@@ -29,6 +32,29 @@ export const useAbsentStaffToday = (campusId: string, date: string) => {
     queryKey: ['staff-attendance', 'absent', campusId, date],
     queryFn: () => fetchAbsentStaffToday(campusId, date),
     enabled: !!campusId && !!date,
+  })
+}
+
+export const useMonthlySummary = (campusId: string, month?: number, year?: number) => {
+  return useQuery({
+    queryKey: ['staff-attendance', 'monthly-summary', campusId, month, year],
+    queryFn: () => fetchMonthlySummary(campusId, month, year),
+    enabled: !!campusId,
+  })
+}
+
+export const useAbsentByCampus = (date?: string) => {
+  return useQuery({
+    queryKey: ['staff-attendance', 'absent-by-campus', date],
+    queryFn: () => fetchAbsentByCampus(date),
+  })
+}
+
+export const useStaffAttendanceHistory = (staffId: string | null, month?: number, year?: number) => {
+  return useQuery({
+    queryKey: ['staff-attendance', 'history', staffId, month, year],
+    queryFn: () => fetchStaffAttendanceHistory(staffId!, month, year),
+    enabled: !!staffId,
   })
 }
 

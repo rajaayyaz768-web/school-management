@@ -3,7 +3,10 @@ import {
   StaffWithAttendance,
   MarkAttendanceInput,
   DailyAttendanceReport,
-  StaffAttendanceRecord
+  StaffAttendanceRecord,
+  StaffAttendanceSummaryItem,
+  AbsentByCampusGroup,
+  StaffAttendanceHistoryResponse,
 } from '../types/staff-attendance.types'
 
 export const fetchStaffForAttendance = async (
@@ -39,6 +42,37 @@ export const fetchAbsentStaffToday = async (
 ): Promise<StaffAttendanceRecord[]> => {
   const res = await axios.get('/staff-attendance/absent-today', {
     params: { campusId, date }
+  })
+  return res.data.data
+}
+
+export const fetchMonthlySummary = async (
+  campusId: string,
+  month?: number,
+  year?: number
+): Promise<StaffAttendanceSummaryItem[]> => {
+  const res = await axios.get('/staff-attendance/monthly-summary', {
+    params: { campusId, month, year }
+  })
+  return res.data.data
+}
+
+export const fetchAbsentByCampus = async (
+  date?: string
+): Promise<AbsentByCampusGroup[]> => {
+  const res = await axios.get('/staff-attendance/absent-by-campus', {
+    params: { date }
+  })
+  return res.data.data
+}
+
+export const fetchStaffAttendanceHistory = async (
+  staffId: string,
+  month?: number,
+  year?: number
+): Promise<StaffAttendanceHistoryResponse> => {
+  const res = await axios.get(`/staff-attendance/history/${staffId}`, {
+    params: { month, year }
   })
   return res.data.data
 }

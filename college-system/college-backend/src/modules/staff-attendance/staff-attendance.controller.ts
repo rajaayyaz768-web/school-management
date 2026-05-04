@@ -98,3 +98,31 @@ export const getAbsentStaffToday = async (req: Request, res: Response) => {
     return sendError(res, message, status)
   }
 }
+
+export const getMonthlySummary = async (req: Request, res: Response) => {
+  try {
+    const campusId = req.query.campusId as string
+    const now = new Date()
+    const month = req.query.month ? parseInt(req.query.month as string, 10) : now.getMonth() + 1
+    const year = req.query.year ? parseInt(req.query.year as string, 10) : now.getFullYear()
+    const result = await service.getMonthlySummary(campusId, month, year)
+    return sendSuccess(res, 'Monthly attendance summary fetched', result)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Something went wrong'
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
+    return sendError(res, message, status)
+  }
+}
+
+export const getAbsentByCampus = async (req: Request, res: Response) => {
+  try {
+    const campusId = (req.query.campusId as string) || null
+    const date = (req.query.date as string) || new Date().toISOString().split('T')[0]
+    const result = await service.getAbsentByCampus(date, campusId, (req as any).user)
+    return sendSuccess(res, 'Absent staff by campus fetched', result)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Something went wrong'
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
+    return sendError(res, message, status)
+  }
+}

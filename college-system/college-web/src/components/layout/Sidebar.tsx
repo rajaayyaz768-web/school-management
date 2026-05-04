@@ -13,7 +13,7 @@ import {
   ChevronLeft, ChevronRight, ChevronRight as Caret,
   MessageSquare, Home, UserCog, Building2, FileText, Paintbrush,
   BookMarked, Heart, Shuffle, Network, Radio, PieChart, Layers,
-  CreditCard, BarChart2, UserCheck, ArrowUpCircle, X,
+  CreditCard, BarChart2, UserCheck, ArrowUpCircle, X, UserX,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -130,6 +130,7 @@ const NAV: Record<UserRole, NavConfig> = {
         id: "operations", label: "Operations", defaultOpen: false,
         items: [
           { label: "Staff Attendance",   href: "/attendance/staff",    icon: ClipboardCheck },
+          { label: "Absent Today",       href: "/attendance/absent",   icon: UserX },
           { label: "Student Attendance", href: "/attendance/students", icon: CalendarCheck },
           { label: "Fees",               href: "/fees",                icon: CreditCard },
           { label: "Exams",              href: "/exams",               icon: FileText },

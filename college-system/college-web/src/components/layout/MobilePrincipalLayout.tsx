@@ -21,12 +21,12 @@ export function MobilePrincipalLayout({ children }: MobilePrincipalLayoutProps) 
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
-      <div className="flex flex-1 flex-col overflow-y-auto md:overflow-hidden relative bg-[var(--bg)]">
+      <div className="flex-1 block md:flex md:flex-col overflow-y-auto md:overflow-hidden relative bg-[var(--bg)]">
         {/* Top Bar (Visible on all devices so mobile gets hamburger & profile) */}
         <TopBar onMobileMenuToggle={() => setMobileSidebarOpen(true)} />
 
         {/* Content Area - pb-24 accounts for bottom nav on mobile */}
-        <main className="flex-1 overflow-visible md:overflow-y-auto min-h-0 pb-24 md:pb-6 md:p-6">
+        <main className="block md:flex-1 overflow-visible md:overflow-y-auto min-h-0 pb-24 md:pb-6 md:p-6">
           {children}
         </main>
 

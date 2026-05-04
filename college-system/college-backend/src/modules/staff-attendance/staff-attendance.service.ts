@@ -1,6 +1,6 @@
 import { StaffAttendanceStatus, Role } from '@prisma/client'
 import prisma from '../../config/database'
-import { MarkStaffAttendanceDto, UpdateAttendanceDto, StaffAttendanceResponse, StaffWithAttendance, DailyAttendanceReport } from './staff-attendance.types'
+import { MarkStaffAttendanceDto, UpdateAttendanceDto, StaffAttendanceResponse, StaffWithAttendance, DailyAttendanceReport, StaffAttendanceSummaryItem, AbsentByCampusGroup } from './staff-attendance.types'
 import { assertStaffCampus } from '../../utils/campusGuard'
 import { cacheDelPattern } from '../../utils/cache'
 
@@ -231,6 +231,81 @@ export const getStaffAttendanceHistory = async (staffId: string, month?: number,
       leaveDays: mappedRecords.filter((r) => r.status === StaffAttendanceStatus.ON_LEAVE).length,
     }
   }
+}
+
+export const getMonthlySummary = async (campusId: string, month: number, year: number): Promise<StaffAttendanceSummaryItem[]> => {
+  const startDate = new Date(Date.UTC(year, month - 1, 1))
+  const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999))
+
+  const records = await prisma.staffAttendance.findMany({
+    where: {
+      campusId,
+      date: { gte: startDate, lte: endDate },
+    },
+    select: { staffId: true, status: true },
+  })
+
+  const map: Record<string, { presentDays: number; totalDays: number }> = {}
+  for (const r of records) {
+    if (!map[r.staffId]) map[r.staffId] = { presentDays: 0, totalDays: 0 }
+    map[r.staffId].totalDays++
+    if (r.status === StaffAttendanceStatus.PRESENT) map[r.staffId].presentDays++
+  }
+
+  return Object.entries(map).map(([staffId, s]) => ({
+    staffId,
+    presentDays: s.presentDays,
+    totalDays: s.totalDays,
+    percentage: s.totalDays > 0 ? Math.round((s.presentDays / s.totalDays) * 100) : 0,
+  }))
+}
+
+export const getAbsentByCampus = async (date: string, campusId: string | null, user: RequestUser): Promise<AbsentByCampusGroup[]> => {
+  const startOfDay = new Date(date + 'T00:00:00.000Z')
+  const endOfDay = new Date(date + 'T23:59:59.999Z')
+
+  let campuses: { id: string; name: string; code: string }[]
+
+  if (campusId) {
+    const campus = await prisma.campus.findUnique({ where: { id: campusId }, select: { id: true, name: true, code: true } })
+    campuses = campus ? [campus] : []
+  } else if (user.role === Role.SUPER_ADMIN) {
+    campuses = await prisma.campus.findMany({ select: { id: true, name: true, code: true }, orderBy: { name: 'asc' } })
+  } else {
+    campuses = []
+  }
+
+  const groups = await Promise.all(campuses.map(async (campus) => {
+    const absentRecords = await prisma.staffAttendance.findMany({
+      where: {
+        campusId: campus.id,
+        date: { gte: startOfDay, lte: endOfDay },
+        status: StaffAttendanceStatus.ABSENT,
+      },
+      include: {
+        staff: {
+          select: { id: true, firstName: true, lastName: true, staffCode: true, designation: true, photoUrl: true },
+        },
+      },
+    })
+
+    return {
+      campusId: campus.id,
+      campusName: campus.name,
+      campusCode: campus.code,
+      absentCount: absentRecords.length,
+      staff: absentRecords.map((r) => ({
+        id: r.staff.id,
+        firstName: r.staff.firstName,
+        lastName: r.staff.lastName,
+        staffCode: r.staff.staffCode,
+        designation: r.staff.designation ?? null,
+        photoUrl: r.staff.photoUrl ?? null,
+      })),
+    }
+  }))
+
+  return groups
 }
 
 export const getAbsentStaffToday = async (campusId: string, date: string): Promise<StaffAttendanceResponse[]> => {

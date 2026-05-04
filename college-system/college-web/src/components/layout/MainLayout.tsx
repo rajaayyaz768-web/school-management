@@ -20,12 +20,12 @@ export function MainLayout({ children, title }: MainLayoutProps) {
         mobileOpen={mobileSidebarOpen}
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
-      <div className="flex flex-1 flex-col overflow-y-auto md:overflow-hidden relative bg-[var(--bg)]">
+      <div className="flex-1 block md:flex md:flex-col overflow-y-auto md:overflow-hidden relative bg-[var(--bg)]">
         <TopBar
           title={title}
           onMobileMenuToggle={() => setMobileSidebarOpen(o => !o)}
         />
-        <main className="flex-1 overflow-visible md:overflow-y-auto min-h-0 p-4 sm:p-6 pb-24 md:pb-6">
+        <main className="block md:flex-1 overflow-visible md:overflow-y-auto min-h-0 p-4 sm:p-6 pb-24 md:pb-6">
           {children}
         </main>
       </div>

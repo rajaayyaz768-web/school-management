@@ -1,19 +1,24 @@
 'use client';
 
 import { Staff } from '../types/staff.types';
+import { StaffAttendanceSummaryItem } from '@/features/staff-attendance/types/staff-attendance.types';
 import { Table, Avatar, Badge, Button, Skeleton, EmptyState, Tooltip } from '@/components/ui';
+import { BadgeProps } from '@/components/ui/Badge';
 import { KeyRound } from 'lucide-react';
+
+type BadgeVariant = BadgeProps['variant'];
 
 export interface StaffTableProps {
   staffList: Staff[];
   isLoading: boolean;
+  attendanceSummary?: Record<string, StaffAttendanceSummaryItem>;
   onView: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
   onToggle: (id: string) => void;
   onDelete: (staff: Staff) => void;
 }
 
-export function StaffTable({ staffList, isLoading, onView, onEdit, onToggle, onDelete }: StaffTableProps) {
+export function StaffTable({ staffList, isLoading, attendanceSummary, onView, onEdit, onToggle, onDelete }: StaffTableProps) {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -27,6 +32,14 @@ export function StaffTable({ staffList, isLoading, onView, onEdit, onToggle, onD
   if (staffList.length === 0) {
     return <EmptyState title="No staff members found." description="Try adjusting your filters or search query." />;
   }
+
+  const getAttendanceBadge = (summary?: StaffAttendanceSummaryItem) => {
+    if (!summary) return <span className="text-[var(--text-muted)] text-xs">—</span>;
+    if (summary.totalDays === 0) return <span className="text-[var(--text-muted)] text-xs">N/A</span>;
+    const pct = summary.percentage;
+    const variant: BadgeVariant = pct >= 85 ? 'success' : pct >= 70 ? 'warning' : 'danger';
+    return <Badge variant={variant}>{pct}%</Badge>;
+  };
 
   const getEmploymentBadge = (type: string) => {
     switch (type) {
@@ -57,7 +70,10 @@ export function StaffTable({ staffList, isLoading, onView, onEdit, onToggle, onD
     },
     { key: 'code', header: 'Staff Code', render: (staff: Staff) => <span className="font-mono text-sm text-[var(--text-muted)]">{staff.staffCode}</span> },
     { key: 'designation', header: 'Designation', render: (staff: Staff) => <span className="text-[var(--text)] text-sm">{staff.designation || '—'}</span> },
-    { key: 'employment', header: 'Employment', render: (staff: Staff) => <Badge variant={getEmploymentBadge(staff.employmentType) as any}>{staff.employmentType}</Badge> },
+    { key: 'employment', header: 'Employment', render: (staff: Staff) => <Badge variant={getEmploymentBadge(staff.employmentType) as BadgeVariant}>{staff.employmentType}</Badge> },
+    {
+      key: 'attendance', header: 'Attendance', render: (staff: Staff) => getAttendanceBadge(attendanceSummary?.[staff.id])
+    },
     {
       key: 'campus', header: 'Campus', render: (staff: Staff) => (
         <span className="text-[var(--text)] text-sm">{staff.campus?.name ?? 'Unassigned'}</span>

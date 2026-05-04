@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Staff } from '../types/staff.types';
 import { useStaffById, useResendStaffCredentials } from '../hooks/useStaff';
+import { useStaffAttendanceHistory } from '@/features/staff-attendance/hooks/useStaffAttendance';
 import { Drawer, Avatar, Badge, Button, Tabs, TabPanel, Skeleton, ErrorState } from '@/components/ui';
 import { Eye, EyeOff, Copy, Mail } from 'lucide-react';
 
@@ -18,6 +19,12 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
   const [showPassword, setShowPassword] = useState(false);
   const resendMutation = useResendStaffCredentials();
   const { data: staff, isLoading, isError, refetch } = useStaffById(isOpen ? staffId : null);
+  const now = new Date();
+  const { data: attendanceHistory, isLoading: isAttendanceLoading } = useStaffAttendanceHistory(
+    isOpen ? staffId : null,
+    now.getMonth() + 1,
+    now.getFullYear()
+  );
 
   const getEmploymentBadge = (type?: string) => {
     switch (type) {
@@ -103,6 +110,41 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
                       <span className="text-sm text-[var(--text-muted)]">Unassigned</span>
                     )}
                   </div>
+                </div>
+
+                {/* ─── This Month's Attendance ─────────────────────────── */}
+                <div className="col-span-2 pt-3 border-t border-[var(--border)]">
+                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                    This Month&apos;s Attendance
+                  </label>
+                  {isAttendanceLoading ? (
+                    <div className="mt-3 grid grid-cols-4 gap-2">
+                      {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-14 rounded-lg" />)}
+                    </div>
+                  ) : attendanceHistory && attendanceHistory.summary.totalDays > 0 ? (
+                    <div className="mt-3 grid grid-cols-4 gap-2">
+                      {[
+                        { label: 'Present', value: attendanceHistory.summary.presentDays, color: 'text-emerald-500' },
+                        { label: 'Absent', value: attendanceHistory.summary.absentDays, color: 'text-red-500' },
+                        { label: 'Leave', value: attendanceHistory.summary.leaveDays, color: 'text-amber-500' },
+                        {
+                          label: 'Rate',
+                          value: `${Math.round((attendanceHistory.summary.presentDays / attendanceHistory.summary.totalDays) * 100)}%`,
+                          color: (() => {
+                            const pct = Math.round((attendanceHistory.summary.presentDays / attendanceHistory.summary.totalDays) * 100);
+                            return pct >= 85 ? 'text-emerald-500' : pct >= 70 ? 'text-amber-500' : 'text-red-500';
+                          })(),
+                        },
+                      ].map((stat) => (
+                        <div key={stat.label} className="flex flex-col items-center justify-center bg-[var(--surface-container-low)] rounded-lg py-2.5 px-1">
+                          <span className={`text-xl font-bold ${stat.color}`}>{stat.value}</span>
+                          <span className="text-[10px] text-[var(--text-muted)] mt-0.5 font-medium">{stat.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[var(--text-muted)] mt-2 italic">No attendance records this month.</p>
+                  )}
                 </div>
               </div>
             </TabPanel>

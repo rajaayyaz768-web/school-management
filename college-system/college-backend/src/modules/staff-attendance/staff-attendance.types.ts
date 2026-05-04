@@ -60,3 +60,18 @@ export interface DailyAttendanceReport {
   holiday: number
   attendances: StaffAttendanceResponse[]
 }
+
+export interface StaffAttendanceSummaryItem {
+  staffId: string
+  presentDays: number
+  totalDays: number
+  percentage: number
+}
+
+export interface AbsentByCampusGroup {
+  campusId: string
+  campusName: string
+  campusCode: string
+  absentCount: number
+  staff: StaffBasicInfo[]
+}

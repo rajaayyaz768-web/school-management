@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Plus, Search, ChevronRight } from 'lucide-react';
 import { useRole } from '@/store/authStore';
@@ -9,6 +9,7 @@ import { Staff } from '@/features/staff/types/staff.types';
 import { StaffTable } from '@/features/staff/components/StaffTable';
 import { StaffProfileDrawer } from '@/features/staff/components/StaffProfileDrawer';
 import { StaffForm } from '@/features/staff/components/StaffForm';
+import { useMonthlySummary } from '@/features/staff-attendance/hooks/useStaffAttendance';
 import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
 
@@ -62,6 +63,14 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
 
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteStaff(apiFilters);
   const staffList = data?.pages.flatMap((p) => p.data) ?? [];
+
+  const now = new Date();
+  const { data: summaryData } = useMonthlySummary(campusId || '', now.getMonth() + 1, now.getFullYear());
+  const summaryMap = useMemo(() => {
+    if (!summaryData) return {};
+    return Object.fromEntries(summaryData.map((s) => [s.staffId, s]));
+  }, [summaryData]);
+
   const toggleMutation = useToggleStaffStatus();
   const deleteMutation = useDeleteStaff();
 
@@ -159,6 +168,23 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
+              {(() => {
+                const summary = summaryMap[staff.id];
+                if (campusId && summary && summary.totalDays > 0) {
+                  const pct = summary.percentage;
+                  return (
+                    <span className={cn(
+                      'text-[10px] font-bold px-2 py-0.5 rounded-full',
+                      pct >= 85 ? 'bg-emerald-500/10 text-emerald-400' :
+                      pct >= 70 ? 'bg-amber-500/10 text-amber-400' :
+                      'bg-red-500/10 text-red-400'
+                    )}>
+                      {pct}%
+                    </span>
+                  );
+                }
+                return null;
+              })()}
               <span className={cn(
                 'text-[10px] font-bold px-2 py-0.5 rounded-full',
                 staff.user?.isActive !== false ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
@@ -277,6 +303,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
           <StaffTable
             staffList={filteredClientList}
             isLoading={isLoading}
+            attendanceSummary={campusId ? summaryMap : undefined}
             onView={(staff) => setDrawerStaffId(staff.id)}
             onEdit={handleEditStaffClick}
             onToggle={(id) => {
