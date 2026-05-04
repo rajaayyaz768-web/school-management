@@ -75,6 +75,7 @@ export interface FeeRecordResponse {
     firstName: string
     lastName: string
     rollNumber: string | null
+    section: { id: string; name: string } | null
   }
   feeStructure: {
     id: string

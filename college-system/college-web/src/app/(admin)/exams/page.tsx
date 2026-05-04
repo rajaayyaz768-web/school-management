@@ -94,7 +94,7 @@ export default function ExamsPage() {
   // ── Campus / Section selection steps ────────────────────────
   if (!selectedCampusId) {
     return (
-      <div className="flex flex-col gap-6 p-8">
+      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
         <PageHeader title="Exam Management" subtitle="Select a section to view and manage exams" />
         {/* Admin has 1 campus → auto-skips immediately */}
         <CampusSelectorCards onSelect={(c) => setSelectedCampusId(c.id)} />
@@ -104,7 +104,7 @@ export default function ExamsPage() {
 
   if (!selectedSection) {
     return (
-      <div className="flex flex-col gap-6 p-8">
+      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
         <PageHeader title="Exam Management" subtitle="Select a section to view and manage exams" />
         <SectionSelectorCards
           campusId={selectedCampusId}
@@ -115,37 +115,39 @@ export default function ExamsPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] p-8">
+    <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="Exam Management"
         subtitle="Schedule exams, manage exam types, and enter student results"
         actions={
           activeTab === 'schedule' ? (
             <div className="flex gap-2">
-              <Button variant="secondary" onClick={handleOpenSchedule} icon={<CalendarDays className="w-4 h-4" />}>
-                Schedule Exam
+              <Button variant="secondary" size="sm" onClick={handleOpenSchedule} icon={<CalendarDays className="w-4 h-4" />}>
+                <span className="hidden sm:inline">Schedule Exam</span>
+                <span className="sm:hidden">Schedule</span>
               </Button>
-              <Button onClick={handleOpenCreate} icon={<Plus className="w-4 h-4" />}>
-                Add Single Exam
+              <Button size="sm" onClick={handleOpenCreate} icon={<Plus className="w-4 h-4" />}>
+                <span className="hidden sm:inline">Add Single Exam</span>
+                <span className="sm:hidden">Add</span>
               </Button>
             </div>
           ) : undefined
         }
       />
-      <div className="flex items-center gap-3 mb-2 -mt-4">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 -mt-2 sm:-mt-4">
         <Button variant="ghost" size="sm" onClick={() => { setSelectedSection(null); setSelectedCampusId(null) }}>
           ← Change section
         </Button>
         <Badge variant="info">{selectedSection.name}</Badge>
         {selectedSection.programName && (
-          <span className="text-sm text-[var(--text-muted)]">{selectedSection.programName}</span>
+          <span className="text-xs sm:text-sm text-[var(--text-muted)]">{selectedSection.programName}</span>
         )}
       </div>
 
-      <Card className="flex-1 overflow-hidden mt-6 flex flex-col bg-[var(--surface)] border-[var(--border)]">
+      <Card className="flex flex-col bg-[var(--surface)] border-[var(--border)] overflow-hidden">
         <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 
-        <div className="flex-1 overflow-auto p-6 bg-[var(--background)]">
+        <div className="p-4 sm:p-6 bg-[var(--background)]">
           {/* ── Tab 1: Exam Schedule ── */}
           <TabPanel tabId="schedule" activeTab={activeTab}>
             {/* Content filters: Exam Type + Status only */}

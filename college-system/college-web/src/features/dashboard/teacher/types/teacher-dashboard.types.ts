@@ -33,9 +33,16 @@ export interface RecentAttendanceSession {
   subjectName: string
 }
 
+export interface MyAttendanceThisMonth {
+  presentDays: number
+  totalDays: number
+  percentage: number
+}
+
 export interface TeacherDashboardData {
   todaySchedule: TodayScheduleSlot[]
   mySections: TeacherSection[]
   upcomingExams: TeacherUpcomingExam[]
   recentAttendance: RecentAttendanceSession[]
+  myAttendanceThisMonth: MyAttendanceThisMonth
 }

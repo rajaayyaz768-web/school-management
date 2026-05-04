@@ -23,12 +23,19 @@ export function FeeRecordTable({ records, isLoading, onMarkPaid, onChallan }: Pr
       ),
     },
     {
-      key: 'program',
-      header: 'Program / Grade',
+      key: 'class',
+      header: 'Program · Grade · Section',
       render: (row) => (
         <div>
-          <div className="text-sm">{row.feeStructure?.program?.name ?? '—'}</div>
-          <div className="text-xs text-[var(--text-muted)]">{row.feeStructure?.grade?.name ?? '—'}</div>
+          <div className="text-sm font-medium">{row.feeStructure?.program?.name ?? '—'}</div>
+          <div className="text-xs text-[var(--text-muted)] mt-0.5">
+            {row.feeStructure?.grade?.name ?? '—'}
+            {row.student?.section?.name ? (
+              <span className="ml-1.5 font-mono bg-[var(--surface-container-low)] px-1.5 py-0.5 rounded text-[10px]">
+                Sec {row.student.section.name}
+              </span>
+            ) : null}
+          </div>
         </div>
       ),
     },

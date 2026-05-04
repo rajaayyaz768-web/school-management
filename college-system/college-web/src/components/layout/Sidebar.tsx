@@ -72,6 +72,7 @@ const NAV: Record<UserRole, NavConfig> = {
         id: "operations", label: "Operations", defaultOpen: false,
         items: [
           { label: "Staff Attendance",   href: "/attendance/staff",    icon: ClipboardCheck },
+          { label: "Absent Today",       href: "/attendance/absent",   icon: UserX },
           { label: "Student Attendance", href: "/attendance/students", icon: CalendarCheck },
           { label: "Fees",               href: "/fees",                icon: CreditCard },
           { label: "Exams",              href: "/exams",               icon: FileText },

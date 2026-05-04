@@ -148,7 +148,7 @@ export default function AdminResultsPage() {
   // Step 1: Section
   if (!selectedSection) {
     return (
-      <div className="flex flex-col gap-6 p-8">
+      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
         <PageHeader title="Result Cards" subtitle="Select a section to generate exam report cards" />
         <SectionSelectorCards onSelect={handleSectionSelect} selectedId={null} />
       </div>
@@ -156,7 +156,7 @@ export default function AdminResultsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-8">
+    <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
       <PageHeader
         title="Result Cards"
         subtitle={selectedSection.name}
@@ -164,9 +164,9 @@ export default function AdminResultsPage() {
       />
 
       {/* Breadcrumb */}
-      <div className="flex flex-wrap items-center gap-2 -mt-4">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 -mt-2 sm:-mt-4">
         <button onClick={() => { setSelectedSection(null); setSelectedExamTypeId(null); setSelectedStudentId(null); setShowCard(false) }}
-          className="text-xs text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors">
+          className="text-xs sm:text-sm text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors">
           Sections
         </button>
         <span className="text-[var(--text-muted)] text-xs">›</span>

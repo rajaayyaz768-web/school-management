@@ -23,7 +23,10 @@ const feeStructureInclude = {
 
 const feeRecordInclude = {
   student: {
-    select: { id: true, firstName: true, lastName: true, rollNumber: true }
+    select: {
+      id: true, firstName: true, lastName: true, rollNumber: true,
+      section: { select: { id: true, name: true } },
+    }
   },
   feeStructure: {
     select: {
@@ -75,6 +78,7 @@ function mapToFeeRecordResponse(record: any): FeeRecordResponse {
       firstName: record.student.firstName,
       lastName: record.student.lastName,
       rollNumber: record.student.rollNumber ?? null,
+      section: record.student.section ?? null,
     },
     feeStructure: {
       id: record.feeStructure.id,

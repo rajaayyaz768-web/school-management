@@ -1,5 +1,5 @@
 import prisma from '../../../config/database'
-import { DayOfWeek, ExamStatus } from '@prisma/client'
+import { DayOfWeek, ExamStatus, StaffAttendanceStatus } from '@prisma/client'
 
 const JS_DAY_TO_ENUM: Record<number, DayOfWeek> = {
   1: DayOfWeek.MON,
@@ -23,7 +23,10 @@ export async function getTeacherDashboardData(userId: string) {
   })
 
   if (!staffProfile) {
-    return { todaySchedule: [], mySections: [], upcomingExams: [], recentAttendance: [] }
+    return {
+      todaySchedule: [], mySections: [], upcomingExams: [], recentAttendance: [],
+      myAttendanceThisMonth: { presentDays: 0, totalDays: 0, percentage: 0 },
+    }
   }
 
   const staffId = staffProfile.id
@@ -31,11 +34,14 @@ export async function getTeacherDashboardData(userId: string) {
   const todayDow = JS_DAY_TO_ENUM[new Date().getDay()] ?? null
 
   const currentYear = new Date().getFullYear()
+  const currentMonth = new Date().getMonth()
   const academicYear = `${currentYear}-${currentYear + 1}`
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const monthStart = new Date(Date.UTC(currentYear, currentMonth, 1))
+  const monthEnd = new Date(Date.UTC(currentYear, currentMonth + 1, 0, 23, 59, 59, 999))
 
-  const [todaySlots, mySectionAssignments, upcomingExams, recentAttendance] =
+  const [todaySlots, mySectionAssignments, upcomingExams, recentAttendance, monthAttendance] =
     await Promise.all([
       // 1. Today's timetable slots
       todayDow
@@ -112,6 +118,12 @@ export async function getTeacherDashboardData(userId: string) {
           subject: { select: { name: true } },
         },
       }),
+
+      // 5. My own staff attendance this month
+      prisma.staffAttendance.findMany({
+        where: { staffId, date: { gte: monthStart, lte: monthEnd } },
+        select: { status: true },
+      }),
     ])
 
   return {
@@ -146,5 +158,14 @@ export async function getTeacherDashboardData(userId: string) {
       sectionName: a.section.name,
       subjectName: a.subject.name,
     })),
+    myAttendanceThisMonth: (() => {
+      const totalDays = monthAttendance.length
+      const presentDays = monthAttendance.filter((r) => r.status === StaffAttendanceStatus.PRESENT).length
+      return {
+        presentDays,
+        totalDays,
+        percentage: totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0,
+      }
+    })(),
   }
 }

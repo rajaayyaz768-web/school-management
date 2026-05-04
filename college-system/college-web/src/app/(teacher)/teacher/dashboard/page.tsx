@@ -15,6 +15,7 @@ import {
   TodayScheduleSlot,
   TeacherSection,
   TeacherUpcomingExam,
+  MyAttendanceThisMonth,
 } from '@/features/dashboard/teacher/types/teacher-dashboard.types'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -89,6 +90,45 @@ function PeriodCard({ slot, index }: { slot: TodayScheduleSlot; index: number })
           <span className="text-[10px] font-bold text-[var(--gold)] uppercase tracking-wider">Live Now</span>
         </div>
       )}
+    </motion.div>
+  )
+}
+
+// ── Attendance banner ─────────────────────────────────────────────────────────
+function AttendanceBanner({ stats }: { stats: MyAttendanceThisMonth }) {
+  const monthName = new Date().toLocaleDateString('en-PK', { month: 'long' })
+  const { presentDays, totalDays, percentage } = stats
+
+  const color =
+    percentage >= 85 ? 'text-emerald-400' :
+    percentage >= 70 ? 'text-amber-400' :
+    'text-red-400'
+
+  const bgColor =
+    percentage >= 85 ? 'bg-emerald-500/10 border-emerald-500/20' :
+    percentage >= 70 ? 'bg-amber-500/10 border-amber-500/20' :
+    'bg-red-500/10 border-red-500/20'
+
+  if (totalDays === 0) return null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={cn('flex items-center justify-between rounded-xl border px-4 py-3', bgColor)}
+    >
+      <div>
+        <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{monthName} Attendance</p>
+        <p className="text-sm text-[var(--text)] mt-0.5">
+          <span className="font-bold">{presentDays}</span>
+          <span className="text-[var(--text-muted)]"> / {totalDays} days present</span>
+        </p>
+      </div>
+      <div className="text-right">
+        <p className={cn('text-2xl font-bold', color)}>{percentage}%</p>
+        <p className="text-[10px] text-[var(--text-muted)] font-medium">attendance rate</p>
+      </div>
     </motion.div>
   )
 }
@@ -190,6 +230,11 @@ export default function TeacherDashboardPage() {
       </header>
 
       <div className="p-4 space-y-8">
+        {/* My attendance this month */}
+        {!isLoading && data?.myAttendanceThisMonth && (
+          <AttendanceBanner stats={data.myAttendanceThisMonth} />
+        )}
+
         {/* Today's Schedule */}
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">

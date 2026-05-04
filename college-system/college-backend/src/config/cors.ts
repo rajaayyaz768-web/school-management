@@ -2,7 +2,8 @@ import { CorsOptions } from "cors";
 
 // ALLOWED_ORIGINS is a comma-separated list of allowed origins.
 // Falls back to localhost:3000 for local development.
-const fromEnv = (process.env.ALLOWED_ORIGINS ?? "")
+const rawOrigins = process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || "";
+const fromEnv = rawOrigins
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);

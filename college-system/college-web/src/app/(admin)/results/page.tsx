@@ -68,7 +68,7 @@ export default function ResultsPage() {
 
   if (step === 'section' && campusId) {
     return (
-      <div className="p-8 space-y-6">
+      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
         <PageHeader
           title="Results"
           subtitle="Select a section to view student report cards or exam results"
@@ -83,26 +83,26 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] p-8">
+    <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="Results"
         subtitle="View student report cards and section exam results"
       />
 
-      <div className="flex items-center gap-3 mt-4 mb-2">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 -mt-2 sm:-mt-4">
         <Button variant="ghost" size="sm" onClick={handleChangeSection}>
           ← Change Section
         </Button>
         {selectedSection && <Badge variant="info">{selectedSection.name}</Badge>}
         {selectedSection?.programCode && (
-          <span className="text-sm text-[var(--text-muted)]">{selectedSection.programCode}</span>
+          <span className="text-xs sm:text-sm text-[var(--text-muted)]">{selectedSection.programCode}</span>
         )}
         {selectedSection?.gradeName && (
-          <span className="text-sm text-[var(--text-muted)]">· {selectedSection.gradeName}</span>
+          <span className="text-xs sm:text-sm text-[var(--text-muted)]">· {selectedSection.gradeName}</span>
         )}
       </div>
 
-      <Card className="flex-1 overflow-hidden flex flex-col bg-[var(--surface)] border-[var(--border)]">
+      <Card className="flex flex-col bg-[var(--surface)] border-[var(--border)] overflow-hidden">
         <Tabs
           tabs={TABS}
           activeTab={activeTab}
@@ -114,7 +114,7 @@ export default function ResultsPage() {
           }}
         />
 
-        <div className="flex-1 overflow-auto p-6 bg-[var(--background)]">
+        <div className="p-4 sm:p-6 bg-[var(--background)]">
           {/* ── Tab 1: Student Report Card ── */}
           <TabPanel tabId="report-card" activeTab={activeTab}>
             <div className="space-y-6">
