@@ -18,6 +18,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PORT=7860
 
 # Install only production dependencies
 COPY package*.json ./
@@ -28,6 +29,6 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY prisma ./prisma
 
-EXPOSE 5000
+EXPOSE 7860
 
 CMD ["node", "dist/src/server.js"]
