@@ -17,8 +17,12 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
+// Append pool + keepalive params so idle connections don't get silently
+// dropped by firewalls/NAT before PostgreSQL's own keepalive fires.
 const DATABASE_URL = process.env.DATABASE_URL
-  ? process.env.DATABASE_URL + (process.env.DATABASE_URL.includes('?') ? '&' : '?') + 'connection_limit=10&pool_timeout=20'
+  ? process.env.DATABASE_URL +
+    (process.env.DATABASE_URL.includes('?') ? '&' : '?') +
+    'connection_limit=5&pool_timeout=20&connect_timeout=10&keepalives=1&keepalives_idle=30&keepalives_interval=10&keepalives_count=5'
   : undefined;
 
 export const prisma =

@@ -148,6 +148,16 @@ The frontend is already deployed on Vercel. Only update the environment variable
 NEXT_PUBLIC_API_URL=https://college.example.pk/api/v1
 ```
 
+**Important — CORS:** Every Vercel URL that the frontend is served from must be listed in
+`ALLOWED_ORIGINS` in the backend `.env`. If you deploy to a new Vercel project or rename the
+project, add the new origin and reload PM2:
+
+```bash
+# On the VPS — edit /opt/college/college-system/college-backend/.env
+# ALLOWED_ORIGINS=https://your-app.vercel.app,http://localhost:3000
+pm2 reload college-backend
+```
+
 ---
 
 ## 9. Verify the Deployment
