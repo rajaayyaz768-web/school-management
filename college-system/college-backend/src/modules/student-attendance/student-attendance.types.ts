@@ -24,6 +24,7 @@ export interface StudentBasicInfo {
   lastName: string
   rollNumber: string | null
   photoUrl: string | null
+  parentPhone?: string | null
 }
 
 export interface SubjectBasicInfo {

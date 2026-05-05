@@ -26,5 +26,7 @@ router.get('/records/student/:studentId', authenticate, authorize(Role.ADMIN, Ro
 router.get('/records/:id/chalan', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.PARENT), controller.getFeeRecordChalan)
 router.post('/records/:id/mark-paid', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), validate(markAsPaidSchema), controller.markFeeAsPaid)
 router.get('/defaulters', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN, Role.TEACHER), controller.getFeeDefaulters)
+router.patch('/records/:id/whatsapp-notify', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), controller.markFeeWhatsappNotified)
+router.patch('/defaulters/:studentId/remind', authenticate, authorize(Role.ADMIN, Role.SUPER_ADMIN), controller.markDefaulterReminded)
 
 export { router as feesRouter }

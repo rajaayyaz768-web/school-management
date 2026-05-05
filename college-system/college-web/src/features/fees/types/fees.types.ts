@@ -63,6 +63,8 @@ export interface FeeRecordResponse {
   status: FeeStatus;
   paidAt: string | null;
   receiptNumber: string | null;
+  whatsappNotifiedAt: string | null;
+  parentPhone: string | null;
   createdAt: string;
   updatedAt: string;
   student: {
@@ -107,6 +109,8 @@ export interface FeeDefaulter {
   totalPaid: number;
   balance: number;
   overdueRecords: number;
+  parentPhone: string | null;
+  reminderSentAt: string | null;
 }
 
 

@@ -80,7 +80,15 @@ export const getStudentsForAttendance = async (sectionId: string, subjectId: str
   if (user) await assertSectionCampus(sectionId, user)
   const students = await prisma.studentProfile.findMany({
     where: { sectionId, status: 'ACTIVE' },
-    select: { id: true, firstName: true, lastName: true, rollNumber: true, photoUrl: true },
+    select: {
+      id: true, firstName: true, lastName: true, rollNumber: true, photoUrl: true,
+      guardianPhone: true,
+      parentLinks: {
+        orderBy: { isPrimary: 'desc' as const },
+        select: { parent: { select: { phone: true } } },
+        take: 1,
+      },
+    },
     orderBy: { rollNumber: 'asc' }
   })
 
@@ -94,8 +102,18 @@ export const getStudentsForAttendance = async (sectionId: string, subjectId: str
       include: studentAttendanceInclude
     })
 
+    const parentPhone = (student as any).parentLinks?.[0]?.parent?.phone
+      ?? (student as any).guardianPhone
+      ?? null
     return {
-      student,
+      student: {
+        id: student.id,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        rollNumber: student.rollNumber,
+        photoUrl: student.photoUrl,
+        parentPhone,
+      },
       attendance: record ? mapToResponse(record) : null
     }
   }))

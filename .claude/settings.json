@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(rm -rf /tmp/hf-deploy)",
-      "Bash(mkdir /tmp/hf-deploy)"
+      "Bash(mkdir /tmp/hf-deploy)",
+      "Bash(git push *)",
+      "Bash(grep -E \"\\\\.\\(tsx?|prisma\\)$\")"
     ]
   }
 }

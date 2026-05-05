@@ -112,3 +112,11 @@ export const fetchFeeDefaulters = async (
   const res = await axios.get('/fees/defaulters', { params });
   return res.data.data;
 };
+
+export const markFeeWhatsappNotified = async (id: string): Promise<void> => {
+  await axios.patch(`/fees/records/${id}/whatsapp-notify`);
+};
+
+export const markDefaulterReminded = async (studentId: string, campusId: string): Promise<void> => {
+  await axios.patch(`/fees/defaulters/${studentId}/remind`, null, { params: { campusId } });
+};

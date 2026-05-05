@@ -1,6 +1,9 @@
+import { MessageCircle } from 'lucide-react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
+import { Tooltip } from '@/components/ui'
 import { StudentWithAttendance, AttendanceStatus, SingleStudentAttendanceInput } from '../types/student-attendance.types'
+import { sendAbsentWhatsApp } from '@/lib/whatsapp'
 
 interface Props {
   studentList: StudentWithAttendance[]
@@ -8,6 +11,10 @@ interface Props {
   pendingAttendances: Record<string, SingleStudentAttendanceInput>
   onStatusChange: (studentId: string, status: AttendanceStatus) => void
   onRemarksChange: (studentId: string, remarks: string) => void
+  subjectName?: string
+  sectionName?: string
+  campusName?: string
+  date?: string
 }
 
 const AVATAR_COLORS = [
@@ -36,6 +43,10 @@ export function StudentAttendanceTable({
   pendingAttendances,
   onStatusChange,
   onRemarksChange,
+  subjectName = '',
+  sectionName = '',
+  campusName = '',
+  date = new Date().toISOString().split('T')[0],
 }: Props) {
   if (isLoading) {
     return (
@@ -59,6 +70,8 @@ export function StudentAttendanceTable({
     <div className="space-y-2">
       {studentList.map(({ student, attendance }, i) => {
         const current = pendingAttendances[student.id]?.status ?? attendance?.status ?? 'PRESENT'
+        const isAbsent = current === 'ABSENT'
+        const hasPhone = !!student.parentPhone
 
         return (
           <motion.div
@@ -86,22 +99,42 @@ export function StudentAttendanceTable({
               </div>
             </div>
 
-            {/* Right: P/A/L/OL toggles */}
-            <div className="flex bg-[var(--bg)] rounded-lg p-1 border border-[var(--border)] shrink-0 self-start sm:self-auto">
-              {STATUS_BTNS.map(btn => (
-                <button
-                  key={btn.key}
-                  onClick={() => onStatusChange(student.id, btn.key)}
-                  className={cn(
-                    'w-10 h-10 rounded-md font-bold text-sm flex items-center justify-center transition-colors',
-                    current === btn.key
-                      ? btn.activeClass
-                      : 'text-[var(--text-muted)] hover:bg-[var(--surface)]'
-                  )}
-                >
-                  {btn.label}
-                </button>
-              ))}
+            {/* Right: status toggles + WA button for absent */}
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+              <div className="flex bg-[var(--bg)] rounded-lg p-1 border border-[var(--border)]">
+                {STATUS_BTNS.map(btn => (
+                  <button
+                    key={btn.key}
+                    onClick={() => onStatusChange(student.id, btn.key)}
+                    className={cn(
+                      'w-10 h-10 rounded-md font-bold text-sm flex items-center justify-center transition-colors',
+                      current === btn.key
+                        ? btn.activeClass
+                        : 'text-[var(--text-muted)] hover:bg-[var(--surface)]'
+                    )}
+                  >
+                    {btn.label}
+                  </button>
+                ))}
+              </div>
+
+              {isAbsent && hasPhone && (
+                <Tooltip content="Notify parent via WhatsApp">
+                  <button
+                    onClick={() => sendAbsentWhatsApp({
+                      phone: student.parentPhone!,
+                      studentName: `${student.firstName} ${student.lastName}`,
+                      className: sectionName,
+                      subjectName,
+                      campusName,
+                      date,
+                    })}
+                    className="w-10 h-10 rounded-lg flex items-center justify-center border border-green-300 text-green-600 hover:bg-green-50 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                  </button>
+                </Tooltip>
+              )}
             </div>
           </motion.div>
         )

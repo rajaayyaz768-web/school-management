@@ -1,7 +1,11 @@
-import { Printer } from 'lucide-react';
+'use client';
+
+import { Printer, MessageCircle, CheckCircle } from 'lucide-react';
 import { TableColumn } from '@/components/ui/Table';
-import { Badge, Button, Table } from '@/components/ui';
+import { Badge, Button, Table, Tooltip } from '@/components/ui';
 import { FeeRecordResponse, FeeStatus } from '../types/fees.types';
+import { useMarkFeeWhatsappNotified } from '../hooks/useFees';
+import { sendFeesPaidWhatsApp } from '@/lib/whatsapp';
 
 interface Props {
   records: FeeRecordResponse[];
@@ -11,6 +15,33 @@ interface Props {
 }
 
 export function FeeRecordTable({ records, isLoading, onMarkPaid, onChallan }: Props) {
+  const { mutate: markNotified } = useMarkFeeWhatsappNotified();
+
+  const handleWhatsApp = (row: FeeRecordResponse) => {
+    if (!row.parentPhone) return;
+    const month = new Date(row.dueDate).toLocaleDateString('en-PK', { month: 'long', year: 'numeric' });
+    const className = [
+      row.feeStructure?.program?.name,
+      row.feeStructure?.grade?.name,
+      row.student?.section?.name ? `Sec ${row.student.section.name}` : null,
+    ].filter(Boolean).join(' · ');
+
+    sendFeesPaidWhatsApp({
+      phone: row.parentPhone,
+      studentName: `${row.student?.firstName ?? ''} ${row.student?.lastName ?? ''}`.trim(),
+      rollNumber: row.student?.rollNumber ?? null,
+      className,
+      amount: row.amountPaid,
+      month,
+      receiptNumber: row.receiptNumber,
+      paidAt: row.paidAt,
+    });
+
+    if (!row.whatsappNotifiedAt) {
+      markNotified(row.id);
+    }
+  };
+
   const columns: TableColumn<FeeRecordResponse>[] = [
     {
       key: 'student',
@@ -70,18 +101,10 @@ export function FeeRecordTable({ records, isLoading, onMarkPaid, onChallan }: Pr
       header: 'Status',
       render: (row) => {
         const variants: Record<FeeStatus, any> = {
-          PAID: 'success',
-          PARTIAL: 'warning',
-          OVERDUE: 'danger',
-          PENDING: 'default',
-          WAIVED: 'info',
+          PAID: 'success', PARTIAL: 'warning', OVERDUE: 'danger', PENDING: 'default', WAIVED: 'info',
         };
         const labels: Record<FeeStatus, string> = {
-          PAID: 'Paid',
-          PARTIAL: 'Partial',
-          OVERDUE: 'Overdue',
-          PENDING: 'Pending',
-          WAIVED: 'Waived',
+          PAID: 'Paid', PARTIAL: 'Partial', OVERDUE: 'Overdue', PENDING: 'Pending', WAIVED: 'Waived',
         };
         return <Badge variant={variants[row.status] || 'default'}>{labels[row.status] || row.status}</Badge>;
       },
@@ -98,6 +121,7 @@ export function FeeRecordTable({ records, isLoading, onMarkPaid, onChallan }: Pr
           >
             Mark as Paid
           </Button>
+
           <button
             onClick={() => onChallan(row)}
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--primary)] transition-colors"
@@ -105,6 +129,29 @@ export function FeeRecordTable({ records, isLoading, onMarkPaid, onChallan }: Pr
             <Printer className="w-3.5 h-3.5" />
             Challan
           </button>
+
+          {row.status === 'PAID' && row.parentPhone && (
+            <Tooltip content={row.whatsappNotifiedAt
+              ? `Sent on ${new Date(row.whatsappNotifiedAt).toLocaleDateString()}`
+              : 'Send WhatsApp receipt to parent'
+            }>
+              <button
+                onClick={() => handleWhatsApp(row)}
+                className={[
+                  'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium border transition-colors',
+                  row.whatsappNotifiedAt
+                    ? 'border-green-400 text-green-600 bg-green-50 hover:bg-green-100'
+                    : 'border-[var(--border)] text-[var(--text-muted)] hover:text-green-600 hover:border-green-500',
+                ].join(' ')}
+              >
+                {row.whatsappNotifiedAt
+                  ? <CheckCircle className="w-3.5 h-3.5" />
+                  : <MessageCircle className="w-3.5 h-3.5" />
+                }
+                WhatsApp
+              </button>
+            </Tooltip>
+          )}
         </div>
       ),
     },

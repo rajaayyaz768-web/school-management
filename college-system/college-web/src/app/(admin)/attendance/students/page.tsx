@@ -212,6 +212,10 @@ export default function StudentAttendancePage() {
             pendingAttendances={pendingAttendances}
             onStatusChange={handleStatusChange}
             onRemarksChange={handleRemarksChange}
+            subjectName={subjects.find(s => s.id === selectedSubjectId)?.name ?? ''}
+            sectionName={[selectedSection?.programCode, selectedSection?.gradeName, selectedSection?.name].filter(Boolean).join(' · ')}
+            campusName={campuses?.[0]?.name ?? ''}
+            date={selectedDate}
           />
         </>
       )}

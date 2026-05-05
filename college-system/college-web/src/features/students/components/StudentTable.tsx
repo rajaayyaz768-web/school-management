@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from '@/components/ui';
 import { Eye, Edit2, MessageCircle } from 'lucide-react';
+import { sendParentChatWhatsApp } from '@/lib/whatsapp';
 
 interface StudentTableProps {
   students: Student[];
@@ -112,7 +113,12 @@ export function StudentTable({ students, isLoading, onView, onEdit }: StudentTab
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => window.open(`https://wa.me/${parentPhone.replace(/\D/g, '')}`, '_blank')}
+                  onClick={() => sendParentChatWhatsApp({
+                    phone: parentPhone,
+                    studentName: `${student.firstName} ${student.lastName}`,
+                    rollNumber: student.rollNumber ?? null,
+                    className: [student.section?.name].filter(Boolean).join(' ') || '—',
+                  })}
                   className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
                 >
                   <MessageCircle className="w-4 h-4" />

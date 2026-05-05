@@ -391,7 +391,7 @@ export default function FeesPage() {
               <div className="mb-6 max-w-xs">
                 <Input label="Academic Year" value={academicYear} onChange={e => setAcademicYear(e.target.value)} />
               </div>
-              <DefaultersList defaulters={allDefaulters} isLoading={loadingDefaulters} />
+              <DefaultersList defaulters={allDefaulters} isLoading={loadingDefaulters} campusId={campusIdForQuery} />
             </TabPanel>
           </div>
         </div>

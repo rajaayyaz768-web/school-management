@@ -1,14 +1,35 @@
-import { Table, Badge, StatCard } from '@/components/ui';
+'use client';
+
+import { MessageCircle, CheckCircle } from 'lucide-react';
+import { Table, Badge, StatCard, Tooltip } from '@/components/ui';
 import { TableColumn } from '@/components/ui/Table';
 import { FeeDefaulter } from '../types/fees.types';
+import { useMarkDefaulterReminded } from '../hooks/useFees';
+import { sendFeeReminderWhatsApp } from '@/lib/whatsapp';
 
 interface Props {
   defaulters: FeeDefaulter[];
   isLoading: boolean;
+  campusId?: string;
 }
 
-export function DefaultersList({ defaulters, isLoading }: Props) {
+export function DefaultersList({ defaulters, isLoading, campusId = '' }: Props) {
+  const { mutate: markReminded } = useMarkDefaulterReminded();
   const totalUnpaidBalance = (defaulters || []).reduce((sum, d) => sum + (d.balance ?? 0), 0);
+
+  const handleWhatsApp = (row: FeeDefaulter) => {
+    if (!row.parentPhone) return;
+    sendFeeReminderWhatsApp({
+      phone: row.parentPhone,
+      studentName: `${row.firstName} ${row.lastName}`,
+      rollNumber: row.rollNumber,
+      balance: row.balance,
+      overdueRecords: row.overdueRecords,
+    });
+    if (!row.reminderSentAt) {
+      markReminded({ studentId: row.studentId, campusId });
+    }
+  };
 
   const columns: TableColumn<FeeDefaulter>[] = [
     {
@@ -49,6 +70,33 @@ export function DefaultersList({ defaulters, isLoading }: Props) {
         </Badge>
       ),
     },
+    {
+      key: 'actions',
+      header: 'Actions',
+      render: (row) => {
+        if (!row.parentPhone) return <span className="text-xs text-[var(--text-muted)]">No phone</span>;
+        const sent = !!row.reminderSentAt;
+        return (
+          <Tooltip content={sent
+            ? `Reminder sent on ${new Date(row.reminderSentAt!).toLocaleDateString()}`
+            : 'Send fee reminder to parent via WhatsApp'
+          }>
+            <button
+              onClick={() => handleWhatsApp(row)}
+              className={[
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-colors',
+                sent
+                  ? 'border-green-400 text-green-600 bg-green-50 hover:bg-green-100'
+                  : 'border-orange-300 text-orange-600 hover:bg-orange-50',
+              ].join(' ')}
+            >
+              {sent ? <CheckCircle className="w-3.5 h-3.5" /> : <MessageCircle className="w-3.5 h-3.5" />}
+              {sent ? 'Reminded' : 'Remind'}
+            </button>
+          </Tooltip>
+        );
+      },
+    },
   ];
 
   return (
@@ -60,7 +108,7 @@ export function DefaultersList({ defaulters, isLoading }: Props) {
           trend={{ value: `${defaulters?.length || 0} students`, direction: 'down' }}
         />
       </div>
-      
+
       <Table
         columns={columns}
         data={defaulters || []}

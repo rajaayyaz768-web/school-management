@@ -25,7 +25,12 @@ const feeRecordInclude = {
   student: {
     select: {
       id: true, firstName: true, lastName: true, rollNumber: true,
+      guardianPhone: true,
       section: { select: { id: true, name: true } },
+      parentLinks: {
+        orderBy: { isPrimary: 'desc' as const },
+        select: { parent: { select: { phone: true } } },
+      },
     }
   },
   feeStructure: {
@@ -58,6 +63,11 @@ function mapToFeeStructureResponse(record: any): FeeStructureResponse {
   }
 }
 
+function resolveParentPhone(student: any): string | null {
+  const link = student.parentLinks?.find((l: any) => l.parent.phone) ?? null
+  return link?.parent.phone ?? student.guardianPhone ?? null
+}
+
 function mapToFeeRecordResponse(record: any): FeeRecordResponse {
   return {
     id: record.id,
@@ -71,6 +81,8 @@ function mapToFeeRecordResponse(record: any): FeeRecordResponse {
     status: record.status,
     paidAt: record.paidAt ? record.paidAt.toISOString() : null,
     receiptNumber: record.receiptNumber ?? null,
+    whatsappNotifiedAt: record.whatsappNotifiedAt ? record.whatsappNotifiedAt.toISOString() : null,
+    parentPhone: resolveParentPhone(record.student),
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
     student: {
@@ -553,7 +565,14 @@ export const getFeeDefaulters = async (
     },
     include: {
       student: {
-        select: { id: true, firstName: true, lastName: true, rollNumber: true },
+        select: {
+          id: true, firstName: true, lastName: true, rollNumber: true,
+          guardianPhone: true,
+          parentLinks: {
+            orderBy: { isPrimary: 'desc' as const },
+            select: { parent: { select: { phone: true } } },
+          },
+        },
       },
     },
   })
@@ -573,6 +592,10 @@ export const getFeeDefaulters = async (
     const totalPaid = studentRecords.reduce((sum, r) => sum + r.amountPaid, 0)
     const balance = totalDue - totalPaid
     const overdueRecords = studentRecords.filter((r) => r.status === FeeStatus.OVERDUE).length
+    const latestReminder = studentRecords
+      .map((r) => r.reminderSentAt)
+      .filter(Boolean)
+      .sort((a, b) => (b as Date).getTime() - (a as Date).getTime())[0] ?? null
 
     defaulters.push({
       studentId,
@@ -583,8 +606,28 @@ export const getFeeDefaulters = async (
       totalPaid,
       balance,
       overdueRecords,
+      parentPhone: resolveParentPhone(first.student),
+      reminderSentAt: latestReminder ? (latestReminder as Date).toISOString() : null,
     })
   }
 
   return defaulters.sort((a, b) => b.balance - a.balance)
+}
+
+export const markFeeWhatsappNotified = async (id: string): Promise<void> => {
+  await prisma.feeRecord.update({
+    where: { id },
+    data: { whatsappNotifiedAt: new Date() },
+  })
+}
+
+export const markDefaulterReminded = async (studentId: string, campusId: string): Promise<void> => {
+  await prisma.feeRecord.updateMany({
+    where: {
+      studentId,
+      status: { in: [FeeStatus.PENDING, FeeStatus.OVERDUE, FeeStatus.PARTIAL] },
+      student: { campusId },
+    },
+    data: { reminderSentAt: new Date() },
+  })
 }

@@ -134,3 +134,26 @@ export const getFeeDefaulters = async (req: Request, res: Response) => {
     return sendError(res, message, status)
   }
 }
+
+export const markFeeWhatsappNotified = async (req: Request, res: Response) => {
+  try {
+    await service.markFeeWhatsappNotified(req.params.id as string)
+    return sendSuccess(res, 'WhatsApp notification tracked', null)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Something went wrong'
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
+    return sendError(res, message, status)
+  }
+}
+
+export const markDefaulterReminded = async (req: Request, res: Response) => {
+  try {
+    const { campusId } = req.query as { campusId?: string }
+    await service.markDefaulterReminded(req.params.studentId as string, campusId ?? '')
+    return sendSuccess(res, 'Reminder tracked', null)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Something went wrong'
+    const status = (error as any).statusCode ?? (error as any).status ?? 500
+    return sendError(res, message, status)
+  }
+}

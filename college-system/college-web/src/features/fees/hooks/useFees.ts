@@ -11,6 +11,8 @@ import {
   markFeeAsPaid,
   fetchFeeDefaulters,
   fetchFeeChalanData,
+  markFeeWhatsappNotified,
+  markDefaulterReminded,
 } from '../api/fees.api';
 import {
   CreateFeeStructureInput,
@@ -142,5 +144,26 @@ export const useFeeDefaulters = (campusId: string, academicYear: string) => {
     queryKey: ['fee-defaulters', campusId, academicYear],
     queryFn: () => fetchFeeDefaulters(campusId, academicYear),
     enabled: !!academicYear,
+  });
+};
+
+export const useMarkFeeWhatsappNotified = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => markFeeWhatsappNotified(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fee-records'] });
+    },
+  });
+};
+
+export const useMarkDefaulterReminded = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ studentId, campusId }: { studentId: string; campusId: string }) =>
+      markDefaulterReminded(studentId, campusId),
+    onSuccess: (_, { campusId }) => {
+      queryClient.invalidateQueries({ queryKey: ['fee-defaulters', campusId] });
+    },
   });
 };
