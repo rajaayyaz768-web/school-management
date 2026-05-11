@@ -184,14 +184,14 @@ export function FeeStructureForm({ structure, onSuccess, onCancel }: Props) {
         />
       </div>
 
-      <div className="bg-[var(--primary)]/5 p-4 rounded-lg flex justify-between items-center mt-4">
+      <div className="bg-[var(--primary)]/5 p-[var(--space-4)] rounded-lg flex justify-between items-center mt-4">
         <span className="font-semibold text-[var(--text)]">Calculated Total Fee:</span>
         <span className="font-bold text-lg text-[var(--primary)]">
           PKR {totalFee.toLocaleString()}
         </span>
       </div>
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)]">
+      <div className="flex justify-end gap-[var(--space-3)] pt-4 border-t border-[var(--border)]">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>

@@ -20,6 +20,9 @@ export interface AbsentStaffMember {
   lastName: string
   staffCode: string
   designation: string | null
+  campusId: string
+  campusName: string
+  role: string
 }
 
 export interface FeeSummary {

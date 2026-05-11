@@ -53,7 +53,7 @@ export function DatePicker({
         <Calendar
           className={cn(
             'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none',
-            'transition-colors duration-[180ms]',
+            'transition-colors duration-[var(--dur-base)]',
             focused ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
           )}
         />
@@ -75,7 +75,7 @@ export function DatePicker({
             'w-full bg-[var(--surface)] border rounded-[var(--radius-sm)]',
             'pl-10 pr-4 py-2.5 font-body text-sm text-[var(--text)]',
             'outline-none',
-            'transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)]',
+            'transition-all duration-[var(--dur-base)] ease-[cubic-bezier(0.4,0,0.2,1)]',
             'focus:border-[var(--primary)] focus:shadow-[var(--shadow-glow)]',
             error
               ? 'border-[var(--danger)] focus:border-[var(--danger)] focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)]'

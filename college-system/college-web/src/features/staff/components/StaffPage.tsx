@@ -156,7 +156,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.02, duration: 0.25 }}
             onClick={() => setDrawerStaffId(staff.id)}
-            className="w-full flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5 active:bg-white/[0.02] transition-all text-left"
+            className="w-full flex items-center gap-[var(--space-3)] bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5 active:bg-white/[0.02] transition-all text-left"
           >
             <div className={cn('w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0', AVATAR_COLORS[idx % AVATAR_COLORS.length])}>
               {staff.firstName[0]}{staff.lastName[0]}
@@ -174,7 +174,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
                   const pct = summary.percentage;
                   return (
                     <span className={cn(
-                      'text-[10px] font-bold px-2 py-0.5 rounded-full',
+                      'text-[var(--font-size-xs)] font-bold px-2 py-0.5 rounded-full',
                       pct >= 85 ? 'bg-emerald-500/10 text-emerald-400' :
                       pct >= 70 ? 'bg-amber-500/10 text-amber-400' :
                       'bg-red-500/10 text-red-400'
@@ -186,7 +186,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
                 return null;
               })()}
               <span className={cn(
-                'text-[10px] font-bold px-2 py-0.5 rounded-full',
+                'text-[var(--font-size-xs)] font-bold px-2 py-0.5 rounded-full',
                 staff.user?.isActive !== false ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
               )}>
                 {staff.user?.isActive !== false ? 'Active' : 'Inactive'}
@@ -202,7 +202,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       {/* ── Mobile header ────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center justify-between md:hidden">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center justify-between md:hidden">
         <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Staff</h1>
         <div className="flex items-center gap-2">
           <button onClick={() => setShowSearch(!showSearch)} className="p-2 rounded-full active:bg-white/5 transition-colors">
@@ -217,7 +217,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
       </header>
 
       {/* ── Desktop header ───────────────────────────────────────────────── */}
-      <div className="hidden md:block max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="hidden md:block max-w-7xl mx-auto py-8 px-[var(--space-4)] sm:px-6 lg:px-8">
         <PageHeader
           title="Staff Management"
           breadcrumb={[{ label: 'Home', href: '/' }, { label: 'Staff' }]}
@@ -252,7 +252,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
               key={chip.value}
               onClick={() => setSelectedEmployment(chip.value)}
               className={cn(
-                'shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all min-h-[36px]',
+                'shrink-0 px-[var(--space-4)] py-2 rounded-full text-xs font-semibold transition-all min-h-[36px]',
                 selectedEmployment === chip.value
                   ? 'bg-[var(--primary)] text-white'
                   : 'bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--primary)]/40 active:scale-95'
@@ -267,7 +267,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
               key={chip.value}
               onClick={() => setSelectedStatus(chip.value)}
               className={cn(
-                'shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all min-h-[36px]',
+                'shrink-0 px-[var(--space-4)] py-2 rounded-full text-xs font-semibold transition-all min-h-[36px]',
                 selectedStatus === chip.value
                   ? 'bg-[var(--primary)] text-white'
                   : 'bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--primary)]/40 active:scale-95'
@@ -280,7 +280,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
 
         {/* Desktop: filter bar + table */}
         <div className="hidden md:block">
-          <div className="grid grid-cols-3 gap-4 mb-8 bg-[var(--surface-container-low)] p-4 rounded-lg items-end">
+          <div className="grid grid-cols-3 gap-[var(--space-4)] mb-8 bg-[var(--surface-container-low)] p-[var(--space-4)] rounded-lg items-end">
             <Select
               label="Employment Type"
               options={EMPLOYMENT_CHIPS}
@@ -348,7 +348,7 @@ export function StaffPage({ campusId, navigation }: StaffPageProps) {
           <p className="text-sm text-[var(--text)]">
             The staff member profile and associated login account have been successfully generated.
           </p>
-          <div className="bg-[var(--surface-container-low)] p-4 rounded-lg flex items-center justify-between">
+          <div className="bg-[var(--surface-container-low)] p-[var(--space-4)] rounded-lg flex items-center justify-between">
             <div>
               <p className="text-xs text-[var(--text-muted)] font-semibold uppercase mb-1">Temporary Password</p>
               <p className="font-mono text-lg font-bold text-[var(--text)]">{tempPassword}</p>

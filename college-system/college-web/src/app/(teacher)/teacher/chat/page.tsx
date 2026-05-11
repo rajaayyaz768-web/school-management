@@ -13,7 +13,7 @@ export default function TeacherChatPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center justify-between">
         <h1 className="font-bold text-lg text-[var(--text)]">Messages</h1>
         <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface)] transition-colors text-[var(--text-muted)] hover:text-[var(--primary)]">
           <PenSquare className="w-5 h-5" />
@@ -21,7 +21,7 @@ export default function TeacherChatPage() {
       </header>
 
       <div className="px-4 pt-4 pb-2">
-        <div className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl px-3 h-11">
+        <div className="flex items-center gap-[var(--space-3)] bg-[var(--surface)] border border-[var(--border)] rounded-xl px-3 h-11">
           <Search className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
           <input
             type="text"
@@ -34,13 +34,13 @@ export default function TeacherChatPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 px-4 py-2">
+      <div className="flex gap-2 px-[var(--space-4)] py-2">
         {(['all', 'unread'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              'h-8 px-4 rounded-full text-xs font-semibold transition-colors capitalize',
+              'h-8 px-[var(--space-4)] rounded-full text-xs font-semibold transition-colors capitalize',
               activeTab === tab
                 ? 'bg-[var(--primary)] text-white'
                 : 'bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)]'

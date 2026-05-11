@@ -83,10 +83,10 @@ function getMonthRange() {
 
 export async function getPrincipalDashboardData(campusId?: string) {
   const cacheKey = `dashboard:principal:${campusId ?? 'all'}`;
-  const cached = cacheGet<ReturnType<typeof _getPrincipalDashboardData>>(cacheKey);
+  const cached = await cacheGet<ReturnType<typeof _getPrincipalDashboardData>>(cacheKey);
   if (cached) return cached;
   const result = await _getPrincipalDashboardData(campusId);
-  cacheSet(cacheKey, result, TTL.DASHBOARD);
+  await cacheSet(cacheKey, result, TTL.DASHBOARD);
   return result;
 }
 
@@ -253,7 +253,7 @@ async function _getPrincipalDashboardData(campusId?: string) {
   const onLeaveCount = attendanceMap[StaffAttendanceStatus.ON_LEAVE] ?? 0
   const halfDayCount = attendanceMap[StaffAttendanceStatus.HALF_DAY] ?? 0
 
-  // Fetch absent staff details
+  // Fetch absent staff details — include campus name and user role
   const absentStaffRecords = await prisma.staffAttendance.findMany({
     where: {
       ...campusFilter,
@@ -261,6 +261,9 @@ async function _getPrincipalDashboardData(campusId?: string) {
       status: StaffAttendanceStatus.ABSENT,
     },
     select: {
+      campus: {
+        select: { id: true, name: true },
+      },
       staff: {
         select: {
           id: true,
@@ -268,6 +271,9 @@ async function _getPrincipalDashboardData(campusId?: string) {
           lastName: true,
           staffCode: true,
           designation: true,
+          user: {
+            select: { role: true },
+          },
         },
       },
     },
@@ -297,6 +303,9 @@ async function _getPrincipalDashboardData(campusId?: string) {
       lastName: r.staff.lastName,
       staffCode: r.staff.staffCode,
       designation: r.staff.designation ?? null,
+      campusId: r.campus?.id ?? '',
+      campusName: r.campus?.name ?? 'Unknown Campus',
+      role: r.staff.user?.role ?? 'TEACHER',
     })),
     feeSummary: {
       totalPending: totalPendingAmount,

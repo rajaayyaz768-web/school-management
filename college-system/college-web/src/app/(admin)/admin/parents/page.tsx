@@ -100,7 +100,7 @@ export default function ParentsPage() {
       />
 
       {/* Filter Bar */}
-      <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-center">
+      <div className="bg-[var(--surface)] p-[var(--space-4)] rounded-xl border border-[var(--border)] shadow-sm flex flex-col sm:flex-row gap-[var(--space-4)] justify-between items-center">
         <div className="w-full sm:w-80">
           <SearchInput
             placeholder="Search by name or phone..."
@@ -176,7 +176,7 @@ export default function ParentsPage() {
           <p className="text-sm text-[var(--text)]">
             A login account for parent <strong>{editingParent?.firstName} {editingParent?.lastName}</strong> has been secured natively.
           </p>
-          <div className="bg-[var(--surface-container-low)] p-4 rounded-lg flex items-center justify-between">
+          <div className="bg-[var(--surface-container-low)] p-[var(--space-4)] rounded-lg flex items-center justify-between">
             <div>
               <p className="text-xs text-[var(--text-muted)] font-semibold uppercase mb-1">Temporary Password</p>
               <p className="font-mono text-lg font-bold text-[var(--text)]">{tempPassword}</p>

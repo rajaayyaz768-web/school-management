@@ -2,17 +2,19 @@
 
 import { type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { useThemeStore } from '@/store/themeStore'
+import { CARD_STYLE_PROPS } from '@/lib/cardStyles'
 
-/**
- * Card component for content containers
- * Layered surfaces with glass, hoverable lift, and refined borders
- */
+export type CardAccent = 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'gold' | 'none'
+
 export interface CardProps {
   title?: string
   subtitle?: string
   glass?: boolean
-  bordered?: boolean
+  /** Colored 3px left border accent */
+  accent?: CardAccent
   hoverable?: boolean
+  bordered?: boolean
   children: ReactNode
   headerAction?: ReactNode
   padding?: 'none' | 'sm' | 'md' | 'lg'
@@ -21,60 +23,74 @@ export interface CardProps {
 
 const paddingStyles = {
   none: '',
-  sm: 'p-4',
-  md: 'p-6',
-  lg: 'p-8',
+  sm:   'p-4',
+  md:   'p-6',
+  lg:   'p-8',
+}
+
+const accentBorders: Record<CardAccent, string> = {
+  none:   '',
+  blue:   'border-l-[3px] border-l-[var(--primary)]',
+  green:  'border-l-[3px] border-l-emerald-500',
+  orange: 'border-l-[3px] border-l-orange-500',
+  purple: 'border-l-[3px] border-l-violet-500',
+  red:    'border-l-[3px] border-l-red-500',
+  gold:   'border-l-[3px] border-l-[var(--gold)]',
 }
 
 export function Card({
   title,
   subtitle,
   glass = false,
-  bordered = false,
+  accent = 'none',
   hoverable = false,
   children,
   headerAction,
   padding = 'md',
   className,
 }: CardProps) {
+  const cardStyle = useThemeStore(s => s.cardStyle)
+  const styleProps = CARD_STYLE_PROPS[cardStyle] ?? CARD_STYLE_PROPS.elevated
+
   return (
     <div
       className={cn(
-        'rounded-[var(--radius-lg)] relative',
-        'transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)]',
-        glass
-          ? 'glass'
-          : 'bg-[var(--surface)] border border-[var(--border)] shadow-[var(--shadow-sm)]',
-        bordered && 'border-l-[3px] border-l-[var(--gold)]',
+        'relative',
+        'transition-all duration-[var(--dur-base)] ease-[cubic-bezier(0.4,0,0.2,1)]',
+        glass ? 'glass rounded-2xl' : accentBorders[accent],
         hoverable && [
-          'hover:-translate-y-[2px] hover:shadow-[var(--shadow-md)]',
-          'hover:border-[var(--border-strong)]',
           'cursor-pointer',
+          'hover:-translate-y-[2px]',
         ],
         paddingStyles[padding],
         className
       )}
+      style={glass ? undefined : styleProps}
     >
       {(title || subtitle || headerAction) && (
-        <div className={cn(
-          'mb-4',
-          padding === 'none' && 'px-6 pt-6',
-          (title || subtitle) && 'border-b border-[var(--border)]/50 pb-4'
-        )}>
-          <div className="flex items-start justify-between">
+        <div
+          className={cn(
+            'mb-4',
+            padding === 'none' && 'px-6 pt-6',
+            (title || subtitle) && 'border-b border-[var(--border)] pb-4'
+          )}
+        >
+          <div className="flex items-start justify-between gap-4">
             <div>
               {title && (
-                <h3 className="font-display font-semibold text-[var(--text)] text-lg leading-tight">
+                <h3 className="font-semibold text-[var(--text)] text-base leading-tight">
                   {title}
                 </h3>
               )}
               {subtitle && (
-                <p className="font-body text-sm text-[var(--text-muted)] mt-1">
+                <p className="text-xs text-[var(--text-muted)] mt-1">
                   {subtitle}
                 </p>
               )}
             </div>
-            {headerAction && <div className="shrink-0 ml-4">{headerAction}</div>}
+            {headerAction && (
+              <div className="shrink-0">{headerAction}</div>
+            )}
           </div>
         </div>
       )}

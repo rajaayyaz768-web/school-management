@@ -259,7 +259,7 @@ export function StaffForm({ staff, onSuccess, onCancel }: StaffFormProps) {
       )}
 
       {/* Footer */}
-      <div className="flex justify-end gap-3 pt-6 border-t border-[var(--border)] mt-6">
+      <div className="flex justify-end gap-[var(--space-3)] pt-6 border-t border-[var(--border)] mt-6">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>

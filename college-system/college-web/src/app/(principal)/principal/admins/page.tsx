@@ -62,13 +62,13 @@ function AdminRow({ admin }: { admin: Admin }) {
             </span>
           </span>
         </td>
-        <td className="px-4 py-3 text-[var(--text-muted)]">
+        <td className="px-4 py-[var(--space-3)] text-[var(--text-muted)]">
           <span className="flex items-center gap-1.5">
             <Mail className="h-3.5 w-3.5 shrink-0" />
             {admin.email}
           </span>
         </td>
-        <td className="px-4 py-3 text-[var(--text-muted)]">
+        <td className="px-4 py-[var(--space-3)] text-[var(--text-muted)]">
           {admin.campus ? (
             <span className="flex items-center gap-1.5">
               <Building2 className="h-3.5 w-3.5 shrink-0" />
@@ -87,7 +87,7 @@ function AdminRow({ admin }: { admin: Admin }) {
             </span>
           )}
         </td>
-        <td className="px-4 py-3 text-[var(--text-muted)]">
+        <td className="px-4 py-[var(--space-3)] text-[var(--text-muted)]">
           {new Date(admin.createdAt).toLocaleDateString()}
         </td>
       </tr>
@@ -103,7 +103,7 @@ function AdminRow({ admin }: { admin: Admin }) {
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <div className="px-6 py-3 border-b border-[var(--border)]">
+                <div className="px-6 py-[var(--space-3)] border-b border-[var(--border)]">
                   <p className="text-xs font-medium text-[var(--text-muted)] mb-2 flex items-center gap-1.5">
                     <Laptop className="h-3.5 w-3.5" /> Registered Devices
                   </p>
@@ -127,12 +127,12 @@ function AdminRow({ admin }: { admin: Admin }) {
                             <p className="text-xs font-medium text-[var(--text)]">
                               {device.label || 'Unnamed Device'}
                             </p>
-                            <p className="text-[10px] text-[var(--text-muted)] font-mono truncate max-w-[280px]">
+                            <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-mono truncate max-w-[280px]">
                               {device.deviceToken}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                            <span className={`text-[var(--font-size-xs)] font-medium px-1.5 py-0.5 rounded-full ${
                               device.status === 'ACTIVE'
                                 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                                 : 'bg-[var(--border)] text-[var(--text-muted)]'
@@ -214,12 +214,12 @@ function DeviceRequestsTab() {
           <table className="w-full text-sm font-body">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-alt,var(--surface))]">
-                <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Admin</th>
-                <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Device Token</th>
-                <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">IP Address</th>
-                <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Requested</th>
-                <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Status</th>
-                <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Actions</th>
+                <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Admin</th>
+                <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Device Token</th>
+                <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">IP Address</th>
+                <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Requested</th>
+                <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Status</th>
+                <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -232,17 +232,17 @@ function DeviceRequestsTab() {
                           ? `${req.adminUser.staffProfile.firstName} ${req.adminUser.staffProfile.lastName}`
                           : req.adminUser.email}
                       </p>
-                      <p className="text-[11px] text-[var(--text-muted)]">{req.adminUser.email}</p>
+                      <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">{req.adminUser.email}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <code className="text-[11px] text-[var(--text-muted)] font-mono">
+                      <code className="text-[var(--font-size-sm)] text-[var(--text-muted)] font-mono">
                         {req.deviceToken.slice(0, 8)}…
                       </code>
                     </td>
-                    <td className="px-4 py-3 text-[var(--text-muted)] text-xs font-mono">
+                    <td className="px-4 py-[var(--space-3)] text-[var(--text-muted)] text-xs font-mono">
                       {req.requestedFromIp || '—'}
                     </td>
-                    <td className="px-4 py-3 text-[var(--text-muted)] text-xs">
+                    <td className="px-4 py-[var(--space-3)] text-[var(--text-muted)] text-xs">
                       {new Date(req.createdAt).toLocaleString()}
                     </td>
                     <td className="px-4 py-3">
@@ -268,7 +268,7 @@ function DeviceRequestsTab() {
                         </div>
                       )}
                       {req.reviewNote && (
-                        <p className="text-[11px] text-[var(--text-muted)] max-w-[160px] truncate" title={req.reviewNote}>
+                        <p className="text-[var(--font-size-sm)] text-[var(--text-muted)] max-w-[160px] truncate" title={req.reviewNote}>
                           Note: {req.reviewNote}
                         </p>
                       )}
@@ -338,7 +338,7 @@ function NetworkSettingsTab({ campuses }: { campuses: { id: string; name: string
 
   return (
     <div className="space-y-5">
-      <div className="flex items-start gap-3 p-4 rounded-[var(--radius-lg)] border border-[var(--gold)]/30 bg-[var(--gold)]/5">
+      <div className="flex items-start gap-[var(--space-3)] p-[var(--space-4)] rounded-[var(--radius-lg)] border border-[var(--gold)]/30 bg-[var(--gold)]/5">
         <Wifi className="h-4 w-4 text-[var(--gold)] mt-0.5 shrink-0" />
         <p className="text-xs text-[var(--text-muted)]">
           Admins can only log in from IP addresses that fall within the ranges listed here.
@@ -377,7 +377,7 @@ function NetworkSettingsTab({ campuses }: { campuses: { id: string; name: string
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5"
+                className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-[var(--space-4)] py-2.5"
               >
                 <div>
                   <code className="text-sm font-mono font-medium text-[var(--text)]">{net.cidr}</code>
@@ -451,7 +451,7 @@ function StatusBadge({ status }: { status: string }) {
     REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   };
   return (
-    <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${map[status] ?? 'bg-[var(--border)] text-[var(--text-muted)]'}`}>
+    <span className={`text-[var(--font-size-sm)] font-medium px-2 py-0.5 rounded-full ${map[status] ?? 'bg-[var(--border)] text-[var(--text-muted)]'}`}>
       {status}
     </span>
   );
@@ -501,7 +501,7 @@ export default function AdminsPage() {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       {/* Mobile header */}
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center justify-between md:hidden">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center justify-between md:hidden">
         <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Admin Management</h1>
         {activeTab === 'admins' && (
           <button onClick={() => setIsOpen(true)} className="p-2 rounded-full bg-[var(--primary)] text-white active:opacity-80 transition-opacity">
@@ -569,11 +569,11 @@ export default function AdminsPage() {
                     <table className="w-full text-sm font-body">
                       <thead>
                         <tr className="border-b border-[var(--border)] bg-[var(--surface-alt,var(--surface))]">
-                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Name</th>
-                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Email</th>
-                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Campus</th>
-                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Status</th>
-                          <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)]">Created</th>
+                          <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Name</th>
+                          <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Email</th>
+                          <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Campus</th>
+                          <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Status</th>
+                          <th className="px-4 py-[var(--space-3)] text-left font-medium text-[var(--text-muted)]">Created</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -598,7 +598,7 @@ export default function AdminsPage() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: idx * 0.03, duration: 0.25 }}
-                          className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5"
+                          className="flex items-center gap-[var(--space-3)] bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5"
                         >
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 ${colors[idx % colors.length]}`}>
                             {initials}
@@ -609,7 +609,7 @@ export default function AdminsPage() {
                               {admin.campus?.name || 'No campus'} · {admin.email}
                             </p>
                           </div>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                          <span className={`text-[var(--font-size-xs)] font-bold px-2 py-0.5 rounded-full shrink-0 ${
                             admin.isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
                           }`}>
                             {admin.isActive ? 'Active' : 'Inactive'}

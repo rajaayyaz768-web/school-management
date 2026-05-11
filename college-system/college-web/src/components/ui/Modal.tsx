@@ -80,7 +80,7 @@ export function Modal({
       >
         {/* Header */}
         {title && (
-          <div className="border-b border-[var(--border)] px-6 py-4 flex items-start justify-between shrink-0">
+          <div className="border-b border-[var(--border)] px-[var(--space-6)] py-[var(--space-4)] flex items-start justify-between shrink-0">
             <div>
               <h2 id="modal-title" className="font-display text-lg font-semibold text-[var(--text)]">
                 {title}
@@ -119,7 +119,7 @@ export function Modal({
 
         {/* Footer */}
         {footer && (
-          <div className="border-t border-[var(--border)] px-6 py-4 flex justify-end gap-3 shrink-0">
+          <div className="border-t border-[var(--border)] px-[var(--space-6)] py-[var(--space-4)] flex justify-end gap-[var(--space-3)] shrink-0">
             {footer}
           </div>
         )}

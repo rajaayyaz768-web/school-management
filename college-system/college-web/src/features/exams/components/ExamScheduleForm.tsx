@@ -123,7 +123,7 @@ export function ExamScheduleForm({ campusId, academicYear, onSuccess, onCancel }
       </div>
 
       {/* Default marks bar */}
-      <div className="flex items-end gap-3 p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-container-lowest)]">
+      <div className="flex items-end gap-[var(--space-3)] p-[var(--space-3)] rounded-lg border border-[var(--border)] bg-[var(--surface-container-lowest)]">
         <div className="flex-1">
           <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">Default Marks</p>
           <input
@@ -193,7 +193,7 @@ export function ExamScheduleForm({ campusId, academicYear, onSuccess, onCancel }
         </div>
       )}
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)]">
+      <div className="flex justify-end gap-[var(--space-3)] pt-4 border-t border-[var(--border)]">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={mutation.isPending}>Cancel</Button>
         <Button
           type="submit" variant="primary" loading={mutation.isPending}

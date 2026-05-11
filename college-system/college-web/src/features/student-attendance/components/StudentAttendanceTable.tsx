@@ -79,10 +79,10 @@ export function StudentAttendanceTable({
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.02 }}
-            className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-h-[72px]"
+            className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-3)] flex flex-col sm:flex-row sm:items-center justify-between gap-[var(--space-3)] min-h-[72px]"
           >
             {/* Left: avatar + info */}
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-[var(--space-3)] min-w-0">
               <div className={cn(
                 'w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0',
                 AVATAR_COLORS[i % AVATAR_COLORS.length]

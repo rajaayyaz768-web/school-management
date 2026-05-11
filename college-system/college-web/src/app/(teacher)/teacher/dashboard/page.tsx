@@ -45,7 +45,7 @@ function PeriodCard({ slot, index }: { slot: TodayScheduleSlot; index: number })
 
   if (isBreak) {
     return (
-      <div className="min-w-[180px] shrink-0 bg-[var(--surface)] border border-dashed border-[var(--border)] rounded-xl p-4 flex flex-col items-center justify-center gap-2 opacity-60">
+      <div className="min-w-[180px] shrink-0 bg-[var(--surface)] border border-dashed border-[var(--border)] rounded-xl p-[var(--space-4)] flex flex-col items-center justify-center gap-2 opacity-60">
         <Coffee className="w-5 h-5 text-[var(--text-muted)]" />
         <p className="text-sm font-medium text-[var(--text-muted)]">Break</p>
         <p className="text-xs text-[var(--text-muted)]">{slot.startTime} – {slot.endTime}</p>
@@ -59,7 +59,7 @@ function PeriodCard({ slot, index }: { slot: TodayScheduleSlot; index: number })
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
       className={cn(
-        'min-w-[260px] shrink-0 rounded-xl p-4 border flex flex-col gap-2 transition-all',
+        'min-w-[260px] shrink-0 rounded-xl p-[var(--space-4)] border flex flex-col gap-2 transition-all',
         state === 'current' && 'border-l-4 border-l-[var(--gold)] border-[var(--gold)]/30 bg-[var(--gold)]/8 shadow-[0_0_16px_rgba(212,168,67,0.15)]',
         state === 'past' && 'border-[var(--border)] bg-[var(--surface)] opacity-50',
         state === 'upcoming' && 'border-[var(--border)] bg-[var(--surface)]',
@@ -87,7 +87,7 @@ function PeriodCard({ slot, index }: { slot: TodayScheduleSlot; index: number })
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--gold)] opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--gold)]" />
           </span>
-          <span className="text-[10px] font-bold text-[var(--gold)] uppercase tracking-wider">Live Now</span>
+          <span className="text-[var(--font-size-xs)] font-bold text-[var(--gold)] uppercase tracking-wider">Live Now</span>
         </div>
       )}
     </motion.div>
@@ -116,7 +116,7 @@ function AttendanceBanner({ stats }: { stats: MyAttendanceThisMonth }) {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn('flex items-center justify-between rounded-xl border px-4 py-3', bgColor)}
+      className={cn('flex items-center justify-between rounded-xl border px-[var(--space-4)] py-3', bgColor)}
     >
       <div>
         <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{monthName} Attendance</p>
@@ -127,7 +127,7 @@ function AttendanceBanner({ stats }: { stats: MyAttendanceThisMonth }) {
       </div>
       <div className="text-right">
         <p className={cn('text-2xl font-bold', color)}>{percentage}%</p>
-        <p className="text-[10px] text-[var(--text-muted)] font-medium">attendance rate</p>
+        <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-medium">attendance rate</p>
       </div>
     </motion.div>
   )
@@ -140,7 +140,7 @@ function QuickAction({ href, icon: Icon, label, colorClass }: {
   return (
     <Link
       href={href}
-      className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 flex flex-col items-center justify-center gap-3 aspect-square hover:bg-[var(--surface-hover)] transition-colors active:scale-95"
+      className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-4)] flex flex-col items-center justify-center gap-[var(--space-3)] aspect-square hover:bg-[var(--surface-hover)] transition-colors active:scale-95"
     >
       <div className={cn('h-12 w-12 rounded-full flex items-center justify-center', colorClass)}>
         <Icon className="w-6 h-6" />
@@ -155,7 +155,7 @@ function SectionRow({ section }: { section: TeacherSection }) {
   return (
     <Link
       href={`/teacher/my-classes/${section.id}`}
-      className="bg-[var(--surface)] border border-[var(--border)] border-l-4 border-l-[var(--primary)] rounded-r-xl p-4 flex items-center justify-between hover:bg-[var(--surface-hover)] transition-colors active:scale-[0.99]"
+      className="bg-[var(--surface)] border border-[var(--border)] border-l-4 border-l-[var(--primary)] rounded-r-xl p-[var(--space-4)] flex items-center justify-between hover:bg-[var(--surface-hover)] transition-colors active:scale-[0.99]"
     >
       <div className="min-w-0">
         <h3 className="font-semibold text-[var(--text)]">Section {section.name}</h3>
@@ -163,7 +163,7 @@ function SectionRow({ section }: { section: TeacherSection }) {
           {section.programName} · {section.gradeName}
         </p>
       </div>
-      <div className="flex items-center gap-3 shrink-0 ml-3">
+      <div className="flex items-center gap-[var(--space-3)] shrink-0 ml-3">
         <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
           <UserRound className="w-3.5 h-3.5" />
           <span>{section.studentCount}</span>
@@ -190,14 +190,14 @@ function ExamCard({ exam }: { exam: TeacherUpcomingExam }) {
 
   return (
     <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl flex overflow-hidden">
-      <div className="w-16 bg-[var(--primary)] flex flex-col items-center justify-center py-3 shrink-0">
-        <span className="text-[10px] font-semibold text-white/70 uppercase">{month}</span>
+      <div className="w-16 bg-[var(--primary)] flex flex-col items-center justify-center py-[var(--space-3)] shrink-0">
+        <span className="text-[var(--font-size-xs)] font-semibold text-white/70 uppercase">{month}</span>
         <span className="text-2xl font-bold text-white leading-tight">{day}</span>
       </div>
       <div className="p-3 flex-1 flex flex-col justify-center min-w-0">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-sm text-[var(--text)] truncate">{exam.subjectName}</h3>
-          <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0', style.bg, style.text)}>
+          <span className={cn('text-[var(--font-size-xs)] font-bold px-2 py-0.5 rounded-full shrink-0', style.bg, style.text)}>
             {exam.status}
           </span>
         </div>
@@ -219,7 +219,7 @@ export default function TeacherDashboardPage() {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       {/* Sticky header */}
-      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center justify-between">
         <div>
           <h1 className="font-bold text-lg text-[var(--text)] leading-tight">Good Morning, Sir 👋</h1>
           <p className="text-xs text-[var(--gold)] font-medium">{today}</p>
@@ -241,17 +241,17 @@ export default function TeacherDashboardPage() {
             Today&apos;s Schedule
           </h2>
           {isLoading ? (
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="flex gap-[var(--space-3)] overflow-x-auto pb-2">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="min-w-[260px] shrink-0 h-28 rounded-xl bg-[var(--surface)] border border-[var(--border)] animate-pulse" />
               ))}
             </div>
           ) : (data?.todaySchedule ?? []).length === 0 ? (
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center text-sm text-[var(--text-muted)]">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-6)] text-center text-sm text-[var(--text-muted)]">
               No classes scheduled today
             </div>
           ) : (
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex gap-[var(--space-3)] overflow-x-auto pb-2 -mx-4 px-[var(--space-4)] snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {(data?.todaySchedule ?? []).map((slot, i) => (
                 <PeriodCard key={slot.id} slot={slot} index={i} />
               ))}
@@ -283,7 +283,7 @@ export default function TeacherDashboardPage() {
               ))}
             </div>
           ) : (data?.mySections ?? []).length === 0 ? (
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 text-center text-sm text-[var(--text-muted)]">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-6)] text-center text-sm text-[var(--text-muted)]">
               No sections assigned
             </div>
           ) : (
@@ -325,13 +325,13 @@ export default function TeacherDashboardPage() {
             </h2>
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl divide-y divide-[var(--border)]">
               {(data?.recentAttendance ?? []).map((s, i) => (
-                <div key={i} className="flex items-center justify-between px-4 py-3">
+                <div key={i} className="flex items-center justify-between px-[var(--space-4)] py-3">
                   <div>
                     <p className="text-sm font-medium text-[var(--text)]">{s.sectionName}</p>
                     <p className="text-xs text-[var(--text-muted)]">{s.subjectName}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">Marked</span>
+                    <span className="text-[var(--font-size-xs)] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">Marked</span>
                     <p className="text-xs text-[var(--text-muted)] mt-1">
                       {new Date(s.date).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' })}
                     </p>

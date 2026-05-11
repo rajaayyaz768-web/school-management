@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { User, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useCurrentUser } from '@/store/authStore';
@@ -9,7 +9,7 @@ import PageHeader from '@/components/layout/PageHeader';
 import { RecoveryEmailSection } from '@/features/auth/components/RecoveryEmailSection';
 
 const card = "rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-6";
-const label = "block text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)] mb-1.5";
+const label = "block text-[var(--font-size-sm)] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)] mb-1.5";
 const input = [
   "w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg)]",
   "px-3.5 py-2.5 text-sm text-[var(--text)] placeholder:text-[var(--text-disabled)]",
@@ -40,6 +40,14 @@ export default function AccountSettingsPage() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [pwdError, setPwdError] = useState<string | null>(null);
+
+  /* Sync fields when store updates after a successful save */
+  useEffect(() => {
+    if (!user?.fullName) return;
+    const parts = user.fullName.trim().split(' ');
+    setFirstName(parts[0] ?? '');
+    setLastName(parts.slice(1).join(' '));
+  }, [user?.fullName]);
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +80,7 @@ export default function AccountSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center md:hidden">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center md:hidden">
         <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Account Settings</h1>
       </header>
       <div className="hidden sm:block">
@@ -84,8 +92,8 @@ export default function AccountSettingsPage() {
           ]}
         />
       </div>
-      <div className="max-w-2xl p-4 sm:p-0">
-      <div className="flex flex-col gap-6 mt-2">
+      <div className="max-w-2xl p-[var(--space-4)] sm:p-0">
+      <div className="flex flex-col gap-[var(--space-6)] mt-2">
 
         {/* ── Update Name ── */}
         <motion.div
@@ -139,7 +147,7 @@ export default function AccountSettingsPage() {
                 disabled={updateProfile.isPending || !firstName.trim() || !lastName.trim()}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}
               >
                 {updateProfile.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
@@ -246,7 +254,7 @@ export default function AccountSettingsPage() {
                 disabled={changePassword.isPending || !currentPwd || !newPwd || !confirmPwd}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 style={{
                   background: 'var(--surface-alt)',
                   color: 'var(--text)',

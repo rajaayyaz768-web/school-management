@@ -57,7 +57,7 @@ export function MarkAsPaidModal({ record, isOpen, onClose }: Props) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Mark Fee as Paid" size="md">
       <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-        <div className="bg-[var(--surface-alt)] p-4 rounded-lg space-y-2 text-sm text-[var(--text)]">
+        <div className="bg-[var(--surface-alt)] p-[var(--space-4)] rounded-lg space-y-2 text-sm text-[var(--text)]">
           <div className="flex justify-between">
             <span className="text-[var(--text-muted)]">Student:</span>
             <span className="font-medium">{record.student?.firstName} {record.student?.lastName}</span>
@@ -98,7 +98,7 @@ export function MarkAsPaidModal({ record, isOpen, onClose }: Props) {
         />
 
         <div className="border-t border-[var(--border)] pt-4 mt-4">
-          <div className="flex justify-between items-center bg-[var(--primary)]/5 p-3 rounded-lg">
+          <div className="flex justify-between items-center bg-[var(--primary)]/5 p-[var(--space-3)] rounded-lg">
             <span className="font-medium text-[var(--text)]">Remaining Balance:</span>
             <span className={`font-bold ${newBalance > 0 ? 'text-[var(--primary)]' : 'text-[var(--success)]'}`}>
               PKR {newBalance.toLocaleString()}
@@ -106,7 +106,7 @@ export function MarkAsPaidModal({ record, isOpen, onClose }: Props) {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex justify-end gap-[var(--space-3)] pt-4">
           <Button variant="outline" type="button" onClick={onClose}>
             Cancel
           </Button>

@@ -19,7 +19,7 @@ const inputCls = [
 ].join(' ')
 
 const labelCls =
-  'block text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)] mb-1.5'
+  'block text-[var(--font-size-sm)] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)] mb-1.5'
 
 const cardCls =
   'rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-6'
@@ -89,7 +89,7 @@ export default function AdminSettingsPage() {
         breadcrumb={[{ label: 'Home', href: '/admin/dashboard' }, { label: 'Settings' }]}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--space-6)] items-start">
 
         {/* ── Left column: account management ── */}
         <div className="flex flex-col gap-6">
@@ -125,7 +125,7 @@ export default function AdminSettingsPage() {
                   type="submit"
                   disabled={updateProfile.isPending || !firstName.trim() || !lastName.trim()}
                   whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-                  className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                   style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}
                 >
                   {updateProfile.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
@@ -176,7 +176,7 @@ export default function AdminSettingsPage() {
                   type="submit"
                   disabled={changePassword.isPending || !currentPwd || !newPwd || !confirmPwd}
                   whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-                  className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                   style={{ background: 'var(--surface-alt)', color: 'var(--text)', border: '1px solid var(--border)', fontFamily: 'var(--font-body)' }}
                 >
                   {changePassword.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}

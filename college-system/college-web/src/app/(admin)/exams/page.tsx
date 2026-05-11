@@ -94,7 +94,7 @@ export default function ExamsPage() {
   // ── Campus / Section selection steps ────────────────────────
   if (!selectedCampusId) {
     return (
-      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-[var(--space-4)] sm:gap-6 p-[var(--space-4)] sm:p-6 lg:p-8">
         <PageHeader title="Exam Management" subtitle="Select a section to view and manage exams" />
         {/* Admin has 1 campus → auto-skips immediately */}
         <CampusSelectorCards onSelect={(c) => setSelectedCampusId(c.id)} />
@@ -104,7 +104,7 @@ export default function ExamsPage() {
 
   if (!selectedSection) {
     return (
-      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-[var(--space-4)] sm:gap-6 p-[var(--space-4)] sm:p-6 lg:p-8">
         <PageHeader title="Exam Management" subtitle="Select a section to view and manage exams" />
         <SectionSelectorCards
           campusId={selectedCampusId}
@@ -115,7 +115,7 @@ export default function ExamsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
+    <div className="flex flex-col gap-[var(--space-4)] sm:gap-6 p-[var(--space-4)] sm:p-6 lg:p-8">
       <PageHeader
         title="Exam Management"
         subtitle="Schedule exams, manage exam types, and enter student results"
@@ -151,7 +151,7 @@ export default function ExamsPage() {
           {/* ── Tab 1: Exam Schedule ── */}
           <TabPanel tabId="schedule" activeTab={activeTab}>
             {/* Content filters: Exam Type + Status only */}
-            <div className="flex flex-wrap items-end gap-4 mb-6">
+            <div className="flex flex-wrap items-end gap-[var(--space-4)] mb-6">
               <Select
                 label="Exam Type"
                 value={filterExamTypeId}
@@ -194,7 +194,7 @@ export default function ExamsPage() {
             <div className="max-w-lg space-y-6">
               <div>
                 <h3 className="text-sm font-semibold text-[var(--text)] mb-4">Create New Exam Type</h3>
-                <div className="flex gap-3 items-end">
+                <div className="flex gap-[var(--space-3)] items-end">
                   <div className="flex-1">
                     <Select
                       label="Campus"
@@ -211,7 +211,7 @@ export default function ExamsPage() {
                       Type Name
                     </label>
                     <input
-                      className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] px-4 py-2.5 font-body text-sm text-[var(--text)] outline-none focus:border-[var(--primary)]"
+                      className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] px-[var(--space-4)] py-2.5 font-body text-sm text-[var(--text)] outline-none focus:border-[var(--primary)]"
                       placeholder="e.g. Mid-Term, Final, Quiz"
                       value={newTypeName}
                       onChange={(e) => setNewTypeName(e.target.value)}
@@ -249,7 +249,7 @@ export default function ExamsPage() {
                       {(allExamTypes ?? []).map((t) => (
                         <div
                           key={t.id}
-                          className="flex items-center justify-between px-4 py-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)]"
+                          className="flex items-center justify-between px-[var(--space-4)] py-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)]"
                         >
                           <span className="text-sm font-medium text-[var(--text)]">{t.name}</span>
                           <Tag className="w-4 h-4 text-[var(--text-muted)]" />

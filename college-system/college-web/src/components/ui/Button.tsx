@@ -3,10 +3,6 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-/**
- * Button component with multiple variants and sizes
- * Premium micro-interactions: hover lift, active press, focus ring
- */
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'gold' | 'outline'
   size?: 'sm' | 'md' | 'lg'
@@ -15,50 +11,55 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean
 }
 
-const variantStyles = {
-  primary: `
-    bg-gradient-to-b from-[var(--primary)] to-[var(--primary-dark)] text-white
-    hover:from-[var(--primary-light)] hover:to-[var(--primary)]
-    shadow-[0_1px_2px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.08)]
-    hover:shadow-[var(--shadow-md)]
-    focus-visible:ring-[3px] focus-visible:ring-[var(--primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]
-  `,
-  secondary: `
-    bg-[var(--surface)] border border-[var(--border)] text-[var(--text)]
-    hover:bg-[var(--surface-alt)] hover:border-[var(--border-strong)]
-    shadow-[var(--shadow-sm)]
-    focus-visible:ring-[3px] focus-visible:ring-[var(--primary)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]
-  `,
-  danger: `
-    bg-gradient-to-b from-[#EF4444] to-[#DC2626] text-white
-    hover:from-[#F87171] hover:to-[#EF4444]
-    shadow-[0_1px_2px_rgba(220,38,38,0.2)]
-    hover:shadow-[0_4px_12px_rgba(239,68,68,0.25)]
-    focus-visible:ring-[3px] focus-visible:ring-[#EF4444]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]
-  `,
-  ghost: `
-    bg-transparent text-[var(--text-secondary)]
-    hover:bg-[var(--surface-hover)] hover:text-[var(--text)]
-    focus-visible:ring-[3px] focus-visible:ring-[var(--primary)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]
-  `,
-  gold: `
-    bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[var(--gold-dark)]
-    text-[#1a1a1a] font-semibold
-    shadow-[0_1px_2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.25)]
-    hover:shadow-[var(--shadow-gold-glow),0_4px_16px_rgba(212,168,67,0.3)]
-    focus-visible:ring-[3px] focus-visible:ring-[var(--gold)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]
-  `,
-  outline: `
-    border-[1.5px] border-[var(--primary)] text-[var(--primary)] bg-transparent
-    hover:bg-[var(--primary)] hover:text-white
-    focus-visible:ring-[3px] focus-visible:ring-[var(--primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]
-  `,
+const variantStyles: Record<NonNullable<ButtonProps['variant']>, string> = {
+  primary: [
+    'bg-[var(--primary)] text-white',
+    'shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_1px_2px_rgba(19,38,67,0.18)]',
+    'hover:bg-[var(--primary-hover)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.15),var(--shadow-md)]',
+    'active:bg-[var(--primary-dark)] active:shadow-[var(--shadow-xs)]',
+    'focus-visible:shadow-[var(--shadow-focus)]',
+  ].join(' '),
+
+  secondary: [
+    'bg-[var(--surface)] text-[var(--text)]',
+    'border border-[var(--border)]',
+    'shadow-[var(--shadow-xs)]',
+    'hover:bg-[var(--bg-secondary)] hover:border-[var(--border-strong)]',
+    'focus-visible:border-[var(--primary)] focus-visible:shadow-[var(--shadow-focus)]',
+  ].join(' '),
+
+  danger: [
+    'bg-[var(--red-500)] text-white',
+    'shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]',
+    'hover:bg-[var(--red-700)]',
+    'focus-visible:shadow-[0_0_0_4px_rgba(209,69,69,0.22)]',
+  ].join(' '),
+
+  ghost: [
+    'bg-transparent text-[var(--slate-700)]',
+    'hover:bg-[var(--slate-50)] hover:text-[var(--slate-900)]',
+    'focus-visible:shadow-[var(--shadow-focus)]',
+  ].join(' '),
+
+  gold: [
+    'bg-[var(--amber-500)] text-[var(--slate-900)]',
+    'shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]',
+    'hover:bg-[var(--amber-700)] hover:text-white',
+    'focus-visible:shadow-[0_0_0_4px_rgba(224,161,27,0.22)]',
+  ].join(' '),
+
+  outline: [
+    'bg-transparent text-[var(--primary-hover)]',
+    'border border-[var(--primary)]',
+    'hover:bg-[var(--bg-tint)]',
+    'focus-visible:shadow-[var(--shadow-focus)]',
+  ].join(' '),
 }
 
-const sizeStyles = {
-  sm: 'px-3 py-1.5 text-xs gap-1.5',
-  md: 'px-4 py-2 text-sm gap-2',
-  lg: 'px-6 py-2.5 text-base gap-2.5',
+const sizeStyles: Record<NonNullable<ButtonProps['size']>, string> = {
+  sm: 'px-3 py-[7px] text-[var(--font-size-base)] gap-1.5 rounded-[var(--radius-md)]',
+  md: 'px-[14px] py-[9px] text-[var(--font-size-base)] gap-[7px] rounded-[var(--radius-md)]',
+  lg: 'px-[22px] py-[11px] text-[15px] gap-2 rounded-[var(--radius-md)]',
 }
 
 const Spinner = ({ className }: { className?: string }) => (
@@ -69,14 +70,7 @@ const Spinner = ({ className }: { className?: string }) => (
     viewBox="0 0 24 24"
     aria-hidden="true"
   >
-    <circle
-      className="opacity-25"
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="currentColor"
-      strokeWidth="4"
-    />
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
     <path
       className="opacity-75"
       fill="currentColor"
@@ -86,20 +80,8 @@ const Spinner = ({ className }: { className?: string }) => (
 )
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      variant = 'primary',
-      size = 'md',
-      loading = false,
-      icon,
-      fullWidth = false,
-      disabled,
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({ variant = 'primary', size = 'md', loading = false, icon, fullWidth = false,
+     disabled, className, children, ...props }, ref) => {
     const isDisabled = disabled || loading
 
     return (
@@ -107,15 +89,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={isDisabled}
         className={cn(
-          'font-body font-medium rounded-[var(--radius-sm)] inline-flex items-center justify-center',
-          'transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)]',
+          'font-body font-700 inline-flex items-center justify-center',
+          'transition-all duration-[var(--dur-fast)] ease-[cubic-bezier(0.2,0.8,0.2,1)]',
           'outline-none',
-          // Hover lift
-          'hover:-translate-y-[1px]',
-          // Active press
-          'active:translate-y-0 active:scale-[0.98]',
-          // Disabled
-          'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:active:scale-100',
+          'disabled:opacity-50 disabled:cursor-not-allowed',
           variantStyles[variant],
           sizeStyles[size],
           fullWidth && 'w-full',
@@ -136,5 +113,4 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 )
 
 Button.displayName = 'Button'
-
 export default Button

@@ -22,7 +22,7 @@ export function ChildSwitcher({ items, activeId, onChange }: ChildSwitcherProps)
           onClick={() => onChange(c.student.id)}
         >
           {c.student.firstName} {c.student.lastName}
-          {c.isPrimary && <span className="ml-1 text-[10px] opacity-70">(Primary)</span>}
+          {c.isPrimary && <span className="ml-1 text-[var(--font-size-xs)] opacity-70">(Primary)</span>}
         </Button>
       ))}
     </div>

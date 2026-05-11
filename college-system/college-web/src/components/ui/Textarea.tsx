@@ -42,10 +42,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           aria-describedby={errorId}
           className={cn(
             'w-full bg-[var(--surface)] border rounded-[var(--radius-sm)]',
-            'px-4 py-3 font-body text-sm text-[var(--text)] min-h-[100px] resize-y',
+            'px-4 py-[var(--space-3)] font-body text-sm text-[var(--text)] min-h-[100px] resize-y',
             'placeholder:text-[var(--text-disabled)]',
             'outline-none',
-            'transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)]',
+            'transition-all duration-[var(--dur-base)] ease-[cubic-bezier(0.4,0,0.2,1)]',
             'focus:border-[var(--primary)] focus:shadow-[var(--shadow-glow)]',
             error
               ? 'border-[var(--danger)] focus:border-[var(--danger)] focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)]'

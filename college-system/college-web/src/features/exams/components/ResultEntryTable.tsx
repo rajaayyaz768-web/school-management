@@ -158,7 +158,7 @@ export function ResultEntryTable({ examId, totalMarks, isLoading: parentLoading 
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.02 }}
               className={cn(
-                'bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 flex items-center gap-3',
+                'bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-3)] flex items-center gap-3',
                 isAbsent && 'opacity-60'
               )}
             >
@@ -185,7 +185,7 @@ export function ResultEntryTable({ examId, totalMarks, isLoading: parentLoading 
               <div className="flex flex-col items-end gap-2 shrink-0">
                 {/* Absent toggle */}
                 <label className="flex items-center gap-1.5 cursor-pointer">
-                  <span className="text-[10px] text-[var(--text-muted)] font-medium">Absent</span>
+                  <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-medium">Absent</span>
                   <div
                     onClick={() => updatePending(row.studentId, { isAbsent: !isAbsent })}
                     className={cn(
@@ -225,7 +225,7 @@ export function ResultEntryTable({ examId, totalMarks, isLoading: parentLoading 
                             isPassing ? 'text-emerald-400' : 'text-red-400'
                         )}
                       />
-                      <span className="text-[10px] text-[var(--text-muted)] font-medium">/{totalMarks}</span>
+                      <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-medium">/{totalMarks}</span>
                     </div>
                     {grade && (
                       <Badge variant={GRADE_VARIANT[grade] ?? 'neutral'} size="sm">{grade}</Badge>

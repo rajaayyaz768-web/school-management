@@ -163,7 +163,7 @@ export default function ParentResultsPage() {
       ) : (
         <>
           {tab === 'all' && reportCard && (
-            <Card className="flex flex-wrap items-center justify-between gap-4 p-5">
+            <Card className="flex flex-wrap items-center justify-between gap-[var(--space-4)] p-5">
               <div>
                 <p className="text-sm text-[var(--text-muted)]">
                   {reportCard.firstName} {reportCard.lastName} · {reportCard.sectionName}

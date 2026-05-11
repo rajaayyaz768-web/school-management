@@ -36,7 +36,7 @@ export function AdminStudentsPage() {
 
   if (step === 'section' && campusId) {
     return (
-      <div className="flex flex-col gap-6 p-8">
+      <div className="flex flex-col gap-[var(--space-6)] p-8">
         <PageHeader
           title="Students Management"
           subtitle="Select a section to view students"
@@ -54,7 +54,7 @@ export function AdminStudentsPage() {
   }
 
   const navigation = (
-    <div className="flex items-center gap-3 mb-2 -mt-4">
+    <div className="flex items-center gap-[var(--space-3)] mb-2 -mt-4">
       <Button
         variant="ghost"
         size="sm"

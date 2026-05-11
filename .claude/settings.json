@@ -4,7 +4,65 @@
       "Bash(rm -rf /tmp/hf-deploy)",
       "Bash(mkdir /tmp/hf-deploy)",
       "Bash(git push *)",
-      "Bash(grep -E \"\\\\.\\(tsx?|prisma\\)$\")"
+      "Bash(grep -E \"\\\\.\\(tsx?|prisma\\)$\")",
+      "Bash(npx skills *)",
+      "Bash(npx skillfish *)",
+      "Bash(wait)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(cp webfetch-1778222429111-ub0uun.bin design.gz)",
+      "Bash(gunzip -f design.gz)",
+      "Bash(tar -xf design)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); file=$(echo \"$input\" | jq -r '.file_path // empty'); if echo \"$file\" | grep -qE 'college-backend/src/.*\\.tsx?$'; then cd /home/ayyaz/projects/school_managment/college-system/college-backend && npx tsc --noEmit 2>&1 | tail -20; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); file=$(echo \"$input\" | jq -r '.file_path // empty'); if echo \"$file\" | grep -qE 'college-web/src/.*\\.(tsx?|jsx?)$'; then cd /home/ayyaz/projects/school_managment/college-system/college-web && npx eslint \"$file\" --max-warnings 0 2>&1 | tail -15; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); file=$(echo \"$input\" | jq -r '.file_path // empty'); if echo \"$file\" | grep -q 'college-backend/src'; then grep -n 'new PrismaClient()' \"$file\" 2>/dev/null && echo 'WARNING: Use shared prisma instance from src/config/database.ts instead' || true; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); file=$(echo \"$input\" | jq -r '.file_path // empty'); if echo \"$file\" | grep -qE '\\.env(\\.local)?$'; then echo 'BLOCKED: edit .env files via your text editor, not Claude'; exit 2; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); file=$(echo \"$input\" | jq -r '.file_path // empty'); if echo \"$file\" | grep -q 'schema.prisma'; then echo 'REMINDER: After schema changes run: npm run prisma:migrate && npm run prisma:generate in college-backend'; fi"
+          }
+        ]
+      }
     ]
   }
 }

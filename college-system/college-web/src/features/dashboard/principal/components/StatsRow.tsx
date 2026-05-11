@@ -49,15 +49,15 @@ const ACCENT_STYLES: Record<AccentVariant, { card: string; icon: string; value: 
 function MetricCard({ title, value, subtitle, icon, accent = 'default' }: MetricCardProps) {
   const styles = ACCENT_STYLES[accent]
   return (
-    <div className={`rounded-[var(--radius-lg)] border p-4 xl:p-5 flex items-start gap-3 ${styles.card}`}>
+    <div className={`rounded-[var(--radius-lg)] border p-[var(--space-4)] xl:p-5 flex items-start gap-[var(--space-3)] ${styles.card}`}>
       <div className={`w-9 h-9 rounded-[var(--radius)] flex items-center justify-center flex-shrink-0 mt-0.5 ${styles.icon}`}>
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest truncate">{title}</p>
+        <p className="text-[var(--font-size-xs)] font-semibold text-[var(--text-muted)] uppercase tracking-widest truncate">{title}</p>
         <p className={`text-2xl font-bold leading-tight mt-1 truncate ${styles.value}`}>{value}</p>
         {subtitle && (
-          <p className="text-[10px] text-[var(--text-muted)] mt-0.5 truncate">{subtitle}</p>
+          <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5 truncate">{subtitle}</p>
         )}
       </div>
     </div>

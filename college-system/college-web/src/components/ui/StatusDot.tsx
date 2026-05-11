@@ -92,7 +92,7 @@ const StatusDot = forwardRef<HTMLDivElement, StatusDotProps>(
         </div>
         
         {label && (
-          <span className="font-body text-[12px] text-[var(--text-secondary)]">
+          <span className="font-body text-[var(--font-size-sm)] text-[var(--text-secondary)]">
             {label}
           </span>
         )}

@@ -44,7 +44,7 @@ function SlotCard({ slot }: { slot: TimetableSlot }) {
   return (
     <div
       className={cn(
-        'rounded-lg p-3 border text-sm transition-all',
+        'rounded-lg p-[var(--space-3)] border text-sm transition-all',
         state === 'current' && 'bg-[var(--gold)]/10 border-[var(--gold)]/40 shadow-sm',
         state === 'past' && 'opacity-50 bg-[var(--surface)] border-[var(--border)]',
         state === 'upcoming' && !isBreak && 'bg-[var(--primary)]/6 border-[var(--primary)]/20',

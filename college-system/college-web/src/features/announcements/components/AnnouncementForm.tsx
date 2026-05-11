@@ -247,7 +247,7 @@ export function AnnouncementForm({ announcement, onSuccess, onCancel }: Announce
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-2 border-t border-[var(--border)]">
+      <div className="flex justify-end gap-[var(--space-3)] pt-2 border-t border-[var(--border)]">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>

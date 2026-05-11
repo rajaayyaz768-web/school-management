@@ -1,349 +1,199 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
+import { motion, useInView } from "motion/react";
+import {
+  CalendarCheck, CreditCard, FileText,
+  Clock, MessageSquare, Building2,
+} from "lucide-react";
 
-const features = [
+const FEATURES = [
   {
-    number: "01",
-    title: "Role-Based Portals",
-    description: "Dedicated interfaces for Principal, Admin, Teachers, Students, and Parents—each with tailored dashboards and relevant data access controls.",
-    visual: "deploy",
+    icon: CalendarCheck,
+    title: "Attendance Tracking",
+    description: "Real-time marking by teachers. Parents receive a WhatsApp alert the moment a student is marked absent — before the period ends.",
+    color: "#0D3B2A",
+    light: "rgba(13,59,42,0.08)",
   },
   {
-    number: "02",
-    title: "Student Progress & Marks Tracking",
-    description: "Keep parents informed with real-time access to student marks, test scores, and comprehensive progress reports across all subjects.",
-    visual: "ai",
+    icon: CreditCard,
+    title: "Fee Management",
+    description: "Generate challans, track payment status, send automated reminders, and view monthly collection reports across all campuses.",
+    color: "#C8963A",
+    light: "rgba(200,150,58,0.08)",
   },
   {
-    number: "03",
-    title: "Live Attendance & Daily Alerts",
-    description: "Build trust with automated, instant attendance alerts for parents. Track daily presence and scheduling seamlessly from anywhere.",
-    visual: "collab",
+    icon: FileText,
+    title: "Exam Results",
+    description: "Enter marks section-by-section. Students and parents see results the moment a teacher submits — no delay, no paperwork.",
+    color: "#1A3A5C",
+    light: "rgba(26,58,92,0.08)",
   },
   {
-    number: "04",
-    title: "Teacher Capability Tools",
-    description: "Empower educators with advanced tools for grading, lesson planning, and direct, secure communication with parents to ensure student success.",
-    visual: "security",
+    icon: Clock,
+    title: "Live Timetable",
+    description: "Teachers see their live day schedule. Students and parents always know exactly which class is happening right now.",
+    color: "#4A1B7A",
+    light: "rgba(74,27,122,0.08)",
+  },
+  {
+    icon: MessageSquare,
+    title: "WhatsApp Alerts",
+    description: "Automated messages for attendance, fee reminders, exam schedules, and result announcements via the Meta Business API.",
+    color: "#0D5C3B",
+    light: "rgba(13,92,59,0.08)",
+  },
+  {
+    icon: Building2,
+    title: "Multi-Campus Support",
+    description: "One system for every campus. The principal sees all; admins are scoped to their campus automatically at the server level.",
+    color: "#7C2D12",
+    light: "rgba(124,45,18,0.08)",
   },
 ];
 
-function DeployVisual() {
-  return (
-    <svg viewBox="0 0 200 160" className="w-full h-full">
-      <defs>
-        <clipPath id="deployClip">
-          <rect x="30" y="20" width="140" height="120" rx="4" />
-        </clipPath>
-      </defs>
-      
-      {/* Container */}
-      <rect x="30" y="20" width="140" height="120" rx="4" fill="none" stroke="currentColor" strokeWidth="2" />
-      
-      {/* Animated bars */}
-      <g clipPath="url(#deployClip)">
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <rect
-            key={i}
-            x="40"
-            y={35 + i * 16}
-            width="120"
-            height="10"
-            rx="2"
-            fill="currentColor"
-            opacity="0.15"
-          >
-            <animate
-              attributeName="opacity"
-              values="0.15;0.8;0.15"
-              dur="2s"
-              begin={`${i * 0.15}s`}
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="width"
-              values="20;120;20"
-              dur="2s"
-              begin={`${i * 0.15}s`}
-              repeatCount="indefinite"
-            />
-          </rect>
-        ))}
-      </g>
-      
-      {/* Progress indicator */}
-      <circle cx="100" cy="155" r="3" fill="currentColor" opacity="0.3">
-        <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite" />
-      </circle>
-    </svg>
-  );
-}
-
-function AIVisual() {
-  const round = (num: number) => Number(num.toFixed(2));
+function FeatureCard({ feature, index }: { feature: typeof FEATURES[0]; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -60px 0px" });
 
   return (
-    <svg viewBox="0 0 200 160" className="w-full h-full">
-      {/* Central node */}
-      <circle cx="100" cy="80" r="12" fill="currentColor">
-        <animate attributeName="r" values="12;14;12" dur="2s" repeatCount="indefinite" />
-      </circle>
-      
-      {/* Orbiting nodes */}
-      {[0, 1, 2, 3, 4, 5].map((i) => {
-        const angle = (i * 60) * (Math.PI / 180);
-        const radius = 50;
-        const xPos = round(100 + Math.cos(angle) * radius);
-        const yPos = round(80 + Math.sin(angle) * radius);
-        return (
-          <g key={i}>
-            {/* Connection line */}
-            <line
-              x1="100"
-              y1="80"
-              x2={xPos}
-              y2={yPos}
-              stroke="currentColor"
-              strokeWidth="1"
-              opacity="0.3"
-            >
-              <animate
-                attributeName="opacity"
-                values="0.3;0.8;0.3"
-                dur="2s"
-                begin={`${i * 0.3}s`}
-                repeatCount="indefinite"
-              />
-            </line>
-            
-            {/* Outer node */}
-            <circle
-              cx={xPos}
-              cy={yPos}
-              r="6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <animate
-                attributeName="r"
-                values="6;8;6"
-                dur="2s"
-                begin={`${i * 0.3}s`}
-                repeatCount="indefinite"
-              />
-            </circle>
-          </g>
-        );
-      })}
-      
-      {/* Pulse rings */}
-      <circle cx="100" cy="80" r="30" fill="none" stroke="currentColor" strokeWidth="1" opacity="0">
-        <animate attributeName="r" values="20;60" dur="2s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.5;0" dur="2s" repeatCount="indefinite" />
-      </circle>
-    </svg>
-  );
-}
-
-function CollabVisual() {
-  return (
-    <svg viewBox="0 0 200 160" className="w-full h-full">
-      {/* User A */}
-      <g>
-        <rect x="30" y="50" width="50" height="60" rx="4" fill="none" stroke="currentColor" strokeWidth="2" />
-        <text x="55" y="85" textAnchor="middle" fontSize="20" fontFamily="monospace" fill="currentColor">A</text>
-        <circle cx="55" cy="35" r="12" fill="none" stroke="currentColor" strokeWidth="2" />
-      </g>
-      
-      {/* User B */}
-      <g>
-        <rect x="120" y="50" width="50" height="60" rx="4" fill="none" stroke="currentColor" strokeWidth="2" />
-        <text x="145" y="85" textAnchor="middle" fontSize="20" fontFamily="monospace" fill="currentColor">B</text>
-        <circle cx="145" cy="35" r="12" fill="none" stroke="currentColor" strokeWidth="2" />
-      </g>
-      
-      {/* Connection */}
-      <line x1="80" y1="80" x2="120" y2="80" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4">
-        <animate attributeName="stroke-dashoffset" values="0;-8" dur="0.5s" repeatCount="indefinite" />
-      </line>
-      
-      {/* Data packet */}
-      <circle r="4" fill="currentColor">
-        <animateMotion dur="1.5s" repeatCount="indefinite">
-          <mpath href="#dataPath" />
-        </animateMotion>
-      </circle>
-      <path id="dataPath" d="M 80 80 L 120 80" fill="none" />
-      
-      {/* Sync indicator */}
-      <g transform="translate(100, 130)">
-        <circle r="6" fill="none" stroke="currentColor" strokeWidth="2">
-          <animate attributeName="r" values="6;10;6" dur="1s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" />
-        </circle>
-      </g>
-    </svg>
-  );
-}
-
-function SecurityVisual() {
-  return (
-    <svg viewBox="0 0 200 160" className="w-full h-full">
-      {/* Shield */}
-      <path
-        d="M 100 20 L 150 40 L 150 90 Q 150 130 100 145 Q 50 130 50 90 L 50 40 Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      
-      {/* Inner shield */}
-      <path
-        d="M 100 35 L 135 50 L 135 85 Q 135 115 100 128 Q 65 115 65 85 L 65 50 Z"
-        fill="currentColor"
-        opacity="0.1"
-      >
-        <animate attributeName="opacity" values="0.1;0.2;0.1" dur="2s" repeatCount="indefinite" />
-      </path>
-      
-      {/* Lock icon */}
-      <rect x="85" y="70" width="30" height="25" rx="3" fill="currentColor" />
-      <path
-        d="M 90 70 L 90 60 Q 90 50 100 50 Q 110 50 110 60 L 110 70"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      
-      {/* Keyhole */}
-      <circle cx="100" cy="80" r="4" fill="white" />
-      <rect x="98" y="82" width="4" height="8" fill="white" />
-      
-      {/* Scan lines */}
-      <line x1="60" y1="60" x2="140" y2="60" stroke="currentColor" strokeWidth="1" opacity="0">
-        <animate attributeName="y1" values="40;120;40" dur="3s" repeatCount="indefinite" />
-        <animate attributeName="y2" values="40;120;40" dur="3s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0;0.5;0" dur="3s" repeatCount="indefinite" />
-      </line>
-    </svg>
-  );
-}
-
-function AnimatedVisual({ type }: { type: string }) {
-  switch (type) {
-    case "deploy":
-      return <DeployVisual />;
-    case "ai":
-      return <AIVisual />;
-    case "collab":
-      return <CollabVisual />;
-    case "security":
-      return <SecurityVisual />;
-    default:
-      return <DeployVisual />;
-  }
-}
-
-function FeatureCard({ feature, index }: { feature: typeof features[0]; index: number }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
-      },
-      { threshold: 0.2 }
-    );
-
-    if (cardRef.current) observer.observe(cardRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={cardRef}
-      className={`group relative transition-all duration-700 ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-      }`}
-      style={{ transitionDelay: `${index * 100}ms` }}
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 32 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay: index * 0.07, ease: [0.16, 1, 0.3, 1] }}
+      className="group"
+      style={{
+        background: "#fff",
+        border: "1px solid rgba(0,0,0,0.07)",
+        borderRadius: 16,
+        padding: "32px 28px",
+        display: "flex", flexDirection: "column", gap: 16,
+        cursor: "default",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+        transition: "all 250ms cubic-bezier(0.4,0,0.2,1)",
+        position: "relative",
+        overflow: "hidden",
+      }}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.borderColor = feature.color;
+        el.style.boxShadow = `0 8px 32px rgba(0,0,0,0.08), 0 0 0 1px ${feature.color}20`;
+        el.style.transform = "translateY(-4px)";
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.borderColor = "rgba(0,0,0,0.07)";
+        el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)";
+        el.style.transform = "translateY(0)";
+      }}
     >
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 py-12 lg:py-20 border-b border-foreground/10">
-        {/* Number */}
-        <div className="shrink-0">
-          <span className="font-mono text-sm text-muted-foreground">{feature.number}</span>
-        </div>
-        
-        {/* Content */}
-        <div className="flex-1 grid lg:grid-cols-2 gap-8 items-center">
-          <div>
-            <h3 className="text-3xl lg:text-4xl font-display mb-4 group-hover:translate-x-2 transition-transform duration-500">
-              {feature.title}
-            </h3>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              {feature.description}
-            </p>
-          </div>
-          
-          {/* Visual */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="w-48 h-40 text-foreground">
-              <AnimatedVisual type={feature.visual} />
-            </div>
-          </div>
-        </div>
+      {/* Top color accent line */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: 3,
+        background: `linear-gradient(90deg, ${feature.color}, transparent)`,
+        opacity: 0, transition: "opacity 250ms",
+      }} className="group-hover:opacity-100" />
+
+      {/* Icon */}
+      <div style={{
+        width: 48, height: 48, borderRadius: 12,
+        background: feature.light,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        flexShrink: 0,
+      }}>
+        <feature.icon size={22} color={feature.color} />
       </div>
-    </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+        <h3 style={{
+          fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 19,
+          letterSpacing: "-0.015em", lineHeight: 1.25, color: "#0D1B0B",
+          margin: 0,
+        }}>{feature.title}</h3>
+        <p style={{
+          fontFamily: "var(--font-body)", fontSize: 14.5, lineHeight: 1.65,
+          color: "#62718A", margin: 0,
+        }}>{feature.description}</p>
+      </div>
+
+      {/* Arrow */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+        <span style={{
+          fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 13,
+          color: feature.color,
+        }}>Learn more</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ transition: "transform 200ms" }}
+          className="group-hover:translate-x-1">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke={feature.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+    </motion.div>
   );
 }
 
 export function FeaturesSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(headerRef, { once: true });
 
   return (
     <section
       id="features"
-      ref={sectionRef}
-      className="relative py-24 lg:py-32"
+      style={{ background: "#FAFAF7", paddingTop: 96, paddingBottom: 96 }}
     >
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+
         {/* Header */}
-        <div className="mb-16 lg:mb-24">
-          <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
-            <span className="w-8 h-px bg-foreground/30" />
-            Capabilities
-          </span>
-          <h2
-            className={`text-4xl lg:text-6xl font-display tracking-tight transition-all duration-700 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
+        <div ref={headerRef} style={{ marginBottom: 56 }}>
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5 }}
+            style={{
+              display: "inline-block",
+              fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 700,
+              letterSpacing: "0.16em", textTransform: "uppercase",
+              color: "#C8963A", marginBottom: 16,
+            }}
           >
-            Everything you need.
-            <br />
-            <span className="text-muted-foreground">Nothing you don&apos;t.</span>
-          </h2>
+            Platform Capabilities
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.65, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              fontFamily: "var(--font-display)", fontWeight: 800,
+              fontSize: "clamp(2rem,4.5vw,3.2rem)",
+              lineHeight: 1.1, letterSpacing: "-0.025em",
+              color: "#0D1B0B", maxWidth: 640, margin: 0, marginBottom: 16,
+            }}
+          >
+            Everything your school needs, in one place.
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            style={{
+              fontFamily: "var(--font-body)", fontSize: 18, lineHeight: 1.65,
+              color: "#4A5567", maxWidth: 560, margin: 0,
+            }}
+          >
+            From daily attendance to end-of-year results — the platform handles the admin
+            work so educators can focus on teaching.
+          </motion.p>
         </div>
 
-        {/* Features List */}
-        <div>
-          {features.map((feature, index) => (
-            <FeatureCard key={feature.number} feature={feature} index={index} />
+        {/* Cards grid */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+          gap: 20,
+        }}>
+          {FEATURES.map((f, i) => (
+            <FeatureCard key={f.title} feature={f} index={i} />
           ))}
         </div>
       </div>

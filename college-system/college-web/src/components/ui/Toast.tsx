@@ -70,14 +70,14 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       )}
       role="alert"
     >
-      <div className="px-4 py-3 flex items-start gap-3">
+      <div className="px-4 py-[var(--space-3)] flex items-start gap-3">
         <Icon className={cn('w-5 h-5 mt-0.5 flex-shrink-0', colors.icon)} />
         <p className="font-body text-sm text-[var(--text)] flex-1 leading-relaxed">
           {toast.message}
         </p>
         <button
           onClick={() => onDismiss(toast.id)}
-          className="text-[var(--text-muted)] hover:text-[var(--text)] transition-colors duration-[180ms] shrink-0 mt-0.5"
+          className="text-[var(--text-muted)] hover:text-[var(--text)] transition-colors duration-[var(--dur-base)] shrink-0 mt-0.5"
           aria-label="Dismiss notification"
         >
           <X className="w-4 h-4" />

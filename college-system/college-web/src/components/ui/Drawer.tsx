@@ -69,7 +69,7 @@ const Drawer = ({
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-[280ms]"
+        className="fixed inset-0 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-[var(--dur-slow)]"
         aria-hidden="true"
       />
 
@@ -82,7 +82,7 @@ const Drawer = ({
         aria-label={title}
         className={cn(
           "relative z-[51] flex h-full flex-col bg-[var(--surface)] border-l border-[var(--border)] shadow-[var(--shadow-lg)]",
-          "animate-in slide-in-from-right duration-[280ms] ease-[cubic-bezier(0.4,0,0.2,1)] focus:outline-none",
+          "animate-in slide-in-from-right duration-[var(--dur-slow)] ease-[cubic-bezier(0.4,0,0.2,1)] focus:outline-none",
           sizeClasses[size],
           className
         )}
@@ -99,7 +99,7 @@ const Drawer = ({
           <div className="flex flex-col">
             <h2 className="font-body text-[16px] font-semibold text-[var(--text)] leading-tight">{title}</h2>
             {subtitle && (
-              <p className="font-body text-[12px] text-[var(--text-secondary)] leading-tight mt-0.5">{subtitle}</p>
+              <p className="font-body text-[var(--font-size-sm)] text-[var(--text-secondary)] leading-tight mt-0.5">{subtitle}</p>
             )}
           </div>
           <button
@@ -112,13 +112,13 @@ const Drawer = ({
         </div>
 
         {/* Content */}
-        <div className="drawer-scroll flex-1 overflow-y-auto p-5 font-[var(--font-body)] text-[var(--text)]">
+        <div className="drawer-scroll flex-1 overflow-y-auto p-[var(--space-5)] font-[var(--font-body)] text-[var(--text)]">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="flex shrink-0 items-center justify-end gap-2.5 border-t border-[var(--border)] bg-[var(--surface)] p-4 px-5">
+          <div className="flex shrink-0 items-center justify-end gap-2.5 border-t border-[var(--border)] bg-[var(--surface)] p-[var(--space-4)] px-5">
             {footer}
           </div>
         )}

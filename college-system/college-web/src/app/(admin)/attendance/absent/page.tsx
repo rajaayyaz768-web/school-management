@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { UserX, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { UserX, CheckCircle2, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { useAbsentByCampus } from '@/features/staff-attendance/hooks/useStaffAttendance';
 import { AbsentByCampusGroup, StaffBasicInfo } from '@/features/staff-attendance/types/staff-attendance.types';
 import PageHeader from '@/components/layout/PageHeader';
@@ -34,7 +34,7 @@ function buildDateChips(selected: string) {
 
 function StaffRow({ member }: { member: StaffBasicInfo }) {
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-[var(--border)] last:border-0">
+    <div className="flex items-center gap-[var(--space-3)] py-2.5 border-b border-[var(--border)] last:border-0">
       <Avatar
         name={`${member.firstName} ${member.lastName}`}
         src={member.photoUrl || undefined}
@@ -63,32 +63,45 @@ function CampusCard({ group, index }: { group: AbsentByCampusGroup; index: numbe
       className="bg-[var(--surface-container-lowest)] border border-[var(--border)] rounded-[var(--radius-card)] overflow-hidden"
     >
       {/* Card header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)] bg-[var(--surface-container-low)]">
+      <div className="flex items-center justify-between px-[var(--space-4)] py-[var(--space-3)] border-b border-[var(--border)] bg-[var(--surface-container-low)]">
         <div>
           <p className="font-bold text-[var(--text)] text-sm" style={{ fontFamily: 'var(--font-display)' }}>
             {group.campusName}
           </p>
-          <p className="text-[10px] font-mono text-[var(--text-muted)] mt-0.5">{group.campusCode}</p>
+          <p className="text-[var(--font-size-xs)] font-mono text-[var(--text-muted)] mt-0.5">{group.campusCode}</p>
         </div>
+
         {group.absentCount > 0 ? (
-          <span className="inline-flex items-center gap-1 bg-red-500/10 text-red-500 text-xs font-bold px-2.5 py-1 rounded-full">
+          /* Attendance marked — some absent */
+          <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2.5 py-1 text-xs font-bold text-red-500">
             <UserX className="w-3 h-3" />
             {group.absentCount} absent
           </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-500 text-xs font-bold px-2.5 py-1 rounded-full">
+        ) : group.totalMarked > 0 ? (
+          /* Attendance marked — all present */
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-500">
             <CheckCircle2 className="w-3 h-3" />
             All present
+          </span>
+        ) : (
+          /* Attendance NOT marked yet */
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-bold text-amber-500">
+            <Clock className="w-3 h-3" />
+            Not marked yet
           </span>
         )}
       </div>
 
       {/* Staff list */}
       <div className="px-4">
-        {group.absentCount === 0 ? (
+        {group.absentCount > 0 ? (
+          group.staff.map((member) => <StaffRow key={member.id} member={member} />)
+        ) : group.totalMarked > 0 ? (
           <p className="py-4 text-center text-sm text-[var(--text-muted)]">No absent staff for this campus.</p>
         ) : (
-          group.staff.map((member) => <StaffRow key={member.id} member={member} />)
+          <p className="py-4 text-center text-sm text-amber-500/80 font-medium">
+            Attendance has not been marked for this campus yet.
+          </p>
         )}
       </div>
     </motion.div>
@@ -100,12 +113,12 @@ function LoadingSkeleton() {
     <div className="space-y-4">
       {[0, 1, 2].map((i) => (
         <div key={i} className="border border-[var(--border)] rounded-[var(--radius-card)] overflow-hidden">
-          <div className="px-4 py-3 border-b border-[var(--border)]">
+          <div className="px-4 py-[var(--space-3)] border-b border-[var(--border)]">
             <Skeleton className="h-4 w-40 rounded" />
           </div>
           <div className="px-4 py-2 space-y-3">
             {[0, 1].map((j) => (
-              <div key={j} className="flex items-center gap-3 py-2">
+              <div key={j} className="flex items-center gap-[var(--space-3)] py-2">
                 <Skeleton className="w-8 h-8 rounded-full shrink-0" />
                 <div className="flex-1 space-y-1.5">
                   <Skeleton className="h-3 w-32 rounded" />
@@ -134,25 +147,34 @@ export default function AbsentTodayPage() {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       {/* ── Mobile header ─────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center justify-between md:hidden">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center justify-between md:hidden">
         <div className="flex items-center gap-2">
           <UserX className="w-5 h-5 text-[var(--text-muted)]" />
           <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
             Absent Today
           </h1>
         </div>
-        {!isLoading && (
-          <span className={cn(
-            'text-xs font-bold px-2.5 py-1 rounded-full',
-            totalAbsent > 0 ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'
-          )}>
-            {totalAbsent > 0 ? `${totalAbsent} absent` : 'All present'}
-          </span>
-        )}
+        {!isLoading && groups && groups.length > 0 && (() => {
+          const anyMarked = groups.some(g => g.totalMarked > 0)
+          return (
+            <span className={cn(
+              'text-xs font-bold px-2.5 py-1 rounded-full',
+              totalAbsent > 0
+                ? 'bg-red-500/10 text-red-500'
+                : anyMarked
+                  ? 'bg-emerald-500/10 text-emerald-500'
+                  : 'bg-amber-500/10 text-amber-500'
+            )}>
+              {totalAbsent > 0
+                ? `${totalAbsent} absent`
+                : anyMarked ? 'All present' : 'Not marked yet'}
+            </span>
+          )
+        })()}
       </header>
 
       {/* ── Desktop header ────────────────────────────────────────────────── */}
-      <div className="hidden md:block max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="hidden md:block max-w-5xl mx-auto py-8 px-[var(--space-4)] sm:px-6 lg:px-8">
         <PageHeader
           title="Absent Staff Today"
           subtitle={displayDate}
@@ -181,7 +203,7 @@ export default function AbsentTodayPage() {
                 key={chip.value}
                 onClick={() => setSelectedDate(chip.value)}
                 className={cn(
-                  'shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all border',
+                  'shrink-0 px-[var(--space-4)] py-1.5 rounded-full text-xs font-semibold transition-all border',
                   chip.isSelected
                     ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
                     : 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] hover:border-[var(--primary)]/40'
@@ -218,7 +240,7 @@ export default function AbsentTodayPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-8"
+              className="grid grid-cols-1 md:grid-cols-2 gap-[var(--space-4)] pb-8"
             >
               {groups.map((group, i) => (
                 <CampusCard key={group.campusId} group={group} index={i} />

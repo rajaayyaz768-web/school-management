@@ -24,8 +24,8 @@ function ExamCard({ exam }: { exam: Exam }) {
   const date = new Date(exam.date)
   return (
     <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl flex overflow-hidden">
-      <div className="w-14 bg-[var(--primary)] flex flex-col items-center justify-center py-3 shrink-0">
-        <span className="text-[10px] font-semibold text-white/70 uppercase leading-tight">
+      <div className="w-14 bg-[var(--primary)] flex flex-col items-center justify-center py-[var(--space-3)] shrink-0">
+        <span className="text-[var(--font-size-xs)] font-semibold text-white/70 uppercase leading-tight">
           {date.toLocaleDateString('en-PK', { month: 'short' })}
         </span>
         <span className="text-xl font-bold text-white leading-tight">
@@ -38,7 +38,7 @@ function ExamCard({ exam }: { exam: Exam }) {
             {exam.isClassTest ? 'Class Test' : exam.examType?.name ?? 'Exam'}
           </h3>
           {exam.status && (
-            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0', style.bg, style.text)}>
+            <span className={cn('text-[var(--font-size-xs)] font-bold px-2 py-0.5 rounded-full shrink-0', style.bg, style.text)}>
               {exam.status}
             </span>
           )}
@@ -91,7 +91,7 @@ export default function TeacherExamsPage() {
   if (step === 'section') {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
-        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center">
+        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center">
           <h1 className="font-bold text-lg text-[var(--text)]">Exam Schedule</h1>
         </header>
         <div className="p-4">
@@ -109,7 +109,7 @@ export default function TeacherExamsPage() {
   // ── STEP 2 — Exam list ────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center gap-3">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center gap-3">
         <button onClick={handleBack} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface)] transition-colors shrink-0">
           <ArrowLeft className="w-5 h-5 text-[var(--text)]" />
         </button>
@@ -134,7 +134,7 @@ export default function TeacherExamsPage() {
                   key={sub.id}
                   onClick={() => setFilterSubjectId(filterSubjectId === sub.id ? '' : sub.id)}
                   className={cn(
-                    'shrink-0 h-9 px-4 rounded-full text-sm font-medium transition-colors',
+                    'shrink-0 h-9 px-[var(--space-4)] rounded-full text-sm font-medium transition-colors',
                     filterSubjectId === sub.id
                       ? 'bg-[var(--primary)] text-white'
                       : 'bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--primary)]'

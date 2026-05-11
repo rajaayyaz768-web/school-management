@@ -82,7 +82,7 @@ export default function SectionsPage() {
   const campusEntries = Object.entries(grouped);
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
+    <div className="max-w-7xl mx-auto py-8 px-[var(--space-4)] sm:px-6 lg:px-8 animate-fade-in">
       <PageHeader
         title="Sections Management"
         breadcrumb={[{ label: 'Home', href: '/' }, { label: 'Sections' }]}

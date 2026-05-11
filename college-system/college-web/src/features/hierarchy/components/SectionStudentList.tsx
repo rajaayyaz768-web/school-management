@@ -116,7 +116,7 @@ export function SectionStudentList({
 
     const columns = [
       { key: 'student', header: 'Student Explorer', render: (student: Student) => (
-        <div className="flex items-center gap-3 group-hover:text-[var(--primary)] text-[var(--text)] transition-colors">
+        <div className="flex items-center gap-[var(--space-3)] group-hover:text-[var(--primary)] text-[var(--text)] transition-colors">
            <Avatar name={`${student.firstName} ${student.lastName}`} size="md" />
            <div className="font-medium">
              {student.firstName} {student.lastName}
@@ -130,7 +130,7 @@ export function SectionStudentList({
 
     return (
       <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden shadow-sm h-full flex flex-col">
-        <div className="px-6 py-4 bg-[var(--surface-container-lowest)] border-b border-[var(--border)]">
+        <div className="px-6 py-[var(--space-4)] bg-[var(--surface-container-lowest)] border-b border-[var(--border)]">
           <h3 className="font-semibold text-[var(--text)]">Section Rosters ({students.length})</h3>
         </div>
         <div className="overflow-auto flex-1">
@@ -141,11 +141,11 @@ export function SectionStudentList({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[650px]">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--space-6)] h-[650px]">
       <div className="lg:col-span-4 h-full">
          {renderSections()}
       </div>
-      <div className="lg:col-span-8 h-full bg-[var(--surface-container-lowest)] rounded-xl border border-[var(--border)] p-4 md:p-6 overflow-hidden">
+      <div className="lg:col-span-8 h-full bg-[var(--surface-container-lowest)] rounded-xl border border-[var(--border)] p-[var(--space-4)] md:p-6 overflow-hidden">
          {renderStudents()}
       </div>
     </div>

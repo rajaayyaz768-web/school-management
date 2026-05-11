@@ -109,7 +109,7 @@ export function AssignmentForm({
           placeholder={loadingStaff ? 'Loading...' : 'Select a teacher'}
         />
         <Input label="Academic Year" value={academicYear} readOnly disabled />
-        <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)]">
+        <div className="flex justify-end gap-[var(--space-3)] pt-4 border-t border-[var(--border)]">
           <Button type="button" variant="secondary" onClick={onCancel} disabled={updateMutation.isPending}>Cancel</Button>
           <Button type="submit" variant="primary" loading={updateMutation.isPending}>Save Changes</Button>
         </div>
@@ -196,7 +196,7 @@ export function AssignmentForm({
       </p>
 
       {/* Quick Assign bar — one teacher for all subjects (Class Teacher / Dual Teacher) */}
-      <div className="flex items-end gap-2 p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-container-lowest)]">
+      <div className="flex items-end gap-2 p-[var(--space-3)] rounded-lg border border-[var(--border)] bg-[var(--surface-container-lowest)]">
         <div className="flex-1">
           <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
             Quick Assign — same teacher for all
@@ -227,7 +227,7 @@ export function AssignmentForm({
         {rows.map((row, idx) => (
           <div
             key={row.subject.id}
-            className={`flex items-center gap-3 rounded-lg border px-3 py-2 transition-colors ${
+            className={`flex items-center gap-[var(--space-3)] rounded-lg border px-3 py-2 transition-colors ${
               row.included ? 'border-[var(--primary)] bg-[var(--surface-hover)]' : 'border-[var(--border)] bg-[var(--surface)]'
             }`}
           >

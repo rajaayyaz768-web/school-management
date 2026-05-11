@@ -20,7 +20,7 @@ export interface AvatarProps {
 }
 
 const sizeMap = {
-  xs: 'h-6 w-6 text-[10px]',
+  xs: 'h-6 w-6 text-[var(--font-size-xs)]',
   sm: 'h-8 w-8 text-xs',
   md: 'h-10 w-10 text-sm',
   lg: 'h-14 w-14 text-lg',
@@ -38,9 +38,9 @@ const statusDotSizeMap = {
 const colorSchemes = [
   'bg-[var(--primary)]/15 text-[var(--primary)]',
   'bg-[var(--gold)]/15 text-[var(--gold-dark)]',
-  'bg-[#7C3AED]/15 text-[#7C3AED]',
-  'bg-[#2563EB]/15 text-[#2563EB]',
-  'bg-[#E11D48]/15 text-[#E11D48]',
+  'bg-[var(--primary)]/25 text-[var(--primary-dark)]',
+  'bg-emerald-500/15 text-emerald-700',
+  'bg-rose-500/15 text-rose-700',
 ];
 
 const hashName = (name: string): number => {
@@ -77,7 +77,7 @@ export function Avatar({
 
   const containerClasses = cn(
     'relative inline-flex items-center justify-center shrink-0 rounded-full font-body font-semibold overflow-hidden select-none',
-    'transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)]',
+    'transition-all duration-[var(--dur-base)] ease-[cubic-bezier(0.4,0,0.2,1)]',
     'ring-2 ring-transparent',
     sizeMap[size],
     showInitials ? activeColorScheme : 'bg-[var(--surface-alt)]',
@@ -115,8 +115,8 @@ export function Avatar({
 
         {/* Upload Overlay */}
         {uploadable && (
-          <div className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center transition-all duration-[180ms] group/upload">
-            <Camera className="h-4 w-4 text-white opacity-0 group-hover/upload:opacity-100 transition-opacity duration-[180ms]" />
+          <div className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center transition-all duration-[var(--dur-base)] group/upload">
+            <Camera className="h-4 w-4 text-white opacity-0 group-hover/upload:opacity-100 transition-opacity duration-[var(--dur-base)]" />
           </div>
         )}
       </div>
@@ -128,9 +128,9 @@ export function Avatar({
             'absolute bottom-0 right-0 rounded-full border-2 border-[var(--surface)]',
             statusDotSizeMap[size],
             {
-              'bg-[#10B981] animate-pulse-dot': status === 'online',
-              'bg-[#F59E0B]': status === 'away',
-              'bg-[#9CA3AF]': status === 'offline',
+              'bg-[var(--success)] animate-pulse-dot': status === 'online',
+              'bg-[var(--warning)]': status === 'away',
+              'bg-[var(--text-disabled)]': status === 'offline',
             }
           )}
           title={`Status: ${status}`}
@@ -182,7 +182,7 @@ export function AvatarGroup({ avatars, size = 'md', max = 4, className }: Avatar
           )}
           style={{ zIndex: 0 }}
         >
-          <span className="text-[10px]">+{remaining}</span>
+          <span className="text-[var(--font-size-xs)]">+{remaining}</span>
         </div>
       )}
     </div>

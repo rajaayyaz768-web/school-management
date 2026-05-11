@@ -68,7 +68,7 @@ export function AttendanceCard({
       )}
     >
       {/* Roll Number */}
-      <span className="inline-block font-mono text-[10px] bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-[6px] px-2 py-0.5 mb-2">
+      <span className="inline-block font-mono text-[var(--font-size-xs)] bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-[6px] px-2 py-0.5 mb-2">
         {student.rollNo}
       </span>
 
@@ -84,7 +84,7 @@ export function AttendanceCard({
             key={s}
             onClick={() => onChange(status === s ? null : s)}
             className={cn(
-              'py-1.5 text-[10px] font-semibold font-body rounded-[6px] border transition-all duration-150',
+              'py-1.5 text-[var(--font-size-xs)] font-semibold font-body rounded-[6px] border transition-all duration-150',
               status === s
                 ? statusConfig[s].button.active
                 : statusConfig[s].button.inactive

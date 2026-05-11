@@ -126,7 +126,7 @@ export function TimetableGrid({
           <thead>
             <tr>
               <th
-                className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider rounded-tl-lg"
+                className="text-left px-[var(--space-4)] py-[var(--space-3)] text-xs font-semibold uppercase tracking-wider rounded-tl-lg"
                 style={{
                   background: 'var(--primary)',
                   color: '#fff',
@@ -138,7 +138,7 @@ export function TimetableGrid({
               {Array.from({ length: totalPeriods }).map((_, i) => (
                 <th
                   key={i}
-                  className="px-3 py-3 text-xs font-semibold uppercase tracking-wider text-center"
+                  className="px-3 py-[var(--space-3)] text-xs font-semibold uppercase tracking-wider text-center"
                   style={{ background: 'var(--primary)', color: '#fff', minWidth: '120px' }}
                 >
                   P{i + 1}
@@ -155,7 +155,7 @@ export function TimetableGrid({
                 }}
               >
                 <td
-                  className="px-4 py-3 font-semibold text-xs uppercase tracking-wider"
+                  className="px-4 py-[var(--space-3)] font-semibold text-xs uppercase tracking-wider"
                   style={{ color: 'var(--primary)', minWidth: '80px' }}
                 >
                   {day}
@@ -183,7 +183,7 @@ export function TimetableGrid({
           <thead>
             <tr>
               <th
-                className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider rounded-tl-lg"
+                className="text-left px-[var(--space-4)] py-[var(--space-3)] text-xs font-semibold uppercase tracking-wider rounded-tl-lg"
                 style={{
                   background: 'var(--primary)',
                   color: '#fff',
@@ -195,7 +195,7 @@ export function TimetableGrid({
               {Array.from({ length: totalPeriods }).map((_, i) => (
                 <th
                   key={i}
-                  className="px-3 py-3 text-xs font-semibold uppercase tracking-wider text-center"
+                  className="px-3 py-[var(--space-3)] text-xs font-semibold uppercase tracking-wider text-center"
                   style={{
                     background: 'var(--primary)',
                     color: '#fff',
@@ -216,7 +216,7 @@ export function TimetableGrid({
                 }}
               >
                 <td
-                  className="px-4 py-3 font-bold text-xs uppercase tracking-wider border-r"
+                  className="px-4 py-[var(--space-3)] font-bold text-xs uppercase tracking-wider border-r"
                   style={{
                     color: 'var(--primary)',
                     borderColor: 'var(--border)',

@@ -8,6 +8,7 @@ export const useAbsenceAlerts = () => {
 
   useEffect(() => {
     const socket = getSocket()
+    if (!socket) return   // not yet authenticated — socket connects on login
 
     socket.on('teacher:absent', (alert: AbsenceAlert) => {
       setAlerts(prev => [alert, ...prev])

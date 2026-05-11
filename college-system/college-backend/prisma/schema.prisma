@@ -372,6 +372,7 @@ model StudentProfile {
   boardExamRecords   BoardExamRecord[]
   promotionRecords   StudentPromotionRecord[]
 
+  @@index([campusId, status])
   @@map("student_profiles")
 }
 
@@ -497,6 +498,7 @@ model TimetableSlot {
   staff   StaffProfile? @relation(fields: [staffId], references: [id])
 
   @@unique([sectionId, dayOfWeek, slotNumber, academicYear])
+  @@index([staffId, dayOfWeek, academicYear])
   @@map("timetable_slots")
 }
 
@@ -518,6 +520,8 @@ model StudentAttendance {
   markedBy  User           @relation("AttendanceMarkedBy", fields: [markedById], references: [id])
 
   @@unique([studentId, subjectId, date])
+  @@index([sectionId, subjectId, date])
+  @@index([studentId, date])
   @@map("student_attendances")
 }
 
@@ -582,6 +586,7 @@ model StaffAttendance {
   markedBy  User?        @relation("StaffAttendanceMarkedBy", fields: [markedById], references: [id])
 
   @@unique([staffId, date])
+  @@index([campusId, date, status])
   @@map("staff_attendances")
 }
 
@@ -789,6 +794,7 @@ model ChatMessage {
   conversation ChatConversation @relation(fields: [conversationId], references: [id])
   sender       User             @relation(fields: [senderId], references: [id])
 
+  @@index([conversationId, createdAt])
   @@map("chat_messages")
 }
 
@@ -805,6 +811,7 @@ model Notification {
 
   user User @relation(fields: [userId], references: [id])
 
+  @@index([userId, isRead, createdAt])
   @@map("notifications")
 }
 

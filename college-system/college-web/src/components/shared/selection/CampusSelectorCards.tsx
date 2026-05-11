@@ -91,7 +91,7 @@ export function CampusSelectorCards({
         >
           <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
             <p className="text-sm sm:text-lg font-semibold text-[var(--text)] leading-tight">{campus.name}</p>
-            <Badge variant="info" className="text-[10px] shrink-0 mt-0.5">{campus.campus_code}</Badge>
+            <Badge variant="info" className="text-[var(--font-size-xs)] shrink-0 mt-0.5">{campus.campus_code}</Badge>
           </div>
           <div className="flex gap-3 text-xs sm:text-sm text-[var(--text-muted)]">
             <span>{campus.student_count ?? 0} students</span>

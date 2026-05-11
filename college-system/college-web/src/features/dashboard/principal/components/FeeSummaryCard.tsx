@@ -30,9 +30,9 @@ export function FeeSummaryCard({ feeSummary, isLoading }: Props) {
         ) : (
           <>
             {/* Collected This Month — primary gold */}
-            <div className="rounded-[var(--radius)] border border-[var(--gold)]/30 bg-[var(--gold)]/8 p-4 flex items-center justify-between">
+            <div className="rounded-[var(--radius)] border border-[var(--gold)]/30 bg-[var(--gold)]/8 p-[var(--space-4)] flex items-center justify-between">
               <div>
-                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-semibold mb-1">
+                <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase tracking-wide font-semibold mb-1">
                   Collected This Month
                 </p>
                 <p className="text-xl font-bold text-[var(--gold)]">
@@ -45,9 +45,9 @@ export function FeeSummaryCard({ feeSummary, isLoading }: Props) {
             </div>
 
             {/* Total Pending — red */}
-            <div className="rounded-[var(--radius)] border border-red-500/25 bg-red-500/8 p-4 flex items-center justify-between">
+            <div className="rounded-[var(--radius)] border border-red-500/25 bg-red-500/8 p-[var(--space-4)] flex items-center justify-between">
               <div>
-                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-semibold mb-1">
+                <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase tracking-wide font-semibold mb-1">
                   Total Pending
                 </p>
                 <p className="text-xl font-bold text-red-400">{formatPKR(feeSummary.totalPending)}</p>
@@ -58,13 +58,13 @@ export function FeeSummaryCard({ feeSummary, isLoading }: Props) {
             </div>
 
             {/* Defaulters */}
-            <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-4 flex items-center justify-between">
+            <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-[var(--space-4)] flex items-center justify-between">
               <div>
-                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-semibold mb-1">
+                <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase tracking-wide font-semibold mb-1">
                   Defaulters
                 </p>
                 <p className="text-xl font-bold text-[var(--text)]">{feeSummary.defaulterCount}</p>
-                <p className="text-[10px] text-[var(--text-muted)] mt-0.5">students with overdue fees</p>
+                <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5">students with overdue fees</p>
               </div>
               <div className="w-10 h-10 rounded-[var(--radius)] bg-white/5 flex items-center justify-center">
                 <Users className="w-4 h-4 text-[var(--text-muted)]" />

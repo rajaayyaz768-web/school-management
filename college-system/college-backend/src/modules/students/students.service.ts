@@ -4,7 +4,7 @@ import { CreateStudentDto, UpdateStudentDto } from "./students.types";
 import { Role, StudentStatus, Prisma } from "@prisma/client";
 import crypto from "crypto";
 import { assertStudentCampus, assertSectionCampus } from "../../utils/campusGuard";
-import { sendCredentialsWhatsApp } from "../../services/whatsapp/metaClient";
+import { getWhatsappQueue } from "../../queues";
 import { logger } from "../../utils/logger";
 
 interface RequestUser { id: string; role: Role; campusId: string | null }
@@ -238,18 +238,23 @@ export const createStudent = async (data: CreateStudentDto) => {
       } catch { /* ignore */ }
     }
 
-    sendCredentialsWhatsApp(txResult.guardianPhone, {
-      parentName: txResult.fatherName ?? 'Guardian',
-      studentName: `${txResult.student.firstName} ${txResult.student.lastName}`,
-      campusName,
-      sectionLabel,
-      rollNumber: txResult.student.rollNumber,
-      studentPassword: txResult.temporaryPassword,
-      parentCnic: txResult.fatherCnic ?? '—',
-      parentPassword: 'Use CNIC to login at parent portal',
-      appUrl,
+    // Queue WhatsApp send — non-blocking, retries on Meta API failure (skipped if Redis unavailable)
+    getWhatsappQueue()?.add("credentials", {
+      type: "credentials",
+      toPhone: txResult.guardianPhone,
+      params: {
+        parentName: txResult.fatherName ?? 'Guardian',
+        studentName: `${txResult.student.firstName} ${txResult.student.lastName}`,
+        campusName,
+        sectionLabel,
+        rollNumber: txResult.student.rollNumber,
+        studentPassword: txResult.temporaryPassword,
+        parentCnic: txResult.fatherCnic ?? '—',
+        parentPassword: 'Use CNIC to login at parent portal',
+        appUrl,
+      },
     }).catch((err) => {
-      logger.warn('[Student] WhatsApp credential send failed', { studentId: txResult.student.id, err });
+      logger.warn(`[Student] Failed to queue WhatsApp credential job: ${err.message}`);
     });
   }
 

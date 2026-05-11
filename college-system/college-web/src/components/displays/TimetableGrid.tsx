@@ -91,7 +91,7 @@ export function TimetableGrid({
                 <div
                   className="col-span-full py-2 text-center bg-gold-100 dark:bg-gold-900/20 border border-gold-200 dark:border-gold-800 rounded-[8px]"
                 >
-                  <span className="font-body text-[10px] font-semibold text-gold-700 dark:text-gold-400">
+                  <span className="font-body text-[var(--font-size-xs)] font-semibold text-gold-700 dark:text-gold-400">
                     {getBreakLabel(periodIndex)} — {period.start} to {period.end}
                   </span>
                 </div>
@@ -107,7 +107,7 @@ export function TimetableGrid({
             >
               {/* Period Label */}
               <div className="flex items-center justify-center">
-                <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                <span className="font-mono text-[var(--font-size-xs)] text-[var(--text-muted)]">
                   {period.start}
                   <br />
                   {period.end}
@@ -125,7 +125,7 @@ export function TimetableGrid({
                       key={`${dayIndex}-${periodIndex}`}
                       className="m-1 p-3 rounded-[10px] border border-dashed border-[var(--border)] bg-[var(--bg-secondary)] opacity-60 flex items-center justify-center"
                     >
-                      <span className="font-body text-[10px] text-[var(--text-disabled)]">
+                      <span className="font-body text-[var(--font-size-xs)] text-[var(--text-disabled)]">
                         Free
                       </span>
                     </div>
@@ -153,7 +153,7 @@ export function TimetableGrid({
                     {slot.section && (
                       <p
                         className={cn(
-                          'font-body text-[10px] mt-0.5',
+                          'font-body text-[var(--font-size-xs)] mt-0.5',
                           isCurrent ? 'text-gold-300' : 'text-[var(--text-muted)]'
                         )}
                       >
@@ -163,7 +163,7 @@ export function TimetableGrid({
                     {slot.room && (
                       <p
                         className={cn(
-                          'font-body text-[10px]',
+                          'font-body text-[var(--font-size-xs)]',
                           isCurrent ? 'text-gold-300' : 'text-gold-600 dark:text-gold-400'
                         )}
                       >

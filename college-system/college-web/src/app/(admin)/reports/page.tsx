@@ -55,7 +55,7 @@ export function AdminReportsContent({ campusId }: AdminReportsContentProps) {
     <Card className="flex-1 overflow-hidden mt-6 flex flex-col bg-[var(--surface)] border-[var(--border)]">
       <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 
-      <div className="flex-1 overflow-auto p-6 bg-[var(--background)]">
+      <div className="flex-1 overflow-auto p-[var(--space-6)] bg-[var(--background)]">
 
         {/* ── Attendance Reports ── */}
         <TabPanel tabId="attendance" activeTab={activeTab}>

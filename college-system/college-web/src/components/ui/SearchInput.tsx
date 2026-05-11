@@ -74,7 +74,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     };
 
     const sizeStyles = {
-      sm: "h-[34px] text-[13px] pl-[34px] pr-[34px]",
+      sm: "h-[34px] text-[var(--font-size-base)] pl-[34px] pr-[34px]",
       md: "h-[40px] text-[14px] pl-[38px] pr-[38px]",
       lg: "h-[46px] text-[15px] pl-[42px] pr-[42px]",
     };

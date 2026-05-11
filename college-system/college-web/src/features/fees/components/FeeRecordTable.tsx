@@ -62,7 +62,7 @@ export function FeeRecordTable({ records, isLoading, onMarkPaid, onChallan }: Pr
           <div className="text-xs text-[var(--text-muted)] mt-0.5">
             {row.feeStructure?.grade?.name ?? '—'}
             {row.student?.section?.name ? (
-              <span className="ml-1.5 font-mono bg-[var(--surface-container-low)] px-1.5 py-0.5 rounded text-[10px]">
+              <span className="ml-1.5 font-mono bg-[var(--surface-container-low)] px-1.5 py-0.5 rounded text-[var(--font-size-xs)]">
                 Sec {row.student.section.name}
               </span>
             ) : null}

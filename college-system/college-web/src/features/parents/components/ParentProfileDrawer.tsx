@@ -83,7 +83,7 @@ export function ParentProfileDrawer({
     return (
       <div className="flex flex-col h-full">
         {/* Header Section */}
-        <div className="flex items-start gap-4 mb-6 pb-6 border-b border-[var(--border)]">
+        <div className="flex items-start gap-[var(--space-4)] mb-6 pb-6 border-b border-[var(--border)]">
           <Avatar
             name={`${parent.firstName} ${parent.lastName}`}
             size="xl"

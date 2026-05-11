@@ -17,7 +17,7 @@ const inputCls = [
 ].join(' ');
 
 const labelCls =
-  'block text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)] mb-1.5';
+  'block text-[var(--font-size-sm)] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)] mb-1.5';
 
 export function RecoveryEmailSection() {
   const { data, isLoading } = useRecoveryEmail();
@@ -87,7 +87,7 @@ export function RecoveryEmailSection() {
           <button
             type="button"
             onClick={() => { setStep('idle'); setEmail(''); setOtp(''); }}
-            className="ml-auto flex cursor-pointer items-center gap-1 text-[10px] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+            className="ml-auto flex cursor-pointer items-center gap-1 text-[var(--font-size-xs)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
           >
             <RefreshCw className="h-3 w-3" />
             Change
@@ -133,7 +133,7 @@ export function RecoveryEmailSection() {
                 disabled={sendOtp.isPending || !email}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}
               >
                 {sendOtp.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
@@ -183,7 +183,7 @@ export function RecoveryEmailSection() {
                 disabled={verify.isPending || otp.length !== 6}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}
               >
                 {verify.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}

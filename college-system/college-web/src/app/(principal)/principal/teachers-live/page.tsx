@@ -28,17 +28,17 @@ function CampusCard({ campus, onClick, delay }: { campus: LiveTeacherCampus; onC
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35 }}
       onClick={onClick}
-      className="w-full text-left bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--primary)]/30 transition-all active:scale-[0.98]"
+      className="w-full text-left bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-5)] hover:border-[var(--primary)]/30 transition-all active:scale-[0.98]"
     >
       <h3 className="font-bold text-[var(--text)] text-lg mb-4" style={{ fontFamily: 'var(--font-display)' }}>{campus.campusName}</h3>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-[var(--space-4)] mb-4">
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-semibold mb-1">Free Now</p>
+          <p className="text-[var(--font-size-xs)] uppercase tracking-widest text-[var(--text-muted)] font-semibold mb-1">Free Now</p>
           <p className="text-3xl font-bold text-emerald-400">{freeCount}</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-semibold mb-1">Teaching</p>
+          <p className="text-[var(--font-size-xs)] uppercase tracking-widest text-[var(--text-muted)] font-semibold mb-1">Teaching</p>
           <p className="text-3xl font-bold text-[var(--primary)]">{busyCount}</p>
         </div>
       </div>
@@ -48,19 +48,19 @@ function CampusCard({ campus, onClick, delay }: { campus: LiveTeacherCampus; onC
           <div className="h-2 rounded-full bg-[var(--border)] overflow-hidden mb-1.5">
             <div className="h-full rounded-full bg-[var(--primary)] transition-all" style={{ width: `${pct}%` }} />
           </div>
-          <p className="text-[10px] text-[var(--text-muted)] text-right">{pct}% occupied</p>
+          <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] text-right">{pct}% occupied</p>
         </>
       )}
 
       {freeCount > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {campus.free.slice(0, 3).map(t => (
-            <span key={t.staffId} className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span key={t.staffId} className="text-[var(--font-size-xs)] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               {t.staffName.split(' ')[0]}
             </span>
           ))}
           {freeCount > 3 && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--border)] text-[var(--text-muted)]">+{freeCount - 3} more</span>
+            <span className="text-[var(--font-size-xs)] px-2 py-0.5 rounded-full bg-[var(--border)] text-[var(--text-muted)]">+{freeCount - 3} more</span>
           )}
         </div>
       )}
@@ -77,7 +77,7 @@ function TeacherRow({ name, status, detail, index, color }: {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03, duration: 0.25 }}
-      className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5 active:bg-white/[0.02] transition-colors"
+      className="flex items-center gap-[var(--space-3)] bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5 active:bg-white/[0.02] transition-colors"
     >
       <div className={cn('w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0', color)}>
         {getInitials(name)}
@@ -87,7 +87,7 @@ function TeacherRow({ name, status, detail, index, color }: {
         {detail && <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">{detail}</p>}
       </div>
       <span className={cn(
-        'text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0',
+        'text-[var(--font-size-xs)] font-bold px-2.5 py-1 rounded-full shrink-0',
         status === 'free' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[var(--primary)]/15 text-[var(--primary)]'
       )}>
         {status === 'free' ? 'Available' : `Until ${detail?.split('·')[0]?.trim() || ''}`}
@@ -101,7 +101,7 @@ function CampusDetailView({ campus }: { campus: LiveTeacherCampus }) {
     <div className="space-y-6">
       {/* Free teachers */}
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-3 flex items-center gap-2 px-1">
+        <p className="text-[var(--font-size-xs)] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-3 flex items-center gap-2 px-1">
           <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
           Free Now ({campus.free.length})
         </p>
@@ -118,7 +118,7 @@ function CampusDetailView({ campus }: { campus: LiveTeacherCampus }) {
 
       {/* Busy teachers */}
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-3 flex items-center gap-2 px-1">
+        <p className="text-[var(--font-size-xs)] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-3 flex items-center gap-2 px-1">
           <span className="w-2 h-2 rounded-full bg-[var(--primary)] inline-block" />
           Currently Teaching ({campus.busy.length})
         </p>
@@ -132,7 +132,7 @@ function CampusDetailView({ campus }: { campus: LiveTeacherCampus }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03, duration: 0.25 }}
-                className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5"
+                className="flex items-center gap-[var(--space-3)] bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5"
               >
                 <div className={cn('w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0', AVATAR_COLORS[i % AVATAR_COLORS.length])}>
                   {getInitials(t.staffName)}
@@ -141,7 +141,7 @@ function CampusDetailView({ campus }: { campus: LiveTeacherCampus }) {
                   <p className="font-semibold text-sm text-[var(--text)] truncate">{t.staffName}</p>
                   <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">{t.subjectName} · Section {t.sectionName}</p>
                 </div>
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[var(--primary)]/15 text-[var(--primary)] shrink-0">
+                <span className="text-[var(--font-size-xs)] font-bold px-2.5 py-1 rounded-full bg-[var(--primary)]/15 text-[var(--primary)] shrink-0">
                   Until {t.endTime}
                 </span>
               </motion.div>
@@ -168,7 +168,7 @@ export default function TeachersLivePage() {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center gap-[var(--space-3)] md:hidden">
         {step === 'campus' && (
           <button onClick={() => { setStep('overview'); setSelectedCampusId(null) }} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors shrink-0 active:scale-95">
             <ArrowLeft className="w-5 h-5 text-[var(--text)]" />

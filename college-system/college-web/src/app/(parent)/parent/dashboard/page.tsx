@@ -87,7 +87,7 @@ function AttendanceStrip({ strip }: { strip: AttendanceSummary['sevenDayStrip'] 
 
         return (
           <div key={day.date} className="flex flex-col items-center gap-1.5">
-            <span className="text-[10px] text-[var(--text-muted)] font-medium">{label}</span>
+            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-medium">{label}</span>
             <div
               className={cn(
                 'w-10 h-10 rounded-[var(--radius)] flex items-center justify-center border transition-colors',
@@ -113,7 +113,7 @@ function StudentSummaryCard({ student, isLoading }: { student: LinkedStudent | n
   if (!student) return null
 
   return (
-    <div className="flex items-center gap-5 p-5 rounded-[var(--radius-lg)] bg-gradient-to-r from-[var(--surface)] to-[var(--background)] border border-[var(--border)]">
+    <div className="flex items-center gap-5 p-[var(--space-5)] rounded-[var(--radius-lg)] bg-gradient-to-r from-[var(--surface)] to-[var(--background)] border border-[var(--border)]">
       <div className="w-14 h-14 rounded-full bg-[var(--gold)]/20 border border-[var(--gold)]/30 flex items-center justify-center flex-shrink-0">
         <GraduationCap className="w-7 h-7 text-[var(--gold)]" />
       </div>
@@ -160,14 +160,14 @@ function StatTile({
   }
   const s = styles[accent]
   return (
-    <div className={`rounded-[var(--radius-lg)] border p-4 flex items-start gap-3 ${s.card}`}>
+    <div className={`rounded-[var(--radius-lg)] border p-[var(--space-4)] flex items-start gap-[var(--space-3)] ${s.card}`}>
       <div className={`w-9 h-9 rounded-[var(--radius)] flex items-center justify-center flex-shrink-0 mt-0.5 ${s.icon}`}>
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest truncate">{title}</p>
+        <p className="text-[var(--font-size-xs)] font-semibold text-[var(--text-muted)] uppercase tracking-widest truncate">{title}</p>
         <p className={`text-xl font-bold leading-tight mt-1 truncate ${s.value}`}>{value}</p>
-        {subtitle && <p className="text-[10px] text-[var(--text-muted)] mt-0.5 truncate">{subtitle}</p>}
+        {subtitle && <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5 truncate">{subtitle}</p>}
       </div>
     </div>
   )
@@ -235,11 +235,11 @@ function PendingFeesCard({ fees, isLoading }: { fees: PendingFee[]; isLoading: b
           <Badge variant="overdue" size="sm">{fees.length}</Badge>
         )}
       </div>
-      <div className="flex-1 p-4 space-y-2">
+      <div className="flex-1 p-[var(--space-4)] space-y-2">
         {isLoading ? (
           [...Array(2)].map((_, i) => <Skeleton key={i} variant="text" className="h-12" />)
         ) : fees.length === 0 ? (
-          <div className="flex items-center gap-2 py-4 text-emerald-500">
+          <div className="flex items-center gap-2 py-[var(--space-4)] text-emerald-500">
             <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
             <span className="text-sm font-medium">No pending fees</span>
           </div>
@@ -305,9 +305,9 @@ function RecentResultsCard({ results, isLoading }: { results: ExamResult[]; isLo
             <tbody>
               {results.map((r) => (
                 <tr key={r.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface)] transition-colors">
-                  <td className="px-5 py-3 font-medium text-[var(--text)]">{r.subjectName}</td>
-                  <td className="px-5 py-3 text-xs text-[var(--text-muted)]">{r.examTypeName}</td>
-                  <td className="px-5 py-3 text-[var(--text)]">
+                  <td className="px-5 py-[var(--space-3)] font-medium text-[var(--text)]">{r.subjectName}</td>
+                  <td className="px-5 py-[var(--space-3)] text-xs text-[var(--text-muted)]">{r.examTypeName}</td>
+                  <td className="px-5 py-[var(--space-3)] text-[var(--text)]">
                     {r.obtainedMarks} / {r.totalMarks}
                   </td>
                   <td className="px-5 py-3">
@@ -340,7 +340,7 @@ function AnnouncementsSection({ announcements, isLoading }: { announcements: Ann
           : announcements.map((ann) => (
               <div
                 key={ann.id}
-                className="flex items-start justify-between gap-4 px-4 py-3.5 rounded-[var(--radius-lg)] bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-colors"
+                className="flex items-start justify-between gap-[var(--space-4)] px-[var(--space-4)] py-3.5 rounded-[var(--radius-lg)] bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">

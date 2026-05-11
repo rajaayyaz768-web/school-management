@@ -101,7 +101,7 @@ export default function SectionDetailPage() {
 
   if (loadingSection) {
     return (
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
+      <div className="max-w-7xl mx-auto py-8 px-[var(--space-4)] sm:px-6 lg:px-8 space-y-6">
         <Skeleton className="h-10 w-64 rounded-lg" />
         <Skeleton className="h-80 w-full rounded-xl" />
       </div>
@@ -110,14 +110,14 @@ export default function SectionDetailPage() {
 
   if (sectionError || !section) {
     return (
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto py-8 px-[var(--space-4)] sm:px-6 lg:px-8">
         <ErrorState action={{ label: 'Retry', onClick: () => refetchSection() }} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
+    <div className="max-w-7xl mx-auto py-8 px-[var(--space-4)] sm:px-6 lg:px-8 animate-fade-in">
       <PageHeader
         title={`Section ${section.name}`}
         subtitle={`${section.grade?.program?.campus?.name ?? ''} · ${section.grade?.program?.name ?? ''} · ${section.grade?.name ?? ''}`}
@@ -132,7 +132,7 @@ export default function SectionDetailPage() {
       />
 
       {/* Stats row */}
-      <div className="mt-6 flex flex-wrap gap-4 text-sm text-[var(--text-muted)]">
+      <div className="mt-6 flex flex-wrap gap-[var(--space-4)] text-sm text-[var(--text-muted)]">
         <span>
           Enrolled: <strong className="text-[var(--text)]">{students.length}</strong>
           {' / '}

@@ -139,7 +139,7 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.02, duration: 0.25 }}
               onClick={() => handleViewStudentClick(student)}
-              className="w-full flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5 active:bg-white/[0.02] transition-all text-left"
+              className="w-full flex items-center gap-[var(--space-3)] bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5 active:bg-white/[0.02] transition-all text-left"
             >
               <div className={cn('w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0', AVATAR_COLORS[idx % AVATAR_COLORS.length])}>
                 {student.firstName[0]}{student.lastName[0]}
@@ -151,7 +151,7 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', statusCls)}>
+                <span className={cn('text-[var(--font-size-xs)] font-bold px-2 py-0.5 rounded-full', statusCls)}>
                   {student.status}
                 </span>
                 <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" />
@@ -166,7 +166,7 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       {/* ── Mobile header ────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center justify-between md:hidden">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center justify-between md:hidden">
         <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Students</h1>
         <div className="flex items-center gap-2">
           <button onClick={() => setShowSearch(!showSearch)} className="p-2 rounded-full active:bg-white/5 transition-colors">
@@ -204,7 +204,7 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
               key={chip.value}
               onClick={() => setSelectedStatus(chip.value)}
               className={cn(
-                'shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all min-h-[36px]',
+                'shrink-0 px-[var(--space-4)] py-2 rounded-full text-xs font-semibold transition-all min-h-[36px]',
                 selectedStatus === chip.value
                   ? 'bg-[var(--primary)] text-white'
                   : 'bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)] active:scale-95'
@@ -217,7 +217,7 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
 
         {/* Desktop: filter + table */}
         <div className="hidden md:block space-y-6">
-          <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] flex flex-row gap-4 justify-between items-center">
+          <div className="bg-[var(--surface)] p-[var(--space-4)] rounded-xl border border-[var(--border)] flex flex-row gap-[var(--space-4)] justify-between items-center">
             <Select
               options={statusOptions}
               value={selectedStatus}
@@ -260,7 +260,7 @@ export function StudentsPage({ campusId, sectionId, navigation }: StudentsPagePr
           <p className="text-sm text-[var(--text)]">
             A login account for student <strong>{editingStudent?.firstName} {editingStudent?.lastName}</strong> has been generated securely.
           </p>
-          <div className="bg-[var(--surface-container-low)] p-4 rounded-lg flex items-center justify-between">
+          <div className="bg-[var(--surface-container-low)] p-[var(--space-4)] rounded-lg flex items-center justify-between">
             <div>
               <p className="text-xs text-[var(--text-muted)] font-semibold uppercase mb-1">Temporary Password</p>
               <p className="font-mono text-lg font-bold text-[var(--text)]">{tempPassword}</p>

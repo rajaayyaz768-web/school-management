@@ -45,7 +45,7 @@ export function Skeleton({ variant = 'text', lines = 3, className }: SkeletonPro
     return (
       <div
         className={cn(
-          'rounded-card p-6 bg-[var(--surface)] border border-[var(--border)]',
+          'rounded-card p-[var(--space-6)] bg-[var(--surface)] border border-[var(--border)]',
           className
         )}
       >
@@ -65,7 +65,7 @@ export function Skeleton({ variant = 'text', lines = 3, className }: SkeletonPro
     return (
       <div
         className={cn(
-          'rounded-card p-6 bg-[var(--surface)] border border-[var(--border)]',
+          'rounded-card p-[var(--space-6)] bg-[var(--surface)] border border-[var(--border)]',
           className
         )}
       >

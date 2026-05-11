@@ -219,7 +219,7 @@ export function MultiSelect({
             aria-multiselectable="true"
           >
             {filteredOptions.length === 0 ? (
-              <div className="px-3 py-4 text-center text-sm text-[var(--text-muted)]">
+              <div className="px-3 py-[var(--space-4)] text-center text-sm text-[var(--text-muted)]">
                 No results found.
               </div>
             ) : (

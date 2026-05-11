@@ -68,7 +68,7 @@ export function Table<T>({
       )}
     >
       {caption && (
-        <div className="px-6 py-3 border-b border-[var(--border)]">
+        <div className="px-6 py-[var(--space-3)] border-b border-[var(--border)]">
           <p className="font-body text-sm font-medium text-[var(--text)]">
             {caption}
           </p>
@@ -82,8 +82,8 @@ export function Table<T>({
                 <th
                   key={col.key}
                   className={cn(
-                    'text-[var(--gold-light)] font-body text-[11px] uppercase tracking-[0.06em] font-semibold',
-                    'py-3.5 px-6 text-left',
+                    'text-[var(--gold-light)] font-body text-[var(--font-size-sm)] uppercase tracking-[0.06em] font-semibold',
+                    'py-3.5 px-[var(--space-6)] text-left',
                     'border-b border-white/10',
                     col.sortable && 'cursor-pointer select-none hover:text-[var(--gold)]',
                     col.className
@@ -120,7 +120,7 @@ export function Table<T>({
                     <td
                       key={col.key}
                       className={cn(
-                        'font-body text-sm text-[var(--text)] py-3 px-6',
+                        'font-body text-sm text-[var(--text)] py-[var(--space-3)] px-6',
                         col.className
                       )}
                     >

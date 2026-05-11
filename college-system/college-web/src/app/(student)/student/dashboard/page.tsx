@@ -64,7 +64,7 @@ function WelcomeCard({ student, isLoading }: { student: StudentInfo | null; isLo
   const today = new Date().toLocaleDateString('en-PK', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
 
   return (
-    <div className="relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--gold)]/25 bg-gradient-to-r from-[var(--gold)]/10 via-[var(--surface)] to-[var(--surface)] p-5 flex items-center gap-5">
+    <div className="relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--gold)]/25 bg-gradient-to-r from-[var(--gold)]/10 via-[var(--surface)] to-[var(--surface)] p-[var(--space-5)] flex items-center gap-5">
       {/* Avatar */}
       <div className="w-14 h-14 rounded-full bg-[var(--gold)]/20 border-2 border-[var(--gold)]/40 flex items-center justify-center flex-shrink-0">
         <span className="text-lg font-bold text-[var(--gold)]">{initials}</span>
@@ -115,14 +115,14 @@ function StatTile({
   }
   const s = styles[accent]
   return (
-    <div className={`rounded-[var(--radius-lg)] border p-4 flex items-start gap-3 ${s.card}`}>
+    <div className={`rounded-[var(--radius-lg)] border p-[var(--space-4)] flex items-start gap-[var(--space-3)] ${s.card}`}>
       <div className={`w-9 h-9 rounded-[var(--radius)] flex items-center justify-center flex-shrink-0 mt-0.5 ${s.icon}`}>
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest truncate">{title}</p>
+        <p className="text-[var(--font-size-xs)] font-semibold text-[var(--text-muted)] uppercase tracking-widest truncate">{title}</p>
         <p className={`text-xl font-bold leading-tight mt-1 truncate ${s.value}`}>{value}</p>
-        {subtitle && <p className="text-[10px] text-[var(--text-muted)] mt-0.5 truncate">{subtitle}</p>}
+        {subtitle && <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5 truncate">{subtitle}</p>}
       </div>
     </div>
   )
@@ -137,7 +137,7 @@ function PeriodCard({ slot }: { slot: TimetableSlot }) {
   return (
     <div
       className={cn(
-        'flex-shrink-0 w-44 rounded-[var(--radius-lg)] p-4 border transition-all duration-200',
+        'flex-shrink-0 w-44 rounded-[var(--radius-lg)] p-[var(--space-4)] border transition-all duration-200',
         state === 'current' && 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_16px_rgba(16,185,129,0.15)]',
         state === 'past' && 'border-[var(--border)] bg-[var(--surface)] opacity-45',
         state === 'upcoming' && 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--gold)]/50'
@@ -145,7 +145,7 @@ function PeriodCard({ slot }: { slot: TimetableSlot }) {
     >
       <div className="flex items-center justify-between mb-2">
         <span className={cn(
-          'text-[10px] font-bold uppercase tracking-wider',
+          'text-[var(--font-size-xs)] font-bold uppercase tracking-wider',
           state === 'current' ? 'text-emerald-400' : 'text-[var(--text-muted)]'
         )}>
           {isBreak ? 'Break' : `Period ${slot.slotNumber}`}
@@ -160,7 +160,7 @@ function PeriodCard({ slot }: { slot: TimetableSlot }) {
         ) : null}
       </div>
 
-      <div className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] mb-3">
+      <div className="flex items-center gap-1 text-[var(--font-size-xs)] text-[var(--text-muted)] mb-3">
         <Clock className="w-3 h-3" />
         <span>{slot.startTime} – {slot.endTime}</span>
       </div>
@@ -171,7 +171,7 @@ function PeriodCard({ slot }: { slot: TimetableSlot }) {
         <>
           <p className="text-sm font-semibold text-[var(--text)] truncate">{slot.subjectName ?? '—'}</p>
           {slot.teacherName && (
-            <p className="text-[10px] text-[var(--text-muted)] mt-0.5 truncate">{slot.teacherName}</p>
+            <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5 truncate">{slot.teacherName}</p>
           )}
         </>
       )}
@@ -205,7 +205,7 @@ function TodayTimetableCard({ slots, isLoading }: { slots: TimetableSlot[]; isLo
             icon={<CalendarCheck className="w-8 h-8" />}
           />
         ) : (
-          <div className="flex gap-3 overflow-x-auto pb-1">
+          <div className="flex gap-[var(--space-3)] overflow-x-auto pb-1">
             {slots.map((slot) => (
               <PeriodCard key={slot.id} slot={slot} />
             ))}
@@ -250,7 +250,7 @@ function AttendanceCard({ summary, isLoading }: { summary: AttendanceSummary; is
                   style={{ width: `${s.pct}%` }}
                 />
               </div>
-              <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{s.presentDays}/{s.totalDays} days</p>
+              <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5">{s.presentDays}/{s.totalDays} days</p>
             </div>
           ))
         )}
@@ -289,7 +289,7 @@ function RecentResultsCard({ results, isLoading }: { results: ExamResult[]; isLo
             <thead>
               <tr className="border-b border-[var(--border)] bg-white/2">
                 {['Subject', 'Type', 'Marks', 'Grade'].map((h) => (
-                  <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest">
+                  <th key={h} className="text-left px-[var(--space-4)] py-[var(--space-3)] text-[var(--font-size-xs)] font-semibold text-[var(--text-muted)] uppercase tracking-widest">
                     {h}
                   </th>
                 ))}
@@ -300,12 +300,12 @@ function RecentResultsCard({ results, isLoading }: { results: ExamResult[]; isLo
                 <tr key={r.id} className="hover:bg-[var(--surface)] transition-colors">
                   <td className="px-4 py-3">
                     <p className="text-xs font-medium text-[var(--text)]">{r.subjectName}</p>
-                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
+                    <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5">
                       {new Date(r.date).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' })}
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-[10px] text-[var(--text-muted)]">{r.examTypeName}</td>
-                  <td className="px-4 py-3 text-xs text-[var(--text)]">
+                  <td className="px-4 py-[var(--space-3)] text-[var(--font-size-xs)] text-[var(--text-muted)]">{r.examTypeName}</td>
+                  <td className="px-4 py-[var(--space-3)] text-xs text-[var(--text)]">
                     {r.obtainedMarks} / {r.totalMarks}
                   </td>
                   <td className="px-4 py-3">
@@ -351,17 +351,17 @@ function AnnouncementsCard({ announcements, isLoading }: { announcements: Announ
             return (
               <div
                 key={ann.id}
-                className="flex items-start gap-3 px-4 py-3 rounded-[var(--radius)] bg-[var(--background)] border border-[var(--border)] hover:border-[var(--gold)]/30 transition-colors group"
+                className="flex items-start gap-[var(--space-3)] px-[var(--space-4)] py-[var(--space-3)] rounded-[var(--radius)] bg-[var(--background)] border border-[var(--border)] hover:border-[var(--gold)]/30 transition-colors group"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <Badge variant={meta.variant} size="sm">{meta.label}</Badge>
-                    <span className="text-[10px] text-[var(--text-muted)]">
+                    <span className="text-[var(--font-size-xs)] text-[var(--text-muted)]">
                       {new Date(ann.publishedAt).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' })}
                     </span>
                   </div>
                   <p className="text-xs font-medium text-[var(--text)] truncate">{ann.title}</p>
-                  <p className="text-[10px] text-[var(--text-muted)] mt-0.5 line-clamp-1">{ann.content}</p>
+                  <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5 line-clamp-1">{ann.content}</p>
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)] flex-shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
@@ -383,7 +383,7 @@ export default function StudentDashboardPage() {
   const pct = summary.attendancePct
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)] p-6 xl:p-8 gap-6">
+    <div className="flex flex-col min-h-[calc(100vh-4rem)] p-[var(--space-6)] xl:p-8 gap-6">
       <PageHeader
         title="Student Portal"
         subtitle="Your classes, results and notices at a glance"

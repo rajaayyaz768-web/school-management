@@ -71,7 +71,7 @@ function RestoreModal({ file, onConfirm, onCancel, isPending }: RestoreModalProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md bg-[var(--surface)] border border-red-500/30 rounded-2xl shadow-2xl p-6 space-y-5">
+      <div className="w-full max-w-md bg-[var(--surface)] border border-red-500/30 rounded-2xl shadow-2xl p-[var(--space-6)] space-y-5">
         {/* Header */}
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
@@ -114,7 +114,7 @@ function RestoreModal({ file, onConfirm, onCancel, isPending }: RestoreModalProp
             onChange={e => setConfirmText(e.target.value)}
             placeholder="RESTORE"
             disabled={isPending}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm font-mono text-[var(--text)] placeholder:text-[var(--text-muted)]/40 focus:outline-none focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50 disabled:opacity-50"
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-[var(--space-4)] py-2.5 text-sm font-mono text-[var(--text)] placeholder:text-[var(--text-muted)]/40 focus:outline-none focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50 disabled:opacity-50"
           />
         </div>
 
@@ -124,7 +124,7 @@ function RestoreModal({ file, onConfirm, onCancel, isPending }: RestoreModalProp
             type="button"
             onClick={onCancel}
             disabled={isPending}
-            className="flex-1 px-4 py-2.5 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--primary)] transition-colors disabled:opacity-50"
+            className="flex-1 px-[var(--space-4)] py-2.5 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--primary)] transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
@@ -133,7 +133,7 @@ function RestoreModal({ file, onConfirm, onCancel, isPending }: RestoreModalProp
             onClick={onConfirm}
             disabled={!ready || isPending}
             className={cn(
-              'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all',
+              'flex-1 flex items-center justify-center gap-2 px-[var(--space-4)] py-2.5 rounded-lg text-sm font-semibold transition-all',
               ready && !isPending
                 ? 'bg-red-600 hover:bg-red-500 text-white'
                 : 'bg-red-600/30 text-red-400/50 cursor-not-allowed'
@@ -266,7 +266,7 @@ export default function BackupsPage() {
             </div>
 
             {errorMsg && (
-              <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2 text-red-400">
+              <div className="mb-6 p-[var(--space-3)] bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2 text-red-400">
                 <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                 <span className="text-sm">{errorMsg}</span>
               </div>
@@ -340,7 +340,7 @@ export default function BackupsPage() {
 
             {setupStep === 3 && (
               <div className="text-center space-y-4">
-                <div className="inline-flex items-center justify-center p-3 rounded-full bg-green-500/10 text-green-400 mb-2">
+                <div className="inline-flex items-center justify-center p-[var(--space-3)] rounded-full bg-green-500/10 text-green-400 mb-2">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h3 className="text-lg font-medium text-[var(--text)]">Email Verified</h3>
@@ -378,7 +378,7 @@ export default function BackupsPage() {
     )}
     <div className="min-h-screen bg-[var(--bg)]">
     {/* Mobile header */}
-    <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center justify-between md:hidden">
+    <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center justify-between md:hidden">
       <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>System Backups</h1>
       <Button size="sm" onClick={() => triggerMutation.mutate()} disabled={isBackingUp} loading={isBackingUp}>
         <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
@@ -410,7 +410,7 @@ export default function BackupsPage() {
 
       {/* Restore result banner */}
       {restoreResult === 'success' && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
+        <div className="flex items-center gap-[var(--space-3)] p-[var(--space-4)] rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
           <CheckCircle2 className="w-5 h-5 shrink-0" />
           <div>
             <p className="font-semibold text-sm">Database restored successfully</p>
@@ -422,7 +422,7 @@ export default function BackupsPage() {
         </div>
       )}
       {restoreResult === 'error' && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400">
+        <div className="flex items-center gap-[var(--space-3)] p-[var(--space-4)] rounded-xl bg-red-500/10 border border-red-500/25 text-red-400">
           <AlertTriangle className="w-5 h-5 shrink-0" />
           <div>
             <p className="font-semibold text-sm">Restore failed</p>
@@ -435,7 +435,7 @@ export default function BackupsPage() {
       )}
 
       {/* Connection Info */}
-      <Card className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-[var(--color-primary)]/20 bg-[var(--color-primary)]/5">
+      <Card className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-[var(--space-4)] border-[var(--color-primary)]/20 bg-[var(--color-primary)]/5">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-full flex items-center justify-center shrink-0">
             <HardDrive className="w-6 h-6" />
@@ -529,14 +529,14 @@ export default function BackupsPage() {
         ) : (
           <div className="divide-y divide-white/5">
             {backups.map(file => (
-              <div key={file.id} className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-white/[0.02] transition-colors">
+              <div key={file.id} className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-[var(--space-3)] hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded bg-white/5 flex items-center justify-center">
                     <Database className="w-5 h-5 text-[var(--text-muted)]" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[var(--text)]">{file.filename}</p>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-muted)]">
+                    <div className="flex items-center gap-[var(--space-3)] mt-1 text-xs text-[var(--text-muted)]">
                       <span>{new Date(file.createdAt).toLocaleString()}</span>
                       <span>•</span>
                       <span>{formatBytes(file.sizeBytes)}</span>

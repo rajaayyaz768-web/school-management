@@ -1,0 +1,59 @@
+; PgBouncer configuration for the college backend.
+; Place at /etc/pgbouncer/pgbouncer.ini on the VPS.
+;
+; Installation:
+;   sudo apt install pgbouncer
+;   sudo cp pgbouncer.ini.example /etc/pgbouncer/pgbouncer.ini
+;   sudo nano /etc/pgbouncer/pgbouncer.ini   # fill in actual DB credentials
+;   sudo systemctl enable pgbouncer
+;   sudo systemctl start pgbouncer
+;
+; After enabling PgBouncer, update .env:
+;   DATABASE_URL=postgresql://college_user:PASSWORD@127.0.0.1:6432/college
+;   DB_CONNECTION_LIMIT=1
+; (DB_CONNECTION_LIMIT=1 tells Prisma not to pool internally — let PgBouncer do it)
+
+[databases]
+; Replace password/dbname with your actual values.
+; PgBouncer connects to Postgres on localhost:5432 and exposes port 6432 to the app.
+college = host=127.0.0.1 port=5432 dbname=college user=college_user password=CHANGE_ME
+
+[pgbouncer]
+listen_addr = 127.0.0.1
+listen_port = 6432
+
+; transaction mode: connection is held only for the duration of a transaction.
+; This is the most efficient mode and is fully compatible with Prisma.
+; (Prisma does not use session-mode features like advisory locks or LISTEN/NOTIFY)
+pool_mode = transaction
+
+; Total client connections PgBouncer will accept
+max_client_conn = 200
+
+; Actual Postgres connections per database pool
+; 20 real connections serve 200 app connections under transaction pooling
+default_pool_size = 20
+
+; Release idle server connections after 600 s
+server_idle_timeout = 600
+
+; Kill connections that have been idle for too long
+client_idle_timeout = 0
+
+; Reset session state between transactions (required for transaction pool mode)
+server_reset_query = DISCARD ALL
+
+; Authentication — md5 is safe for loopback connections
+auth_type = md5
+auth_file = /etc/pgbouncer/userlist.txt
+
+; Logging
+logfile = /var/log/pgbouncer/pgbouncer.log
+pidfile = /var/run/pgbouncer/pgbouncer.pid
+
+; Admin interface (for pgbouncer SHOW POOLS; etc.)
+admin_users = postgres
+
+; userlist.txt format: "username" "md5<md5(password+username)>"
+; Generate with: echo -n "PASSWORDcollege_user" | md5sum
+; Then prepend md5: "college_user" "md5HASH"

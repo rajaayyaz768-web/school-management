@@ -194,7 +194,7 @@ export default function PromotionPage() {
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+      <div className="flex flex-col sm:flex-row gap-[var(--space-3)] pt-2">
         <Button
           onClick={() => openWizard('transitional')}
           disabled={!canTransitional || !activeYear}
@@ -345,7 +345,7 @@ export default function PromotionPage() {
               <p className="text-sm text-[var(--text-muted)]">Review the promotion summary before confirming.</p>
               <div className="grid grid-cols-3 gap-3">
                 {[['Promoted', promotedRows.length, 'text-green-600'], ['Detained', detainedRows.length, 'text-amber-600'], ['Withdrawn', withdrawnRows.length, 'text-red-500']].map(([label, count, color]) => (
-                  <div key={label as string} className="rounded-[var(--radius-lg)] border border-[var(--border)] p-3 text-center">
+                  <div key={label as string} className="rounded-[var(--radius-lg)] border border-[var(--border)] p-[var(--space-3)] text-center">
                     <p className={cn('text-2xl font-bold font-display', color as string)}>{count as number}</p>
                     <p className="text-xs text-[var(--text-muted)]">{label as string}</p>
                   </div>
@@ -386,7 +386,7 @@ function GradeCard({ grade }: { grade: GradePromotionStatus }) {
   const Icon = grade.activeStudentCount === 0 ? CheckCircle : grade.canPromote ? Clock : XCircle;
 
   return (
-    <div className={cn('flex items-center justify-between px-4 py-3 rounded-[var(--radius-lg)] border', 'bg-[var(--surface)] border-[var(--border)]')}>
+    <div className={cn('flex items-center justify-between px-[var(--space-4)] py-[var(--space-3)] rounded-[var(--radius-lg)] border', 'bg-[var(--surface)] border-[var(--border)]')}>
       <div className="flex items-center gap-3">
         <div className={cn('flex h-8 w-8 items-center justify-center rounded-full border', colour)}>
           <Icon className="h-4 w-4" />
@@ -398,7 +398,7 @@ function GradeCard({ grade }: { grade: GradePromotionStatus }) {
           )}
         </div>
       </div>
-      <div className="flex items-center gap-4 text-sm">
+      <div className="flex items-center gap-[var(--space-4)] text-sm">
         <span className="text-[var(--text-muted)]">{grade.activeStudentCount} students</span>
         {grade.blockedReason && !grade.canPromote && grade.activeStudentCount > 0 && (
           <span className="text-xs text-red-500 max-w-[180px] truncate" title={grade.blockedReason}>{grade.blockedReason}</span>

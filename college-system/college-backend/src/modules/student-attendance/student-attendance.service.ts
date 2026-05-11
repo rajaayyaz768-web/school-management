@@ -1,6 +1,6 @@
 import { AttendanceStatus, Role } from '@prisma/client'
 import prisma from '../../config/database'
-import { assertSectionCampus, assertStudentCampus, assertTeacherSubjectAccess } from '../../utils/campusGuard'
+import { assertSectionCampus, assertStudentCampus, assertStudentsCampus, assertTeacherSubjectAccess } from '../../utils/campusGuard'
 import {
   MarkStudentAttendanceDto,
   UpdateStudentAttendanceDto,
@@ -92,19 +92,22 @@ export const getStudentsForAttendance = async (sectionId: string, subjectId: str
     orderBy: { rollNumber: 'asc' }
   })
 
-  const records = await Promise.all(students.map(async (student) => {
-    const record = await prisma.studentAttendance.findFirst({
-      where: {
-        studentId: student.id,
-        subjectId,
-        date: getDateRange(date)
-      },
-      include: studentAttendanceInclude
-    })
+  // Single query for all attendance records — avoids N+1 (was 1+N queries, now 2 total)
+  const existingRecords = await prisma.studentAttendance.findMany({
+    where: {
+      studentId: { in: students.map((s) => s.id) },
+      subjectId,
+      date: getDateRange(date),
+    },
+    include: studentAttendanceInclude,
+  })
+  const recordMap = new Map(existingRecords.map((r) => [r.studentId, r]))
 
+  const records = students.map((student) => {
     const parentPhone = (student as any).parentLinks?.[0]?.parent?.phone
       ?? (student as any).guardianPhone
       ?? null
+    const record = recordMap.get(student.id) ?? null
     return {
       student: {
         id: student.id,
@@ -114,9 +117,9 @@ export const getStudentsForAttendance = async (sectionId: string, subjectId: str
         photoUrl: student.photoUrl,
         parentPhone,
       },
-      attendance: record ? mapToResponse(record) : null
+      attendance: record ? mapToResponse(record) : null,
     }
-  }))
+  })
 
   return records
 }
@@ -125,7 +128,7 @@ export const markStudentAttendance = async (data: MarkStudentAttendanceDto, mark
   if (user) {
     await assertSectionCampus(data.sectionId, user)
     await assertTeacherSubjectAccess(data.sectionId, data.subjectId, user)
-    await Promise.all(data.attendances.map((item) => assertStudentCampus(item.studentId, user)))
+    await assertStudentsCampus(data.attendances.map((item) => item.studentId), user)
   }
   await Promise.all(data.attendances.map((item) => prisma.studentAttendance.upsert({
     where: { studentId_subjectId_date: { studentId: item.studentId, subjectId: data.subjectId, date: new Date(data.date) } },

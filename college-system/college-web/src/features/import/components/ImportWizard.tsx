@@ -229,7 +229,7 @@ export function ImportWizard({ sectionId, sectionName, onClose, onImportComplete
 
             {/* Error summary after failed validation */}
             {!!report && report.errorCount > 0 && (
-              <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-950/20 p-4 space-y-2">
+              <div className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-950/20 p-[var(--space-4)] space-y-2">
                 <p className="text-sm font-medium text-red-600">
                   {report.errorCount} row{report.errorCount > 1 ? 's have' : ' has'} errors that must be fixed before importing.
                 </p>
@@ -253,7 +253,7 @@ export function ImportWizard({ sectionId, sectionName, onClose, onImportComplete
               </p>
             )}
 
-            <div className="flex justify-end gap-3 pt-2 border-t border-[var(--border)]">
+            <div className="flex justify-end gap-[var(--space-3)] pt-2 border-t border-[var(--border)]">
               <Button variant="secondary" onClick={onClose}>Cancel</Button>
               <Button
                 variant="primary"
@@ -281,7 +281,7 @@ export function ImportWizard({ sectionId, sectionName, onClose, onImportComplete
               <p className="text-sm font-semibold text-[var(--text)]">
                 {report.campusName} — {report.sectionName}
               </p>
-              <div className="flex flex-wrap gap-4 text-sm">
+              <div className="flex flex-wrap gap-[var(--space-4)] text-sm">
                 <span>{report.totalRows} rows total</span>
                 <span className="text-green-600">✅ {report.readyCount} ready</span>
                 {report.warningCount > 0 && (
@@ -291,7 +291,7 @@ export function ImportWizard({ sectionId, sectionName, onClose, onImportComplete
                   <span className="text-red-500">❌ {report.errorCount} errors</span>
                 )}
               </div>
-              <div className="flex flex-wrap gap-4 text-xs text-[var(--text-muted)]">
+              <div className="flex flex-wrap gap-[var(--space-4)] text-xs text-[var(--text-muted)]">
                 <span>New parents: {report.newParentsToCreate}</span>
                 <span>Existing parents to link: {report.existingParentsToLink}</span>
                 {report.siblingsDetected > 0 && (
@@ -311,7 +311,7 @@ export function ImportWizard({ sectionId, sectionName, onClose, onImportComplete
             </div>
 
             {report.warningCount > 0 && (
-              <label className="flex items-start gap-3 cursor-pointer text-sm text-[var(--text)]">
+              <label className="flex items-start gap-[var(--space-3)] cursor-pointer text-sm text-[var(--text)]">
                 <input
                   type="checkbox"
                   checked={warningsAcknowledged}
@@ -375,7 +375,7 @@ export function ImportWizard({ sectionId, sectionName, onClose, onImportComplete
               </div>
             ) : (
               <>
-                <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/20 p-4 space-y-3">
+                <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/20 p-[var(--space-4)] space-y-3">
                   <p className="text-sm font-semibold text-amber-700">⚠️ This action cannot be undone</p>
                   <p className="text-sm text-[var(--text)]">
                     You are about to import into <strong>{report.campusName} — {report.sectionName}</strong>
@@ -424,7 +424,7 @@ export function ImportWizard({ sectionId, sectionName, onClose, onImportComplete
             animate={{ opacity: 1, scale: 1 }}
             className="space-y-4"
           >
-            <div className="rounded-lg border border-green-300 bg-green-50 dark:bg-green-950/20 p-5 space-y-3">
+            <div className="rounded-lg border border-green-300 bg-green-50 dark:bg-green-950/20 p-[var(--space-5)] space-y-3">
               <p className="text-base font-semibold text-green-700">✅ Import Complete</p>
               <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
                 <span className="text-[var(--text-muted)]">Students created:</span>

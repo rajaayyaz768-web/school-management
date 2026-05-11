@@ -1,0 +1,9 @@
+# Claude Code tooling — not project code
+.claude/skills/
+.claude/agents/
+.agents/
+.superdesign/
+skills-lock.json
+
+# Generated / temp files
+college-system/college-web/critique-landing.html

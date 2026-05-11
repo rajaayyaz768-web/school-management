@@ -11,10 +11,10 @@ function getTodayRange() {
 
 export async function getAdminDashboardData(campusId?: string) {
   const cacheKey = `dashboard:admin:${campusId ?? 'all'}`;
-  const cached = cacheGet<ReturnType<typeof _getAdminDashboardData>>(cacheKey);
+  const cached = await cacheGet<ReturnType<typeof _getAdminDashboardData>>(cacheKey);
   if (cached) return cached;
   const result = await _getAdminDashboardData(campusId);
-  cacheSet(cacheKey, result, TTL.DASHBOARD);
+  await cacheSet(cacheKey, result, TTL.DASHBOARD);
   return result;
 }
 

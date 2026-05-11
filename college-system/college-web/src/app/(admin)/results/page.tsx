@@ -68,7 +68,7 @@ export default function ResultsPage() {
 
   if (step === 'section' && campusId) {
     return (
-      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-[var(--space-4)] sm:gap-6 p-[var(--space-4)] sm:p-6 lg:p-8">
         <PageHeader
           title="Results"
           subtitle="Select a section to view student report cards or exam results"
@@ -83,7 +83,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
+    <div className="flex flex-col gap-[var(--space-4)] sm:gap-6 p-[var(--space-4)] sm:p-6 lg:p-8">
       <PageHeader
         title="Results"
         subtitle="View student report cards and section exam results"

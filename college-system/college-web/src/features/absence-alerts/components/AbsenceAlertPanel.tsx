@@ -14,7 +14,7 @@ export function AbsenceAlertPanel({ alerts, onDismiss, onClearAll }: Props) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border)] overflow-hidden shadow-[var(--shadow-md)]">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-[var(--danger)]/10 border-b border-[var(--danger)]/20">
+      <div className="flex items-center justify-between px-[var(--space-6)] py-[var(--space-4)] bg-[var(--danger)]/10 border-b border-[var(--danger)]/20">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-[var(--danger)]/15 flex items-center justify-center">
             <AlertTriangle className="w-4 h-4 text-[var(--danger)]" />
@@ -34,7 +34,7 @@ export function AbsenceAlertPanel({ alerts, onDismiss, onClearAll }: Props) {
       </div>
 
       {/* Body */}
-      <div className="bg-[var(--surface)] p-4 max-h-[500px] overflow-y-auto">
+      <div className="bg-[var(--surface)] p-[var(--space-4)] max-h-[500px] overflow-y-auto">
         {alerts.length === 0 ? (
           <EmptyState
             icon={<AlertTriangle className="w-7 h-7 text-[var(--text-muted)]" />}
@@ -75,7 +75,7 @@ export function AbsenceAlertPanel({ alerts, onDismiss, onClearAll }: Props) {
                     {alert.affectedPeriods.map((period) => (
                       <div
                         key={`${alert.staffId}-${period.slotNumber}`}
-                        className="bg-[var(--surface-alt)]/50 rounded-[var(--radius-md)] p-3 border border-[var(--border)]/50"
+                        className="bg-[var(--surface-alt)]/50 rounded-[var(--radius-md)] p-[var(--space-3)] border border-[var(--border)]/50"
                       >
                         <div className="flex items-center gap-2 text-sm text-[var(--text)]">
                           <Clock className="w-3.5 h-3.5 text-[var(--primary)]" />
@@ -88,7 +88,7 @@ export function AbsenceAlertPanel({ alerts, onDismiss, onClearAll }: Props) {
 
                         {period.freeTeachers.length > 0 && (
                           <div className="mt-2 flex flex-wrap gap-1.5">
-                            <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] self-center mr-1">
+                            <span className="text-[var(--font-size-xs)] uppercase tracking-wider text-[var(--text-muted)] self-center mr-1">
                               Free:
                             </span>
                             {period.freeTeachers.slice(0, 6).map((teacher) => (

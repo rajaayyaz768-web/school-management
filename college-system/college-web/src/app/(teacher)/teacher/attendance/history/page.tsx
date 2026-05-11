@@ -38,7 +38,7 @@ function StepBar({ current }: { current: Step }) {
             i <= idx ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'
           )} />
           <span className={cn(
-            'text-[10px] font-semibold uppercase tracking-wider',
+            'text-[var(--font-size-xs)] font-semibold uppercase tracking-wider',
             i <= idx ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
           )}>
             {labels[i]}
@@ -152,7 +152,7 @@ export default function TeacherAttendancePage() {
   if (step === 'section') {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
-        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center justify-between">
           <h1 className="font-bold text-base text-[var(--text)]">Mark Attendance</h1>
           <span className="text-xs text-[var(--text-muted)]">Step 1 of 3</span>
         </header>
@@ -173,7 +173,7 @@ export default function TeacherAttendancePage() {
   if (step === 'subject') {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
-        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center gap-3">
+        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center gap-3">
           <button onClick={handleBackToSection} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface)] transition-colors">
             <ArrowLeft className="w-5 h-5 text-[var(--text)]" />
           </button>
@@ -190,7 +190,7 @@ export default function TeacherAttendancePage() {
           {/* Date picker */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">Date</p>
-            <label className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 cursor-pointer hover:border-[var(--primary)] transition-colors">
+            <label className="flex items-center gap-[var(--space-3)] bg-[var(--surface)] border border-[var(--border)] rounded-xl px-[var(--space-4)] py-[var(--space-3)] cursor-pointer hover:border-[var(--primary)] transition-colors">
               <Calendar className="w-4 h-4 text-[var(--primary)] shrink-0" />
               <span className="text-sm font-medium text-[var(--text)]">
                 {new Date(selectedDate).toLocaleDateString('en-PK', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
@@ -214,7 +214,7 @@ export default function TeacherAttendancePage() {
                 ))}
               </div>
             ) : subjects.length === 0 ? (
-              <p className="text-sm text-[var(--text-muted)] bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 text-center">
+              <p className="text-sm text-[var(--text-muted)] bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-4)] text-center">
                 No subjects assigned to you for this section.
               </p>
             ) : (
@@ -226,7 +226,7 @@ export default function TeacherAttendancePage() {
                       key={sub.id}
                       onClick={() => handleSubjectSelect(sub.id, sub.name)}
                       className={cn(
-                        'relative bg-[var(--surface)] border rounded-xl p-4 text-left transition-all active:scale-[0.98]',
+                        'relative bg-[var(--surface)] border rounded-xl p-[var(--space-4)] text-left transition-all active:scale-[0.98]',
                         isSelected
                           ? 'border-[var(--primary)] bg-[var(--primary)]/8'
                           : 'border-[var(--border)] hover:border-[var(--primary)]/50'
@@ -263,7 +263,7 @@ export default function TeacherAttendancePage() {
   // ── STEP 3 — Marking ──────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[var(--bg)] pb-36">
-      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center gap-2">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center gap-2">
         <button onClick={handleBackToSubject} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface)] transition-colors shrink-0">
           <ArrowLeft className="w-5 h-5 text-[var(--text)]" />
         </button>
@@ -271,20 +271,20 @@ export default function TeacherAttendancePage() {
           <h1 className="font-bold text-sm text-[var(--text)] truncate">
             Section {sectionName} · {selectedSubjectName}
           </h1>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[var(--primary)]/15 text-[var(--primary)]">
+          <span className="text-[var(--font-size-xs)] font-semibold px-2 py-0.5 rounded-full bg-[var(--primary)]/15 text-[var(--primary)]">
             {selectedDate}
           </span>
         </div>
         <button
           onClick={() => setShowConfirmDialog(true)}
           disabled={!studentList?.length || isPending}
-          className="shrink-0 h-9 px-4 bg-[var(--primary)] text-white rounded-full text-sm font-semibold disabled:opacity-40 hover:bg-[var(--primary)]/90 transition-colors"
+          className="shrink-0 h-9 px-[var(--space-4)] bg-[var(--primary)] text-white rounded-full text-sm font-semibold disabled:opacity-40 hover:bg-[var(--primary)]/90 transition-colors"
         >
           Save
         </button>
       </header>
 
-      <div className="px-4 py-4 space-y-4">
+      <div className="px-4 py-[var(--space-4)] space-y-4">
         {/* Step dots */}
         <div className="flex justify-center gap-2">
           {['section', 'subject', 'marking'].map(s => (
@@ -300,7 +300,7 @@ export default function TeacherAttendancePage() {
             { label: `${report?.late ?? 0} Late`,       color: '#f59e0b' },
             { label: `${report?.onLeave ?? 0} On Leave`,color: '#3b82f6' },
           ].map(stat => (
-            <div key={stat.label} className="shrink-0 flex items-center gap-2 bg-[var(--surface)] border border-[var(--border)] rounded-full px-4 py-2">
+            <div key={stat.label} className="shrink-0 flex items-center gap-2 bg-[var(--surface)] border border-[var(--border)] rounded-full px-[var(--space-4)] py-2">
               <span className="w-2 h-2 rounded-full" style={{ background: stat.color }} />
               <span className="text-xs font-semibold" style={{ color: stat.color }}>{stat.label}</span>
             </div>
@@ -317,7 +317,7 @@ export default function TeacherAttendancePage() {
       </div>
 
       {/* Fixed save bar */}
-      <div className="fixed bottom-20 left-0 right-0 bg-[var(--bg)] border-t border-[var(--border)] p-4 z-40 md:hidden">
+      <div className="fixed bottom-20 left-0 right-0 bg-[var(--bg)] border-t border-[var(--border)] p-[var(--space-4)] z-40 md:hidden">
         <button
           onClick={() => setShowConfirmDialog(true)}
           disabled={!studentList?.length || isPending}

@@ -115,7 +115,7 @@ function ThemePanel({ mode, children }: { mode: 'light' | 'dark'; children: Reac
         }}
       >
         <span
-          className="font-body text-[11px] font-semibold uppercase"
+          className="font-body text-[var(--font-size-sm)] font-semibold uppercase"
           style={{
             letterSpacing: '0.08em',
             color: mode === 'light' ? '#4A6868' : '#888888',
@@ -205,7 +205,7 @@ export default function ShowcasePage() {
           borderColor: '#C8DEDE',
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-[var(--space-6)] h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#D4A843' }}>
               <GraduationCap className="w-5 h-5" style={{ color: '#0F4444' }} />
@@ -233,7 +233,7 @@ export default function ShowcasePage() {
         </div>
 
         {/* Section Nav */}
-        <div className="max-w-7xl mx-auto px-6 pb-3">
+        <div className="max-w-7xl mx-auto px-[var(--space-6)] pb-3">
           <div className="flex gap-1.5 overflow-x-auto">
             {SECTIONS.map(({ id, label }) => (
               <a
@@ -243,7 +243,7 @@ export default function ShowcasePage() {
                   e.preventDefault()
                   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
                 }}
-                className="font-body text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-all duration-[180ms]"
+                className="font-body text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-all duration-[var(--dur-base)]"
                 style={{
                   background: activeSection === id ? '#0F4444' : 'transparent',
                   color: activeSection === id ? '#FFFFFF' : '#4A6868',
@@ -257,7 +257,7 @@ export default function ShowcasePage() {
       </header>
 
       {/* ── Content ── */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="max-w-7xl mx-auto px-[var(--space-6)] py-12">
 
         {/* ━━ SECTION 1: FOUNDATIONS ━━ */}
         <section className="pb-20">
@@ -282,7 +282,7 @@ export default function ShowcasePage() {
                     ].map(({ label, color }) => (
                       <div key={label} className="text-center">
                         <div className="w-full h-10 rounded-lg border border-[var(--border)]" style={{ background: color }} />
-                        <p className="font-body text-[10px] text-[var(--text-muted)] mt-1">{label}</p>
+                        <p className="font-body text-[var(--font-size-xs)] text-[var(--text-muted)] mt-1">{label}</p>
                       </div>
                     ))}
                   </div>
@@ -318,7 +318,7 @@ export default function ShowcasePage() {
                 {/* Radius */}
                 <div>
                   <p className="font-body text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">Border Radius</p>
-                  <div className="flex gap-4 items-end">
+                  <div className="flex gap-[var(--space-4)] items-end">
                     {[
                       { label: 'sm (8px)', val: 'var(--radius-sm)' },
                       { label: 'md (12px)', val: 'var(--radius-md)' },
@@ -326,7 +326,7 @@ export default function ShowcasePage() {
                     ].map(({ label, val }) => (
                       <div key={label} className="text-center">
                         <div className="w-16 h-16 bg-[var(--primary)]/10 border border-[var(--primary)]/30" style={{ borderRadius: val }} />
-                        <p className="font-body text-[10px] text-[var(--text-muted)] mt-1">{label}</p>
+                        <p className="font-body text-[var(--font-size-xs)] text-[var(--text-muted)] mt-1">{label}</p>
                       </div>
                     ))}
                   </div>
@@ -415,7 +415,7 @@ export default function ShowcasePage() {
                 {/* Input variants */}
                 <div className="grid grid-cols-2 gap-4">
                   <Input label="Full Name" placeholder="Enter name" icon={<User className="w-4 h-4" />} />
-                  <Input label="Email" placeholder="email@example.com" icon={<Mail className="w-4 h-4" />} rightIcon={<span className="text-[10px] font-body text-[var(--text-muted)]">.edu</span>} />
+                  <Input label="Email" placeholder="email@example.com" icon={<Mail className="w-4 h-4" />} rightIcon={<span className="text-[var(--font-size-xs)] font-body text-[var(--text-muted)]">.edu</span>} />
                   <Input label="Password" type="password" placeholder="Enter password" icon={<Lock className="w-4 h-4" />} />
                   <Input label="Phone" placeholder="0300-1234567" error="Invalid phone number" icon={<Phone className="w-4 h-4" />} />
                   <Input label="With Hint" placeholder="Optional field" hint="This field is optional" />
@@ -490,7 +490,7 @@ export default function ShowcasePage() {
                     <PhoneInput value="03" onChange={() => {}} label="With Error" error="Enter a valid Pakistani mobile number" />
                     
                     <div className="pt-4 space-y-3 border-t border-[var(--border)]">
-                      <p className="font-body text-[11px] font-medium text-[var(--text-muted)]">Display Mode (Read Only)</p>
+                      <p className="font-body text-[var(--font-size-sm)] font-medium text-[var(--text-muted)]">Display Mode (Read Only)</p>
                       <PhoneInput value="03001234567" onChange={() => {}} showInput={false} name="Father" />
                       <PhoneInput value="04235555555" onChange={() => {}} showInput={false} name="Landline" />
                     </div>
@@ -602,18 +602,18 @@ export default function ShowcasePage() {
                 <div>
                   <p className="font-body text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">Status Dots</p>
                   <div className="space-y-6">
-                    <div className="flex flex-wrap gap-6 items-center">
+                    <div className="flex flex-wrap gap-[var(--space-6)] items-center">
                       <StatusDot status="online" label="Online" />
                       <StatusDot status="offline" label="Offline" />
                       <StatusDot status="away" label="Away" />
                       <StatusDot status="break" label="Break" />
                       <StatusDot status="default" label="Unknown" />
                     </div>
-                    <div className="flex flex-wrap gap-6 items-center pt-2">
+                    <div className="flex flex-wrap gap-[var(--space-6)] items-center pt-2">
                       <StatusDot status="active" pulse label="Active (Pulse)" />
                       <StatusDot status="late" pulse label="Late (Pulse)" />
                     </div>
-                    <div className="flex flex-wrap gap-6 items-center pt-2">
+                    <div className="flex flex-wrap gap-[var(--space-6)] items-center pt-2">
                       <StatusDot status="online" size="xs" />
                       <StatusDot status="online" size="sm" />
                       <StatusDot status="online" size="md" />
@@ -661,7 +661,7 @@ export default function ShowcasePage() {
                   <div className="flex gap-4">
                     {/* Expanded sidebar mock */}
                     <div className="w-56 rounded-[var(--radius-md)] overflow-hidden shadow-[var(--shadow-md)]" style={{ background: '#0F4444' }}>
-                      <div className="flex items-center gap-2.5 px-4 h-14 border-b border-white/10">
+                      <div className="flex items-center gap-2.5 px-[var(--space-4)] h-14 border-b border-white/10">
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#D4A843' }}>
                           <GraduationCap className="w-4 h-4" style={{ color: '#0F4444' }} />
                         </div>
@@ -682,7 +682,7 @@ export default function ShowcasePage() {
                         ].map(({ icon: Icon, label, active }) => (
                           <div
                             key={label}
-                            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm"
+                            className="flex items-center gap-[var(--space-3)] px-3 py-2 rounded-lg text-sm"
                             style={{
                               background: active ? 'rgba(212, 168, 67, 0.15)' : 'transparent',
                               color: active ? '#D4A843' : 'rgba(255,255,255,0.7)',
@@ -695,14 +695,14 @@ export default function ShowcasePage() {
                           </div>
                         ))}
                       </nav>
-                      <div className="border-t border-white/10 p-3 mt-2">
+                      <div className="border-t border-white/10 p-[var(--space-3)] mt-2">
                         <div className="flex items-center gap-2.5">
                           <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style={{ background: '#D4A843', color: '#0F4444' }}>
                             PA
                           </div>
                           <div>
                             <p className="text-sm font-medium text-white">Principal</p>
-                            <p className="text-[10px] text-white/50">Super Admin</p>
+                            <p className="text-[var(--font-size-xs)] text-white/50">Super Admin</p>
                           </div>
                         </div>
                       </div>
@@ -737,14 +737,14 @@ export default function ShowcasePage() {
                 <div>
                   <p className="font-body text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">Top Bar</p>
                   <div className="border border-[var(--border)] rounded-[var(--radius-md)] overflow-hidden bg-[var(--surface)]">
-                    <div className="h-14 flex items-center justify-between px-6 border-b border-[var(--border)]">
+                    <div className="h-14 flex items-center justify-between px-[var(--space-6)] border-b border-[var(--border)]">
                       <span className="font-display text-lg font-bold text-[var(--primary)]">College Portal</span>
                       <div className="flex items-center gap-2">
                         <div className="relative">
                           <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface-hover)] transition-colors">
                             <Bell className="w-4 h-4 text-[var(--text-muted)]" />
                           </button>
-                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--danger)] text-white text-[10px] font-bold flex items-center justify-center">3</span>
+                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--danger)] text-white text-[var(--font-size-xs)] font-bold flex items-center justify-center">3</span>
                         </div>
                         <div className="w-px h-6 bg-[var(--border)] mx-1" />
                         <div className="flex items-center gap-2">
@@ -803,7 +803,7 @@ export default function ShowcasePage() {
                 <div>
                   <p className="font-body text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">Modal (sm) — Confirm Deletion</p>
                   <div className="bg-[var(--surface)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] border border-[var(--border)] max-w-sm">
-                    <div className="border-b border-[var(--border)] px-6 py-4">
+                    <div className="border-b border-[var(--border)] px-[var(--space-6)] py-4">
                       <h3 className="font-display text-lg font-semibold text-[var(--text)]">Confirm Deletion</h3>
                     </div>
                     <div className="p-6">
@@ -811,7 +811,7 @@ export default function ShowcasePage() {
                         Are you sure you want to delete this student record? This action cannot be undone.
                       </p>
                     </div>
-                    <div className="border-t border-[var(--border)] px-6 py-4 flex justify-end gap-3">
+                    <div className="border-t border-[var(--border)] px-[var(--space-6)] py-[var(--space-4)] flex justify-end gap-3">
                       <Button variant="secondary" size="sm">Cancel</Button>
                       <Button variant="danger" size="sm">Delete</Button>
                     </div>
@@ -822,7 +822,7 @@ export default function ShowcasePage() {
                 <div>
                   <p className="font-body text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">Modal (md) — Add Student</p>
                   <div className="bg-[var(--surface)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] border border-[var(--border)] max-w-md">
-                    <div className="border-b border-[var(--border)] px-6 py-4">
+                    <div className="border-b border-[var(--border)] px-[var(--space-6)] py-4">
                       <h3 className="font-display text-lg font-semibold text-[var(--text)]">Add Student</h3>
                       <p className="font-body text-sm text-[var(--text-muted)] mt-0.5">Enter student details below</p>
                     </div>
@@ -830,7 +830,7 @@ export default function ShowcasePage() {
                       <Input label="Full Name" placeholder="Enter student name" />
                       <Input label="Email" placeholder="student@college.edu" />
                     </div>
-                    <div className="border-t border-[var(--border)] px-6 py-4 flex justify-end gap-3">
+                    <div className="border-t border-[var(--border)] px-[var(--space-6)] py-[var(--space-4)] flex justify-end gap-3">
                       <Button variant="secondary" size="sm">Cancel</Button>
                       <Button variant="primary" size="sm">Save Student</Button>
                     </div>
@@ -853,22 +853,22 @@ export default function ShowcasePage() {
                   <p className="font-body text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">Drawer (Mockup Preview)</p>
                   <div className="relative h-[400px] w-full max-w-[600px] overflow-hidden border border-[var(--border)] rounded-[var(--radius-lg)] shadow-sm bg-[var(--surface-hover)]"> 
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-                    <div className="absolute right-0 top-0 bottom-0 w-[360px] bg-[var(--surface)] shadow-[var(--shadow-lg)] flex flex-col border-l border-[var(--border)] animate-in slide-in-from-right duration-[280ms]">
+                    <div className="absolute right-0 top-0 bottom-0 w-[360px] bg-[var(--surface)] shadow-[var(--shadow-lg)] flex flex-col border-l border-[var(--border)] animate-in slide-in-from-right duration-[var(--dur-slow)]">
                       <div className="flex h-[60px] shrink-0 items-center justify-between border-b border-[var(--border)] px-5">
                         <div>
                           <h2 className="font-body text-[16px] font-semibold text-[var(--text)] leading-tight">Student Profile</h2>
-                          <p className="font-body text-[12px] text-[var(--text-secondary)] mt-0.5">Ahmed Khan — BSE-2024</p>
+                          <p className="font-body text-[var(--font-size-sm)] text-[var(--text-secondary)] mt-0.5">Ahmed Khan — BSE-2024</p>
                         </div>
                         <div className="h-8 w-8 rounded-[var(--radius-sm)] bg-[var(--surface-hover)] flex items-center justify-center">
                           <Trash2 className="h-4 w-4 text-[var(--text-muted)]" />
                         </div>
                       </div>
-                      <div className="flex-1 p-5 space-y-4 opacity-50">
+                      <div className="flex-1 p-[var(--space-5)] space-y-4 opacity-50">
                         <Skeleton variant="text" />
                         <Skeleton variant="text" />
                         <Skeleton variant="card" />
                       </div>
-                      <div className="flex shrink-0 items-center justify-end gap-2.5 border-t border-[var(--border)] bg-[var(--surface)] p-4 px-5">
+                      <div className="flex shrink-0 items-center justify-end gap-2.5 border-t border-[var(--border)] bg-[var(--surface)] p-[var(--space-4)] px-5">
                         <Button variant="secondary" size="sm">Close</Button>
                         <Button variant="primary" size="sm">Edit</Button>
                       </div>
@@ -905,12 +905,12 @@ export default function ShowcasePage() {
                       <PopoverContent>
                         <PopoverHeader>Recent Notifications</PopoverHeader>
                         <div className="px-3 py-2 border-b border-[var(--border)]">
-                          <p className="font-body text-[13px] text-[var(--text)]">Fee deadline approaching</p>
-                          <p className="font-body text-[11px] text-[var(--text-muted)] mt-0.5">2 hours ago</p>
+                          <p className="font-body text-[var(--font-size-base)] text-[var(--text)]">Fee deadline approaching</p>
+                          <p className="font-body text-[var(--font-size-sm)] text-[var(--text-muted)] mt-0.5">2 hours ago</p>
                         </div>
                         <div className="px-3 py-2">
-                          <p className="font-body text-[13px] text-[var(--text)]">New announcement posted</p>
-                          <p className="font-body text-[11px] text-[var(--text-muted)] mt-0.5">5 hours ago</p>
+                          <p className="font-body text-[var(--font-size-base)] text-[var(--text)]">New announcement posted</p>
+                          <p className="font-body text-[var(--font-size-sm)] text-[var(--text-muted)] mt-0.5">5 hours ago</p>
                         </div>
                       </PopoverContent>
                     </div>

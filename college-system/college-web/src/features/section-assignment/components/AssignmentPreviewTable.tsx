@@ -48,7 +48,7 @@ export function AssignmentPreviewTable({ preview, onRemoveStudent }: AssignmentP
 
           return (
             <div key={sectionGroup.sectionId} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden shadow-sm">
-              <div className="px-6 py-3 bg-[var(--surface-container-lowest)] border-b border-[var(--border)] flex justify-between items-center">
+              <div className="px-6 py-[var(--space-3)] bg-[var(--surface-container-lowest)] border-b border-[var(--border)] flex justify-between items-center">
                 <span className="font-semibold text-[var(--text)]">Section {sectionGroup.sectionName}</span>
                 <Badge variant="neutral">{sectionGroup.students.length} students</Badge>
               </div>

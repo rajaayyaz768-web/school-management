@@ -14,7 +14,7 @@ const STATUS_STYLES: Record<string, string> = {
 function ExamStatusPill({ status }: { status: string }) {
   const cls = STATUS_STYLES[status] ?? STATUS_STYLES.SCHEDULED
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${cls}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[var(--font-size-xs)] font-semibold border ${cls}`}>
       {status}
     </span>
   )
@@ -56,7 +56,7 @@ export function UpcomingExamsCard({ exams, isLoading }: Props) {
             <thead>
               <tr className="border-b border-[var(--border)] bg-white/2">
                 {['Date', 'Section', 'Subject', 'Type', 'Status'].map((h) => (
-                  <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest">
+                  <th key={h} className="text-left px-[var(--space-4)] py-[var(--space-3)] text-[var(--font-size-xs)] font-semibold text-[var(--text-muted)] uppercase tracking-widest">
                     {h}
                   </th>
                 ))}
@@ -72,11 +72,11 @@ export function UpcomingExamsCard({ exams, isLoading }: Props) {
                         day: 'numeric',
                       })}
                     </p>
-                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{exam.startTime}</p>
+                    <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5">{exam.startTime}</p>
                   </td>
-                  <td className="px-4 py-3 text-xs text-[var(--text)]">{exam.sectionName}</td>
-                  <td className="px-4 py-3 text-xs font-medium text-[var(--text)]">{exam.subjectName}</td>
-                  <td className="px-4 py-3 text-[10px] text-[var(--text-muted)]">{exam.examTypeName}</td>
+                  <td className="px-4 py-[var(--space-3)] text-xs text-[var(--text)]">{exam.sectionName}</td>
+                  <td className="px-4 py-[var(--space-3)] text-xs font-medium text-[var(--text)]">{exam.subjectName}</td>
+                  <td className="px-4 py-[var(--space-3)] text-[var(--font-size-xs)] text-[var(--text-muted)]">{exam.examTypeName}</td>
                   <td className="px-4 py-3">
                     {exam.status && <ExamStatusPill status={exam.status} />}
                   </td>

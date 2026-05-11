@@ -7,7 +7,7 @@ import { AppError } from "../../middlewares/error.middleware";
 import { LoginRequest, LoginResponse, MeResponse, RefreshTokenResponse } from "./auth.types";
 import { logger } from "../../utils/logger";
 import { hashPassword, comparePassword as verifyPassword } from "../../utils/password";
-import { sendRecoveryEmailVerification, sendPasswordResetEmail } from "../../services/email.service";
+import { getEmailQueue } from "../../queues";
 import { isIpInAnyNetwork } from "../../utils/ipUtils";
 import crypto from "crypto";
 
@@ -187,21 +187,45 @@ export const updateProfileService = async (
   lastName: string
 ): Promise<{ fullName: string }> => {
   if (role === "STUDENT") {
-    await prisma.studentProfile.update({
+    // Students must already have a profile — created during import
+    const result = await prisma.studentProfile.updateMany({
       where: { userId },
       data: { firstName, lastName },
     });
+    if (result.count === 0) {
+      throw new AppError(
+        "Student profile not found. Contact your administrator.",
+        404
+      );
+    }
   } else if (role === "PARENT") {
-    await prisma.parentProfile.update({
+    const result = await prisma.parentProfile.updateMany({
       where: { userId },
       data: { firstName, lastName },
     });
+    if (result.count === 0) {
+      throw new AppError(
+        "Parent profile not found. Contact your administrator.",
+        404
+      );
+    }
   } else {
-    await prisma.staffProfile.update({
+    // SUPER_ADMIN, ADMIN, TEACHER — upsert so that admin/principal accounts
+    // without an explicit StaffProfile row (e.g. seeded users) can still set
+    // their display name on first save.
+    await prisma.staffProfile.upsert({
       where: { userId },
-      data: { firstName, lastName },
+      update: { firstName, lastName },
+      create: {
+        userId,
+        firstName,
+        lastName,
+        staffCode: `STAFF-${userId.slice(0, 8).toUpperCase()}`,
+        gender: "MALE",
+      },
     });
   }
+
   return { fullName: `${firstName} ${lastName}` };
 };
 
@@ -243,7 +267,7 @@ export const sendRecoveryEmailOtpService = async (
     },
   });
 
-  await sendRecoveryEmailVerification(recoveryEmail, otp);
+  await getEmailQueue()?.add('recovery_verification', { type: 'recovery_verification', to: recoveryEmail, payload: { otp } });
 };
 
 /* ── Recovery Email: verify OTP and save ─────────────────────────────── */
@@ -295,7 +319,7 @@ export const sendPasswordResetOtpService = async (
     },
   });
 
-  await sendPasswordResetEmail(user.recoveryEmail, otp);
+  await getEmailQueue()?.add('password_reset', { type: 'password_reset', to: user.recoveryEmail, payload: { otp } });
 };
 
 /* ── Forgot Password: reset with OTP ─────────────────────────────────── */

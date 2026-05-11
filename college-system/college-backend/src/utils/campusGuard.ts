@@ -58,6 +58,28 @@ export async function assertStudentCampus(studentId: string, user: GuardUser): P
 }
 
 /**
+ * Bulk variant of assertStudentCampus — validates all student IDs in a single query.
+ * Use in place of Promise.all(ids.map(assertStudentCampus)) to avoid N+1 queries.
+ * SUPER_ADMIN always passes.
+ */
+export async function assertStudentsCampus(studentIds: string[], user: GuardUser): Promise<void> {
+  if (user.role === Role.SUPER_ADMIN) return;
+  if (studentIds.length === 0) return;
+
+  const students = await prisma.studentProfile.findMany({
+    where: { id: { in: studentIds } },
+    select: { id: true, campusId: true },
+  });
+
+  if (students.length !== studentIds.length) {
+    throw new AppError("One or more students not found", 404);
+  }
+
+  const mismatch = students.find((s) => s.campusId !== user.campusId);
+  if (mismatch) throw new CampusScopeError();
+}
+
+/**
  * Assert that a staff member's primary campus matches the requesting user's campus.
  * Returns the resolved campus id on success.
  * SUPER_ADMIN always passes.

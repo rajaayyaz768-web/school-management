@@ -137,7 +137,7 @@ export default function PrincipalHierarchyPage() {
     if (selectedCampus) {
       return (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="space-y-5">
-          <div className="flex items-center gap-3 border-b border-[var(--border)] pb-4 md:border-0 md:pb-0">
+          <div className="flex items-center gap-[var(--space-3)] border-b border-[var(--border)] pb-4 md:border-0 md:pb-0">
             <h2 className="text-lg md:text-2xl font-bold text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Programs in {selectedCampus.name}</h2>
           </div>
           <ProgramList
@@ -154,16 +154,16 @@ export default function PrincipalHierarchyPage() {
     return (
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="space-y-6">
         {/* KPI row — scroll on mobile */}
-        <div className="flex overflow-x-auto gap-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3">
+        <div className="flex overflow-x-auto gap-[var(--space-3)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3">
           {[
             { title: 'Campuses', value: totalCampusesCount, icon: <Layers className="w-4 h-4" />, accent: 'text-[var(--gold)]', bg: 'bg-[var(--gold)]/15' },
             { title: 'Programs', value: programs.length || '—', icon: <BookOpen className="w-4 h-4" />, accent: 'text-[var(--primary)]', bg: 'bg-[var(--primary)]/15' },
             { title: 'Faculty', value: 'Mapped', icon: <Users className="w-4 h-4" />, accent: 'text-[var(--text-muted)]', bg: 'bg-[var(--border)]' },
           ].map((kpi, i) => (
             <motion.div key={kpi.title} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06, duration: 0.3 }}
-              className="shrink-0 min-w-[140px] sm:min-w-0 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 flex flex-col gap-2">
+              className="shrink-0 min-w-[140px] sm:min-w-0 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-4)] flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">{kpi.title}</span>
+                <span className="text-[var(--font-size-xs)] font-bold uppercase tracking-widest text-[var(--text-muted)]">{kpi.title}</span>
                 <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', kpi.bg, kpi.accent)}>{kpi.icon}</div>
               </div>
               <span className={cn('text-2xl font-bold', kpi.accent)}>{kpi.value}</span>
@@ -173,7 +173,7 @@ export default function PrincipalHierarchyPage() {
 
         {/* Campus cards */}
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-3 px-1">Explore Campuses</p>
+          <p className="text-[var(--font-size-xs)] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-3 px-1">Explore Campuses</p>
           {campusesLoading ? (
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
@@ -187,7 +187,7 @@ export default function PrincipalHierarchyPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.06, duration: 0.3 }}
                   onClick={() => handleCampusClick(campus)}
-                  className="w-full text-left bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--primary)]/30 transition-all active:scale-[0.98] flex items-center gap-4"
+                  className="w-full text-left bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-4)] hover:border-[var(--primary)]/30 transition-all active:scale-[0.98] flex items-center gap-4"
                 >
                   <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0', AVATAR_COLORS[i % AVATAR_COLORS.length])}>
                     {campus.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
@@ -209,7 +209,7 @@ export default function PrincipalHierarchyPage() {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       {/* ── Mobile header ──────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center gap-[var(--space-3)] md:hidden">
         {getBackAction() && (
           <button onClick={getBackAction()} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors shrink-0 active:scale-95">
             <ArrowLeft className="w-5 h-5 text-[var(--text)]" />
@@ -256,7 +256,7 @@ export default function PrincipalHierarchyPage() {
         >
           {activeStudent ? (
             <div className="flex flex-col h-full">
-              <div className="flex items-start gap-4 mb-6 pb-6 border-b border-[var(--border)]">
+              <div className="flex items-start gap-[var(--space-4)] mb-6 pb-6 border-b border-[var(--border)]">
                 <Avatar name={`${activeStudent.firstName} ${activeStudent.lastName}`} size="xl" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-2">
@@ -285,7 +285,7 @@ export default function PrincipalHierarchyPage() {
                 />
 
                 <TabPanel tabId="academic" activeTab={activeStudentTab} className="space-y-6 py-4">
-                  <div className="bg-[var(--surface-container-low)] p-4 rounded-xl border border-[var(--border)] grid grid-cols-2 gap-4">
+                  <div className="bg-[var(--surface-container-low)] p-[var(--space-4)] rounded-xl border border-[var(--border)] grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Section</p>
                       <p className="font-semibold text-[var(--text)]">{activeStudent.section?.name || 'Unassigned'}</p>
@@ -324,7 +324,7 @@ export default function PrincipalHierarchyPage() {
               </div>
             </div>
           ) : (
-            <div className="h-full flex items-center justify-center p-6 text-center text-[var(--text-muted)]">
+            <div className="h-full flex items-center justify-center p-[var(--space-6)] text-center text-[var(--text-muted)]">
               Loading student profile...
             </div>
           )}

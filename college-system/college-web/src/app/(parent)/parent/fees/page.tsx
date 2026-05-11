@@ -40,7 +40,7 @@ function FeeCard({ record }: { record: FeeRecordResponse }) {
         <Badge variant={STATUS_VARIANT[record.status]}>{record.status}</Badge>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 text-center text-sm border-t border-[var(--border)] pt-3">
+      <div className="grid grid-cols-3 gap-[var(--space-3)] text-center text-sm border-t border-[var(--border)] pt-3">
         <div>
           <p className="text-xs text-[var(--text-muted)]">Due</p>
           <p className="font-semibold">{formatPKR(record.amountDue)}</p>
@@ -130,7 +130,7 @@ export default function ParentFeesPage() {
               { label: 'Total Paid', value: formatPKR(totalPaid), icon: <CheckCircle2 className="w-5 h-5" />, color: '#10B981' },
               { label: 'Balance', value: formatPKR(totalBalance), icon: <CreditCard className="w-5 h-5" />, color: totalBalance > 0 ? 'var(--danger)' : '#10B981' },
             ].map(({ label, value, icon, color }) => (
-              <Card key={label} className="flex items-center gap-4 p-4">
+              <Card key={label} className="flex items-center gap-[var(--space-4)] p-4">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${color}15`, color }}>
                   {icon}
                 </div>

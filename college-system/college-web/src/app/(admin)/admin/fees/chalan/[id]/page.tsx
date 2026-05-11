@@ -264,14 +264,14 @@ export default function FeeChalanPage() {
   return (
     <div>
       {/* Screen toolbar */}
-      <div className="print:hidden p-6 flex items-center justify-between border-b border-[var(--border)]">
+      <div className="print:hidden p-[var(--space-6)] flex items-center justify-between border-b border-[var(--border)]">
         <Link href="/fees" className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Back to Fees
         </Link>
         <button
           onClick={handlePrint}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-[var(--space-4)] py-2 rounded-lg bg-[var(--primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
         >
           <Printer className="w-4 h-4" />
           Download PDF

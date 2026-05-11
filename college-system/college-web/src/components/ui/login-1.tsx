@@ -30,7 +30,7 @@ const MagneticInput = ({ label, placeholder, icon, error, ...rest }: InputProps)
     <div className="w-full">
       {label && (
         <label
-          className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)]"
+          className="mb-1.5 block text-[var(--font-size-sm)] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)]"
           style={{ fontFamily: 'var(--font-body)' }}
         >
           {label}
@@ -197,7 +197,7 @@ export default function Login1() {
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 flex w-full max-w-[880px] overflow-hidden rounded-[22px]"
+        className="relative z-10 flex w-full max-w-[880px] overflow-hidden rounded-[var(--radius-xl)]"
         style={{
           border: '1px solid var(--border)',
           boxShadow: 'var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.4)',
@@ -307,7 +307,7 @@ export default function Login1() {
                   className="flex items-center gap-1.5 overflow-hidden"
                 >
                   <AlertCircle size={12} className="shrink-0 text-red-500" />
-                  <span className="text-[12px] text-red-500" style={{ fontFamily: 'var(--font-body)' }}>
+                  <span className="text-[var(--font-size-sm)] text-red-500" style={{ fontFamily: 'var(--font-body)' }}>
                     {errMsg}
                   </span>
                 </motion.div>
@@ -324,7 +324,7 @@ export default function Login1() {
               <button
                 type="button"
                 onClick={openForgot}
-                className="cursor-pointer text-[12px] text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors focus:outline-none"
+                className="cursor-pointer text-[var(--font-size-sm)] text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors focus:outline-none"
                 style={{ fontFamily: 'var(--font-body)' }}
               >
                 Forgot your password?
@@ -374,7 +374,7 @@ export default function Login1() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.50 }}
-              className="mt-5 text-center text-[12px] text-[var(--text-muted)]"
+              className="mt-5 text-center text-[var(--font-size-sm)] text-[var(--text-muted)]"
               style={{ fontFamily: 'var(--font-body)' }}
             >
               Need access?{' '}
@@ -390,27 +390,36 @@ export default function Login1() {
         <div
           className="relative hidden flex-col items-start justify-between overflow-hidden p-12 lg:flex lg:w-1/2"
           style={{
-            background: '#1A1A1B',
+            background: 'linear-gradient(145deg, #0D3B2A 0%, #0a2e20 60%, #071e16 100%)',
             backgroundImage: GRAIN,
             backgroundRepeat: 'repeat',
             backgroundSize: '300px 300px',
           }}
         >
-          {/* ambient amber orb */}
-          <div className="pointer-events-none absolute -right-20 -top-20 h-[360px] w-[360px] rounded-full"
-            style={{ background: 'radial-gradient(circle, rgba(180,83,9,0.22) 0%, transparent 65%)' }} />
-          {/* gold orb bottom-left */}
-          <div className="pointer-events-none absolute -bottom-16 -left-16 h-[280px] w-[280px] rounded-full"
-            style={{ background: 'radial-gradient(circle, rgba(212,168,67,0.16) 0%, transparent 65%)' }} />
+          {/* grain on top of gradient */}
+          <div className="pointer-events-none absolute inset-0" style={{ backgroundImage: GRAIN, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', opacity: 0.6 }} />
 
-          {/* subtle grid */}
+          {/* gold orb — top-right */}
+          <div className="pointer-events-none absolute -right-16 -top-16 h-[320px] w-[320px] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(200,150,58,0.18) 0%, transparent 65%)' }} />
+          {/* green glow — bottom-left */}
+          <div className="pointer-events-none absolute -bottom-20 -left-20 h-[300px] w-[300px] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(26,96,69,0.45) 0%, transparent 65%)' }} />
+
+          {/* dot grid */}
           <div
-            className="pointer-events-none absolute inset-0 z-0"
+            className="pointer-events-none absolute inset-0 z-0 opacity-20"
             style={{
-              backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-              backgroundSize: '28px 28px',
+              backgroundImage: 'radial-gradient(circle, rgba(200,150,58,0.6) 0.7px, transparent 0.7px)',
+              backgroundSize: '24px 24px',
             }}
           />
+
+          {/* corner arc decorations */}
+          <svg className="pointer-events-none absolute right-0 top-0 opacity-10" width="220" height="220" viewBox="0 0 220 220" fill="none">
+            <circle cx="220" cy="0" r="140" stroke="#C8963A" strokeWidth="0.8" />
+            <circle cx="220" cy="0" r="88"  stroke="#C8963A" strokeWidth="0.5" />
+          </svg>
 
           {/* top — logo + name */}
           <motion.div
@@ -419,20 +428,29 @@ export default function Login1() {
             transition={{ delay: 0.30, duration: 0.5 }}
             className="relative z-10 flex flex-col gap-4"
           >
-            <FalconEagleLogo size={52} />
+            {/* Logo badge */}
+            <div style={{
+              width: 52, height: 52, borderRadius: 14,
+              background: 'rgba(200,150,58,0.15)',
+              border: '1.5px solid rgba(200,150,58,0.4)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <FalconEagleLogo size={32} />
+            </div>
 
             <div>
               <h1
-                className="text-[22px] font-bold leading-tight text-white/90"
-                style={{ fontFamily: 'var(--font-display)' }}
+                className="text-[22px] font-bold leading-tight"
+                style={{ fontFamily: 'var(--font-display)', color: '#fff' }}
               >
-                Government<br />Intermediate College
+                Falcon School<br />
+                <span style={{ color: '#C8963A' }}>Management System</span>
               </h1>
               <p
-                className="mt-1 text-[10px] uppercase tracking-[0.14em] text-white/35"
-                style={{ fontFamily: 'var(--font-body)' }}
+                className="mt-1.5 text-[var(--font-size-xs)] uppercase tracking-[0.16em]"
+                style={{ fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.35)' }}
               >
-                Management System
+                Gov't Intermediate College · Est. 2010
               </p>
             </div>
 
@@ -441,8 +459,8 @@ export default function Login1() {
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ delay: 0.48, duration: 0.45 }}
-              className="h-px w-9 origin-left"
-              style={{ background: 'rgba(212,168,67,0.50)' }}
+              className="h-[3px] w-10 origin-left rounded-full"
+              style={{ background: '#C8963A' }}
             />
 
             {/* features */}
@@ -453,12 +471,12 @@ export default function Login1() {
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.52 + i * 0.07 }}
-                  className="flex items-center gap-2.5 text-[13px] text-white/55"
-                  style={{ fontFamily: 'var(--font-body)' }}
+                  className="flex items-center gap-2.5 text-[var(--font-size-base)]"
+                  style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.6)' }}
                 >
                   <span
                     className="h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ background: '#D4A843', boxShadow: '0 0 6px rgba(212,168,67,0.55)' }}
+                    style={{ background: '#C8963A', boxShadow: '0 0 6px rgba(200,150,58,0.6)' }}
                   />
                   {f}
                 </motion.li>
@@ -479,21 +497,21 @@ export default function Login1() {
                 initial={{ opacity: 0, scale: 0.92 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.66 + i * 0.06 }}
-                className="flex flex-col rounded-[11px] px-4 py-3"
+                className="flex flex-col rounded-[11px] px-[var(--space-4)] py-3"
                 style={{
                   background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(200,150,58,0.18)',
                 }}
               >
                 <span
                   className="text-xl font-bold"
-                  style={{ color: '#D4A843', fontFamily: 'var(--font-body)' }}
+                  style={{ color: '#C8963A', fontFamily: 'var(--font-display)' }}
                 >
                   {s.num}
                 </span>
                 <span
-                  className="text-[11px]"
-                  style={{ color: 'rgba(255,255,255,0.32)', fontFamily: 'var(--font-body)' }}
+                  className="text-[var(--font-size-sm)]"
+                  style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-body)' }}
                 >
                   {s.label}
                 </span>
@@ -524,7 +542,7 @@ export default function Login1() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 16 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full max-w-[380px] rounded-[20px] p-8"
+              className="w-full max-w-[380px] rounded-[var(--radius-xl)] p-8"
               style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-lg)' }}
             >
               <AnimatePresence mode="wait">
@@ -539,7 +557,7 @@ export default function Login1() {
                       <div className="flex items-center justify-between pt-1">
                         <button type="button" onClick={closeForgot} className="cursor-pointer text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">Cancel</button>
                         <motion.button type="submit" disabled={!forgotEmail} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium text-white disabled:opacity-60"
                           style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}>
                           Next
                         </motion.button>
@@ -558,7 +576,7 @@ export default function Login1() {
                       <div className="flex items-center justify-between pt-1">
                         <button type="button" onClick={() => setForgotStep('email')} className="cursor-pointer text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">← Back</button>
                         <motion.button type="submit" disabled={sendResetOtp.isPending || !forgotRecoveryEmail} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium text-white disabled:opacity-60"
                           style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}>
                           {sendResetOtp.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                           Send code
@@ -575,7 +593,7 @@ export default function Login1() {
                     <p className="text-xs text-[var(--text-muted)] mb-6">A 6-digit code was sent to <span className="text-[var(--text)] font-medium">{forgotRecoveryEmail}</span>. It expires in 10 minutes.</p>
                     <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
                       <div>
-                        <label className="block text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)] mb-1.5">6-digit code</label>
+                        <label className="block text-[var(--font-size-sm)] font-medium uppercase tracking-[0.06em] text-[var(--text-muted)] mb-1.5">6-digit code</label>
                         <input
                           type="text" inputMode="numeric" maxLength={6}
                           className="w-full rounded-[10px] border border-[var(--border)] bg-[var(--bg)] px-3.5 py-2.5 text-center text-xl font-mono tracking-[0.4em] text-[var(--text)] outline-none transition-all focus:border-[var(--border-focus)] focus:shadow-[var(--shadow-glow)]"
@@ -587,7 +605,7 @@ export default function Login1() {
                       <div className="flex items-center justify-between pt-1">
                         <button type="button" onClick={() => setForgotStep('recovery')} className="cursor-pointer text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">← Back</button>
                         <motion.button type="submit" disabled={forgotOtp.length !== 6} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium text-white disabled:opacity-60"
                           style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}>
                           Continue
                         </motion.button>
@@ -620,7 +638,7 @@ export default function Login1() {
                       <div className="flex items-center justify-between pt-1">
                         <button type="button" onClick={() => setForgotStep('otp')} className="cursor-pointer text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">← Back</button>
                         <motion.button type="submit" disabled={resetPassword.isPending || !newPwd || !confirmPwd} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                          className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-[var(--space-4)] py-2 text-sm font-medium text-white disabled:opacity-60"
                           style={{ background: 'var(--primary)', fontFamily: 'var(--font-body)' }}>
                           {resetPassword.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                           Reset password

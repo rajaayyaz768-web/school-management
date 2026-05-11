@@ -41,7 +41,7 @@ export function ExamSelectorCards({ exams, selectedId, onSelect, isLoading }: Ex
           key={exam.id}
           onClick={() => onSelect(exam)}
           className={cn(
-            'text-left rounded-[var(--radius-card)] border-2 p-5 transition-all duration-[var(--transition-base)]',
+            'text-left rounded-[var(--radius-card)] border-2 p-[var(--space-5)] transition-all duration-[var(--transition-base)]',
             'bg-[var(--surface)] hover:border-[var(--primary)] hover:bg-[var(--surface-hover)]',
             selectedId === exam.id
               ? 'border-[var(--primary)] bg-[var(--surface-hover)]'

@@ -52,7 +52,7 @@ export function PrincipalStudentsPage() {
   if (step === 'campus') {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
-        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center gap-[var(--space-3)] md:hidden">
           <GraduationCap className="w-5 h-5 text-[var(--primary)]" />
           <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Students</h1>
         </header>
@@ -73,7 +73,7 @@ export function PrincipalStudentsPage() {
   if (step === 'section' && selectedCampusId) {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
-        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center gap-[var(--space-3)] md:hidden">
           <button
             onClick={() => { setSelectedCampusId(null); setStep('campus') }}
             className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors active:scale-95"
@@ -95,7 +95,7 @@ export function PrincipalStudentsPage() {
             variant="ghost"
             size="sm"
             onClick={handleViewAllInCampus}
-            className="w-full justify-center py-3 rounded-xl border border-dashed border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 transition-colors"
+            className="w-full justify-center py-[var(--space-3)] rounded-xl border border-dashed border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--primary)] hover:border-[var(--primary)]/40 transition-colors"
           >
             View All Students in {selectedCampusName}
           </Button>

@@ -42,9 +42,23 @@ export const errorMiddleware = (
     logger.db.error('PrismaError', req.originalUrl, err);
   }
 
-  res.status(statusCode).json({
+  // Map known Prisma error codes to proper HTTP statuses
+  let resolvedStatus = statusCode;
+  let resolvedMessage = message;
+  if (prismaCode === "P2025") {
+    resolvedStatus = 404;
+    resolvedMessage = "Record not found";
+  } else if (prismaCode === "P2002") {
+    resolvedStatus = 409;
+    resolvedMessage = "A record with this value already exists";
+  } else if (prismaCode === "P2003") {
+    resolvedStatus = 400;
+    resolvedMessage = "Related record not found";
+  }
+
+  res.status(resolvedStatus).json({
     success: false,
-    message,
+    message: resolvedMessage,
     ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
   });
 };

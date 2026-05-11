@@ -32,7 +32,7 @@ export default function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#003366]">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--primary)]">
         <Loader2 className="h-8 w-8 animate-spin text-white" />
       </div>
     );
@@ -40,7 +40,7 @@ export default function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
 
   if (!allowedRoles.includes(user.role)) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#003366]">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--primary)]">
         <Loader2 className="h-8 w-8 animate-spin text-white" />
       </div>
     );

@@ -130,8 +130,8 @@ export const markDailyAttendance = async (data: MarkStaffAttendanceDto, markedBy
     })
   ))
 
-  cacheDelPattern('dashboard:admin:')
-  cacheDelPattern('dashboard:principal:')
+  await cacheDelPattern('dashboard:admin:')
+  await cacheDelPattern('dashboard:principal:')
 
   return getDailyReport(effectiveCampusId, data.date)
 }
@@ -158,8 +158,8 @@ export const updateSingleAttendance = async (id: string, data: UpdateAttendanceD
     include: staffAttendanceInclude,
   })
 
-  cacheDelPattern('dashboard:admin:')
-  cacheDelPattern('dashboard:principal:')
+  await cacheDelPattern('dashboard:admin:')
+  await cacheDelPattern('dashboard:principal:')
 
   return mapToResponse(updated)
 }
@@ -276,24 +276,35 @@ export const getAbsentByCampus = async (date: string, campusId: string | null, u
   }
 
   const groups = await Promise.all(campuses.map(async (campus) => {
-    const absentRecords = await prisma.staffAttendance.findMany({
-      where: {
-        campusId: campus.id,
-        date: { gte: startOfDay, lte: endOfDay },
-        status: StaffAttendanceStatus.ABSENT,
-      },
-      include: {
-        staff: {
-          select: { id: true, firstName: true, lastName: true, staffCode: true, designation: true, photoUrl: true },
+    const [absentRecords, totalMarked] = await Promise.all([
+      prisma.staffAttendance.findMany({
+        where: {
+          campusId: campus.id,
+          date: { gte: startOfDay, lte: endOfDay },
+          status: StaffAttendanceStatus.ABSENT,
         },
-      },
-    })
+        include: {
+          staff: {
+            select: { id: true, firstName: true, lastName: true, staffCode: true, designation: true, photoUrl: true },
+          },
+        },
+      }),
+      // Count any attendance record for this campus on this date — used by the
+      // frontend to distinguish "all present" from "attendance not marked yet"
+      prisma.staffAttendance.count({
+        where: {
+          campusId: campus.id,
+          date: { gte: startOfDay, lte: endOfDay },
+        },
+      }),
+    ])
 
     return {
       campusId: campus.id,
       campusName: campus.name,
       campusCode: campus.code,
       absentCount: absentRecords.length,
+      totalMarked,
       staff: absentRecords.map((r) => ({
         id: r.staff.id,
         firstName: r.staff.firstName,

@@ -66,7 +66,7 @@ export function AnnouncementCard({
   return (
     <Card hoverable className="flex flex-col gap-3">
       {/* Header row */}
-      <div className="flex items-start justify-between gap-3 flex-wrap">
+      <div className="flex items-start justify-between gap-[var(--space-3)] flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant={AUDIENCE_BADGE_VARIANT[audience]}>
             {AUDIENCE_LABEL[audience]}
@@ -93,7 +93,7 @@ export function AnnouncementCard({
       </h3>
 
       {/* Meta row */}
-      <div className="flex items-center gap-4 flex-wrap">
+      <div className="flex items-center gap-[var(--space-4)] flex-wrap">
         <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
           <MapPin className="w-3 h-3 shrink-0" />
           <span className="font-body text-xs">

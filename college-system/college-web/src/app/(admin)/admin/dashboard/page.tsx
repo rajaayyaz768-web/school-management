@@ -127,7 +127,7 @@ function StatTile({
   const cls = accent ?? 'default'
 
   return (
-    <div className={`rounded-[var(--radius-lg)] border p-5 flex items-center gap-4 ${accentClasses[cls]}`}>
+    <div className={`rounded-[var(--radius-lg)] border p-[var(--space-5)] flex items-center gap-[var(--space-4)] ${accentClasses[cls]}`}>
       <div className={`w-10 h-10 rounded-[var(--radius)] flex items-center justify-center flex-shrink-0 ${iconClasses[cls]}`}>
         {icon}
       </div>
@@ -170,7 +170,7 @@ function StaffAttendanceCard({
               <DonutChart percentage={presentPct} size={110} />
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-xl font-bold text-[var(--text)]">{presentPct}%</span>
-                <span className="text-[10px] text-[var(--text-muted)] font-medium">Present</span>
+                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-medium">Present</span>
               </div>
             </div>
             {/* Breakdown */}
@@ -178,28 +178,28 @@ function StaffAttendanceCard({
               <div className="flex items-center gap-2.5 p-2.5 rounded-[var(--radius)] bg-emerald-500/10 border border-emerald-500/20">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                 <div>
-                  <p className="text-[10px] text-[var(--text-muted)] font-medium">Present</p>
+                  <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-medium">Present</p>
                   <p className="text-lg font-bold text-emerald-400 leading-tight">{data.present}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5 p-2.5 rounded-[var(--radius)] bg-red-500/10 border border-red-500/20">
                 <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
                 <div>
-                  <p className="text-[10px] text-[var(--text-muted)] font-medium">Absent</p>
+                  <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-medium">Absent</p>
                   <p className="text-lg font-bold text-red-400 leading-tight">{data.absent}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5 p-2.5 rounded-[var(--radius)] bg-blue-500/10 border border-blue-500/20">
                 <Clock className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
                 <div>
-                  <p className="text-[10px] text-[var(--text-muted)] font-medium">On Leave</p>
+                  <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-medium">On Leave</p>
                   <p className="text-lg font-bold text-blue-400 leading-tight">{data.onLeave}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5 p-2.5 rounded-[var(--radius)] bg-amber-500/10 border border-amber-500/20">
                 <UserMinus className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
                 <div>
-                  <p className="text-[10px] text-[var(--text-muted)] font-medium">Half Day</p>
+                  <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-medium">Half Day</p>
                   <p className="text-lg font-bold text-amber-400 leading-tight">{data.halfDay}</p>
                 </div>
               </div>
@@ -225,27 +225,27 @@ function FeeOverviewCard({ data, isLoading }: { data: AdminFeeStats; isLoading: 
           <Skeleton variant="stat" />
         ) : (
           <>
-            <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-4 flex items-center justify-between">
+            <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-[var(--space-4)] flex items-center justify-between">
               <div>
-                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium mb-1">Pending Records</p>
+                <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase tracking-wide font-medium mb-1">Pending Records</p>
                 <p className="text-2xl font-bold text-[var(--text)]">{data.pendingCount}</p>
               </div>
               <div className="w-10 h-10 rounded-[var(--radius)] bg-white/5 flex items-center justify-center">
                 <FileText className="w-4 h-4 text-[var(--text-muted)]" />
               </div>
             </div>
-            <div className="rounded-[var(--radius)] border border-red-500/25 bg-red-500/8 p-4 flex items-center justify-between">
+            <div className="rounded-[var(--radius)] border border-red-500/25 bg-red-500/8 p-[var(--space-4)] flex items-center justify-between">
               <div>
-                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium mb-1">Pending Amount</p>
+                <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase tracking-wide font-medium mb-1">Pending Amount</p>
                 <p className="text-xl font-bold text-red-400">{formatPKR(data.pendingAmount)}</p>
               </div>
               <div className="w-10 h-10 rounded-[var(--radius)] bg-red-500/10 flex items-center justify-center">
                 <Banknote className="w-4 h-4 text-red-400" />
               </div>
             </div>
-            <div className="rounded-[var(--radius)] border border-amber-500/25 bg-amber-500/8 p-4 flex items-center justify-between">
+            <div className="rounded-[var(--radius)] border border-amber-500/25 bg-amber-500/8 p-[var(--space-4)] flex items-center justify-between">
               <div>
-                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium mb-1">Overdue</p>
+                <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase tracking-wide font-medium mb-1">Overdue</p>
                 <p className="text-2xl font-bold text-amber-400">{data.overdueCount}</p>
               </div>
               <div className="w-10 h-10 rounded-[var(--radius)] bg-amber-500/10 flex items-center justify-center">
@@ -271,7 +271,7 @@ const STATUS_STYLES: Record<string, string> = {
 function ExamStatusPill({ status }: { status: string }) {
   const cls = STATUS_STYLES[status] ?? STATUS_STYLES.SCHEDULED
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${cls}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[var(--font-size-xs)] font-semibold border ${cls}`}>
       {status}
     </span>
   )
@@ -305,7 +305,7 @@ function UpcomingExamsCard({ exams, isLoading }: { exams: AdminUpcomingExam[]; i
             <thead>
               <tr className="border-b border-[var(--border)] bg-white/2">
                 {['Date', 'Section', 'Subject', 'Type', 'Status'].map((h) => (
-                  <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest">
+                  <th key={h} className="text-left px-[var(--space-4)] py-[var(--space-3)] text-[var(--font-size-xs)] font-semibold text-[var(--text-muted)] uppercase tracking-widest">
                     {h}
                   </th>
                 ))}
@@ -318,11 +318,11 @@ function UpcomingExamsCard({ exams, isLoading }: { exams: AdminUpcomingExam[]; i
                     <p className="text-xs font-semibold text-[var(--text)]">
                       {new Date(exam.date).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' })}
                     </p>
-                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{exam.startTime}</p>
+                    <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5">{exam.startTime}</p>
                   </td>
-                  <td className="px-4 py-3 text-xs text-[var(--text)]">{exam.sectionName}</td>
-                  <td className="px-4 py-3 text-xs font-medium text-[var(--text)]">{exam.subjectName}</td>
-                  <td className="px-4 py-3 text-[10px] text-[var(--text-muted)]">{exam.examTypeName}</td>
+                  <td className="px-4 py-[var(--space-3)] text-xs text-[var(--text)]">{exam.sectionName}</td>
+                  <td className="px-4 py-[var(--space-3)] text-xs font-medium text-[var(--text)]">{exam.subjectName}</td>
+                  <td className="px-4 py-[var(--space-3)] text-[var(--font-size-xs)] text-[var(--text-muted)]">{exam.examTypeName}</td>
                   <td className="px-4 py-3">
                     <ExamStatusPill status={exam.status} />
                   </td>
@@ -367,21 +367,21 @@ function RecentPaymentsCard({ payments, isLoading }: { payments: AdminRecentPaym
               const initials = getInitials(p.studentName)
               const colorCls = AVATAR_COLORS[idx % AVATAR_COLORS.length]
               return (
-                <li key={p.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-[var(--surface)] transition-colors">
+                <li key={p.id} className="flex items-center gap-[var(--space-3)] px-5 py-3.5 hover:bg-[var(--surface)] transition-colors">
                   {/* Avatar */}
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${colorCls}`}>
                     {initials}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[var(--text)] truncate">{p.studentName}</p>
-                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
+                    <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5">
                       {p.rollNumber ? `#${p.rollNumber}` : ''}
                       {p.receiptNumber ? ` · ${p.receiptNumber}` : ''}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-sm font-bold text-emerald-400">{formatPKR(p.amountPaid)}</p>
-                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
+                    <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5">
                       {new Date(p.paidAt).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' })}
                     </p>
                   </div>
@@ -418,10 +418,10 @@ function QuickActionsCard() {
           <a
             key={action.label}
             href={action.href}
-            className="flex flex-col items-center gap-2 p-4 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--gold)]/40 hover:bg-[var(--gold)]/5 transition-all group text-center"
+            className="flex flex-col items-center gap-2 p-[var(--space-4)] rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--gold)]/40 hover:bg-[var(--gold)]/5 transition-all group text-center"
           >
             <action.icon className={`w-5 h-5 ${action.color} group-hover:scale-110 transition-transform`} />
-            <span className="text-[10px] font-medium text-[var(--text-muted)] leading-tight">{action.label}</span>
+            <span className="text-[var(--font-size-xs)] font-medium text-[var(--text-muted)] leading-tight">{action.label}</span>
           </a>
         ))}
       </div>
@@ -447,7 +447,7 @@ export default function AdminDashboardPage() {
       : 0
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)] p-6 xl:p-8 gap-6">
+    <div className="flex flex-col min-h-[calc(100vh-4rem)] p-[var(--space-6)] xl:p-8 gap-6">
       <PageHeader
         title="Admin Dashboard"
         subtitle="Campus operations at a glance"

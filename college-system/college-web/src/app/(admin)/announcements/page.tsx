@@ -83,7 +83,7 @@ export default function AnnouncementsPage() {
 
       <Card className="flex-1 overflow-hidden mt-6 flex flex-col">
         {/* Filter bar */}
-        <div className="flex flex-wrap items-end gap-4 p-6 border-b border-[var(--border)]">
+        <div className="flex flex-wrap items-end gap-[var(--space-4)] p-[var(--space-6)] border-b border-[var(--border)]">
           <Select
             label="Audience"
             value={filterAudience}
@@ -110,7 +110,7 @@ export default function AnnouncementsPage() {
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-auto p-6 bg-[var(--background)]">
+        <div className="flex-1 overflow-auto p-[var(--space-6)] bg-[var(--background)]">
           <AnnouncementList
             announcements={announcements ?? []}
             isLoading={isLoading}

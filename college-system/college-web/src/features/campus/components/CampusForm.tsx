@@ -113,7 +113,7 @@ export function CampusForm({ campus, onSuccess, onCancel }: CampusFormProps) {
         placeholder="03XXXXXXXXX"
       />
 
-      <div className="flex justify-end gap-3 pt-4">
+      <div className="flex justify-end gap-[var(--space-3)] pt-4">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>

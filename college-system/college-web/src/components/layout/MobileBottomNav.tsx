@@ -149,7 +149,7 @@ export function MobileBottomNav() {
                       )}
                     >
                       <Icon className="w-5 h-5" />
-                      <span className="text-[10px] font-semibold text-center leading-tight">{item.label}</span>
+                      <span className="text-[var(--font-size-xs)] font-semibold text-center leading-tight">{item.label}</span>
                     </Link>
                   );
                 })}
@@ -175,7 +175,7 @@ export function MobileBottomNav() {
               )}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-semibold tracking-wide leading-none">{item.label}</span>
+              <span className="text-[var(--font-size-xs)] font-semibold tracking-wide leading-none">{item.label}</span>
             </Link>
           );
         })}
@@ -189,7 +189,7 @@ export function MobileBottomNav() {
           )}
         >
           <MoreHorizontal className="w-5 h-5" />
-          <span className="text-[10px] font-semibold tracking-wide leading-none">More</span>
+          <span className="text-[var(--font-size-xs)] font-semibold tracking-wide leading-none">More</span>
         </button>
       </nav>
     </>

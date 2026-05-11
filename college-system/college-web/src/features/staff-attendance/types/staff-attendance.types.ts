@@ -66,6 +66,8 @@ export interface AbsentByCampusGroup {
   campusName: string
   campusCode: string
   absentCount: number
+  /** 0 = attendance not marked yet for this date */
+  totalMarked: number
   staff: StaffBasicInfo[]
 }
 

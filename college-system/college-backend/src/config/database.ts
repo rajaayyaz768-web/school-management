@@ -19,10 +19,12 @@ declare global {
 
 // Append pool + keepalive params so idle connections don't get silently
 // dropped by firewalls/NAT before PostgreSQL's own keepalive fires.
+// Set DB_CONNECTION_LIMIT=1 when using PgBouncer (it handles pooling itself).
+const poolLimit = process.env.DB_CONNECTION_LIMIT ?? '5';
 const DATABASE_URL = process.env.DATABASE_URL
   ? process.env.DATABASE_URL +
     (process.env.DATABASE_URL.includes('?') ? '&' : '?') +
-    'connection_limit=5&pool_timeout=20&connect_timeout=10&keepalives=1&keepalives_idle=30&keepalives_interval=10&keepalives_count=5'
+    `connection_limit=${poolLimit}&pool_timeout=20&connect_timeout=10&keepalives=1&keepalives_idle=30&keepalives_interval=10&keepalives_count=5`
   : undefined;
 
 export const prisma =

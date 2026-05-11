@@ -20,7 +20,7 @@ export function AttendanceReportCard({
 }: Props) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-[var(--space-4)] mb-6">
         <Skeleton className="h-28 w-full rounded-xl" />
         <Skeleton className="h-28 w-full rounded-xl" />
         <Skeleton className="h-28 w-full rounded-xl" />
@@ -31,7 +31,7 @@ export function AttendanceReportCard({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-[var(--space-4)] mb-6">
       <StatCard
         title="Total Students"
         value={totalStudents}

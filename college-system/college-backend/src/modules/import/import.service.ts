@@ -8,21 +8,49 @@ import { validateImportRows } from "./import.validator";
 import { ImportCsvRow, ValidationReport, ImportResult, ImportHistoryRecord } from "./import.types";
 import { sendCredentialsWhatsApp } from "../../services/whatsapp/metaClient";
 import { logger } from "../../utils/logger";
+import { redisClient, redisEnabled } from "../../config/redis";
 
-// ── In-memory cache ────────────────────────────────────────────────────────────
-interface CacheEntry {
-  report: ValidationReport;
-  rawRows: ImportCsvRow[];
-  expiresAt: number;
-}
-const validationCache = new Map<string, CacheEntry>();
-const CACHE_TTL_MS = 30 * 60 * 1000;
+const IMPORT_CACHE_TTL = 30 * 60; // 30 minutes in seconds
+
+// In-memory fallback when Redis is disabled (single-process dev mode).
+// Multi-worker production must have Redis — without it, validate-then-confirm
+// will break across workers because each has its own Map.
+type ImportEntry = { report: ValidationReport; rawRows: ImportCsvRow[]; expiresAt: number };
+const inMemoryImportCache = new Map<string, ImportEntry>();
 
 function purgeExpired() {
   const now = Date.now();
-  for (const [key, entry] of validationCache) {
-    if (entry.expiresAt < now) validationCache.delete(key);
+  for (const [k, v] of inMemoryImportCache) {
+    if (v.expiresAt < now) inMemoryImportCache.delete(k);
   }
+}
+
+async function setImportCache(token: string, value: { report: ValidationReport; rawRows: ImportCsvRow[] }): Promise<void> {
+  if (redisEnabled && redisClient?.isOpen) {
+    await redisClient.setEx(`import:validation:${token}`, IMPORT_CACHE_TTL, JSON.stringify(value));
+    return;
+  }
+  purgeExpired();
+  inMemoryImportCache.set(token, { ...value, expiresAt: Date.now() + IMPORT_CACHE_TTL * 1000 });
+}
+
+async function getImportCache(token: string): Promise<{ report: ValidationReport; rawRows: ImportCsvRow[] } | null> {
+  if (redisEnabled && redisClient?.isOpen) {
+    const val = await redisClient.get(`import:validation:${token}`);
+    return val ? JSON.parse(val) : null;
+  }
+  purgeExpired();
+  const entry = inMemoryImportCache.get(token);
+  if (!entry || entry.expiresAt < Date.now()) return null;
+  return { report: entry.report, rawRows: entry.rawRows };
+}
+
+async function delImportCache(token: string): Promise<void> {
+  if (redisEnabled && redisClient?.isOpen) {
+    await redisClient.del(`import:validation:${token}`);
+    return;
+  }
+  inMemoryImportCache.delete(token);
 }
 
 const VALID_RELATIONSHIPS_SET = new Set<Relationship>(
@@ -62,8 +90,6 @@ export const validateImport = async (
   _userId: string,
   campusId?: string
 ): Promise<ValidationReport> => {
-  purgeExpired();
-
   const section = await prisma.section.findUnique({
     where: { id: sectionId },
     include: { grade: { include: { program: { include: { campus: true } } } } },
@@ -91,11 +117,7 @@ export const validateImport = async (
 
   const report: ValidationReport = { ...reportBase, validationToken };
 
-  validationCache.set(validationToken, {
-    report,
-    rawRows,
-    expiresAt: Date.now() + CACHE_TTL_MS,
-  });
+  await setImportCache(validationToken, { report, rawRows });
 
   return report;
 };
@@ -110,10 +132,8 @@ export const confirmImport = async (
   userId: string,
   campusId?: string
 ): Promise<ImportResult> => {
-  purgeExpired();
-
-  const cached = validationCache.get(validationToken);
-  if (!cached || cached.expiresAt < Date.now()) {
+  const cached = await getImportCache(validationToken);
+  if (!cached) {
     throw Object.assign(
       new Error("Validation expired. Please re-upload the file and validate again."),
       { statusCode: 400 }
@@ -394,7 +414,7 @@ export const confirmImport = async (
     { timeout: 120000 }
   );
 
-  validationCache.delete(validationToken);
+  await delImportCache(validationToken);
 
   // ── Fire-and-forget WhatsApp credential messages ──────────────────────────
   // Run after the transaction so a WhatsApp failure never blocks the import.

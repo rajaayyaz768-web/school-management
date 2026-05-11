@@ -28,7 +28,7 @@ export default function LoginForm() {
       {errorMessage && (
         <div
           role="alert"
-          className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
+          className="rounded-lg bg-red-50 border border-red-200 px-[var(--space-4)] py-[var(--space-3)] text-sm text-red-700"
         >
           {errorMessage}
         </div>
@@ -95,7 +95,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={isPending || !identifier || !password}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#003366] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#002244] focus:outline-none focus:ring-2 focus:ring-[#003366]/40 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#003366] px-[var(--space-4)] py-2.5 text-sm font-semibold text-white transition hover:bg-[#002244] focus:outline-none focus:ring-2 focus:ring-[#003366]/40 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? (
           <>

@@ -78,7 +78,7 @@ export function HierarchyBreadcrumb({
   }
 
   return (
-    <div className="bg-[var(--surface)] px-4 py-3 rounded-xl border border-[var(--border)] shadow-sm mb-6">
+    <div className="bg-[var(--surface)] px-[var(--space-4)] py-[var(--space-3)] rounded-xl border border-[var(--border)] shadow-sm mb-6">
       <Breadcrumb items={items} />
     </div>
   );

@@ -10,6 +10,10 @@ import { generalLimiter } from "./middlewares/rateLimit.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { requestLogger } from "./middlewares/requestLogger.middleware";
 import apiRouter from "./routes/index";
+import prisma from "./config/database";
+import { getBoardRouter } from "./queues";
+import { authenticate } from "./middlewares/auth.middleware";
+import { authorize } from "./middlewares/role.middleware";
 
 const app: Application = express();
 
@@ -33,21 +37,42 @@ app.use(express.urlencoded({ extended: true }));
 // ─── 4. Cookie parser ──────────────────────────────────────────────────────────────
 app.use(cookieParser());
 
-// ─── 5. Rate limiter ───────────────────────────────────────────────────────────────
-app.use(generalLimiter);
+// ─── 5. Health checks (before rate limiter and auth — no token required) ──────────
+app.get("/health/live", (_req: Request, res: Response) => {
+  res.json({ status: "ok", uptime: process.uptime() });
+});
 
-// ─── 6. Request logger ─────────────────────────────────────────────────────────────
-app.use(requestLogger);
+app.get("/health/ready", async (_req: Request, res: Response) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: "ok", db: "connected", uptime: process.uptime() });
+  } catch {
+    res.status(503).json({ status: "error", db: "unreachable" });
+  }
+});
 
-// ─── 7. Health check ───────────────────────────────────────────────────────────────
+// Legacy alias — keeps any existing health probes working
 app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// ─── 6. Rate limiter ───────────────────────────────────────────────────────────────
+app.use(generalLimiter);
+
+// ─── 7. Request logger ─────────────────────────────────────────────────────────────
+app.use(requestLogger);
+
 // ─── 8. API routes ───────────────────────────────────────────────────────────────
 app.use("/api/v1", apiRouter);
 
-// ─── 8. 404 handler ───────────────────────────────────────────────────────────────
+// ─── 8a. Queue dashboard — SUPER_ADMIN only (lazy: only active when Redis is connected)
+app.use("/api/v1/admin/queues", authenticate, authorize("SUPER_ADMIN"), (req, res, next) => {
+  const router = getBoardRouter();
+  if (!router) return res.status(503).json({ success: false, message: "Queue dashboard unavailable — Redis not connected" });
+  router(req, res, next);
+});
+
+// ─── 9. 404 handler ───────────────────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });

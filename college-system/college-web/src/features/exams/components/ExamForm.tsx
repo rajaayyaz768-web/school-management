@@ -256,7 +256,7 @@ export function ExamForm({ exam, onSuccess, onCancel }: Props) {
       />
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-2">
+      <div className="flex justify-end gap-[var(--space-3)] pt-2">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>

@@ -29,7 +29,7 @@ function ExamCard({ exam }: { exam: Exam }) {
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-card)] p-4 space-y-2"
+      className="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-card)] p-[var(--space-4)] space-y-2"
     >
       <div className="flex items-start justify-between gap-2">
         <div>
@@ -38,7 +38,7 @@ function ExamCard({ exam }: { exam: Exam }) {
         </div>
         {statusBadge(exam.status)}
       </div>
-      <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--text-muted)]">
+      <div className="flex flex-wrap items-center gap-[var(--space-4)] text-xs text-[var(--text-muted)]">
         <span>📅 {new Date(exam.date).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
         <span>⏱ {exam.startTime}</span>
         <span>📝 {exam.totalMarks} marks</span>

@@ -154,7 +154,7 @@ export default function StudentResultsPage() {
         <>
           {/* Overall Summary — only show for all exams tab */}
           {tab === 'all' && reportCard && (
-            <Card className="flex flex-wrap items-center justify-between gap-4 p-5">
+            <Card className="flex flex-wrap items-center justify-between gap-[var(--space-4)] p-5">
               <div>
                 <p className="text-sm text-[var(--text-muted)]">Overall Performance</p>
                 <p className="text-2xl font-bold text-[var(--text)] mt-0.5">

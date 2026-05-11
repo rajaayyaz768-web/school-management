@@ -34,7 +34,7 @@ export default function TeacherSectionStudentsPage({ params }: { params: Promise
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center gap-3">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center gap-3">
         <button
           onClick={() => router.back()}
           className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface)] transition-colors"
@@ -52,7 +52,7 @@ export default function TeacherSectionStudentsPage({ params }: { params: Promise
       </header>
 
       <div className="px-4 pt-4 pb-2">
-        <div className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl px-3 h-11">
+        <div className="flex items-center gap-[var(--space-3)] bg-[var(--surface)] border border-[var(--border)] rounded-xl px-3 h-11">
           <Search className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
           <input
             type="text"
@@ -83,9 +83,9 @@ export default function TeacherSectionStudentsPage({ params }: { params: Promise
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 flex items-center justify-between gap-3"
+              className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-[var(--space-3)] flex items-center justify-between gap-3"
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-[var(--space-3)] min-w-0">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}>
                   {getInitials(student.firstName, student.lastName)}
                 </div>

@@ -103,7 +103,7 @@ export function ReportCard({ data }: ReportCardProps) {
         </div>
 
         {/* Summary stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-5 border-t border-[var(--border)]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-[var(--space-4)] mt-6 pt-5 border-t border-[var(--border)]">
           <div className="text-center">
             <p className="font-body text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1">Overall %</p>
             <p className="font-display text-2xl font-bold text-[var(--text)]">
@@ -153,7 +153,7 @@ export function ReportCard({ data }: ReportCardProps) {
           {data.subjects.map((subject) => (
             <TabPanel key={subject.subjectId} tabId={subject.subjectId} activeTab={activeTab} className="px-6 pb-6">
               {/* Subject summary row */}
-              <div className="flex items-center gap-6 mb-5 flex-wrap">
+              <div className="flex items-center gap-[var(--space-6)] mb-5 flex-wrap">
                 <div>
                   <span className="font-body text-xs text-[var(--text-muted)] uppercase tracking-wider">Subject Code</span>
                   <p className="font-mono text-sm font-semibold text-[var(--text)] mt-0.5">{subject.subjectCode}</p>

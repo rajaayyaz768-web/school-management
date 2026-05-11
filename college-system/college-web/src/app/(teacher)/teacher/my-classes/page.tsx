@@ -36,7 +36,7 @@ function SectionCard({ section, index }: { section: TeacherSection; index: numbe
           <p className="text-sm text-[var(--text-muted)] mt-0.5">
             {section.programName} · {section.gradeName}
           </p>
-          <div className="flex flex-wrap items-center gap-4 mt-3">
+          <div className="flex flex-wrap items-center gap-[var(--space-4)] mt-3">
             <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
               <Users className="w-4 h-4" />
               <span className="text-sm font-medium text-[var(--text)]">{section.studentCount}</span>
@@ -63,7 +63,7 @@ export default function TeacherMyClassesPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center justify-between">
         <div>
           <h1 className="font-bold text-lg text-[var(--text)]">My Classes</h1>
           {!isLoading && (

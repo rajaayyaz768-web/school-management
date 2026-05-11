@@ -71,7 +71,7 @@ export default function StudentAttendancePage() {
       ) : (
         <>
           {/* Summary Card */}
-          <Card className="flex flex-col sm:flex-row items-center gap-6 p-6">
+          <Card className="flex flex-col sm:flex-row items-center gap-[var(--space-6)] p-6">
             <div className="relative flex items-center justify-center">
               <CircleProgress pct={pct} size={100} />
               <div className="absolute text-center">

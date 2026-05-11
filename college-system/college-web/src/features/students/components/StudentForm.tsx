@@ -161,7 +161,7 @@ export function StudentForm({ student, onSuccess, onCancel }: StudentFormProps) 
 
       {/* Direct-assign toggle — only in create mode after a grade is selected */}
       {!isEdit && gradeId && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 space-y-3">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-[var(--space-3)] space-y-3">
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -250,7 +250,7 @@ export function StudentForm({ student, onSuccess, onCancel }: StudentFormProps) 
       </div>
 
       {/* Footer */}
-      <div className="flex justify-end gap-3 pt-6 border-t border-[var(--border)] mt-6">
+      <div className="flex justify-end gap-[var(--space-3)] pt-6 border-t border-[var(--border)] mt-6">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>Cancel</Button>
         <Button type="submit" variant="primary" loading={isPending}>
           {isEdit ? 'Save Changes' : isDirectAssign ? 'Enroll & Assign Student' : 'Enroll Student'}

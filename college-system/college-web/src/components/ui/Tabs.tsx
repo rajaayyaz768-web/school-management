@@ -54,8 +54,8 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
               id={`tab-${tab.id}`}
               onClick={() => onChange(tab.id)}
               className={cn(
-                'relative flex items-center justify-center gap-2 px-5 py-3 text-sm font-body font-medium',
-                'transition-colors duration-[180ms] whitespace-nowrap outline-none',
+                'relative flex items-center justify-center gap-2 px-5 py-[var(--space-3)] text-sm font-body font-medium',
+                'transition-colors duration-[var(--dur-base)] whitespace-nowrap outline-none',
                 'hover:text-[var(--text)]',
                 isActive
                   ? 'text-[var(--primary)] font-semibold'
@@ -65,7 +65,7 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
             >
               {tab.icon && (
                 <span className={cn(
-                  'shrink-0 transition-colors duration-[180ms]',
+                  'shrink-0 transition-colors duration-[var(--dur-base)]',
                   isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
                 )}>
                   {tab.icon}
@@ -77,7 +77,7 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
               {tab.count !== undefined && (
                 <span
                   className={cn(
-                    'ml-1 inline-flex items-center justify-center text-[10px] font-semibold leading-none',
+                    'ml-1 inline-flex items-center justify-center text-[var(--font-size-xs)] font-semibold leading-none',
                     tab.countVariant === 'alert'
                       ? 'bg-[var(--danger)] text-white px-1.5 py-0.5 rounded-full min-w-[1.25rem]'
                       : 'text-[var(--text-muted)]'
@@ -93,7 +93,7 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
 
       {/* Animated Bottom Border Indicator */}
       <div
-        className="absolute bottom-0 h-[2px] bg-[var(--primary)] rounded-full transition-all duration-[280ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+        className="absolute bottom-0 h-[2px] bg-[var(--primary)] rounded-full transition-all duration-[var(--dur-slow)] ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{
           left: `${indicatorStyle.left}px`,
           width: `${indicatorStyle.width}px`,

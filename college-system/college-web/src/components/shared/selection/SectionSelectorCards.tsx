@@ -82,7 +82,7 @@ export function SectionSelectorCards({ campusId, onSelect, selectedId, emptyDesc
                   )}
                 >
                   <p className="text-sm sm:text-xl font-bold text-[var(--text)] mb-1">{sec.name}</p>
-                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] mb-2 sm:mb-3">
+                  <p className="text-[var(--font-size-xs)] sm:text-xs text-[var(--text-muted)] mb-2 sm:mb-3">
                     {[sec.programCode, sec.gradeName].filter(Boolean).join(' · ')}
                   </p>
                   <div className="w-full h-1.5 rounded-full bg-[var(--border)] overflow-hidden mb-1">

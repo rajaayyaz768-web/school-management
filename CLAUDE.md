@@ -160,6 +160,13 @@ Roles.ALL                 // all five roles
 
 **WhatsApp service** (`src/services/whatsapp/metaClient.ts`): Meta Business API. Normalises Pakistani phone numbers (03001234567 → 923001234567). Used to send student/parent credentials and fee payment confirmations via pre-approved template messages. Returns `MetaSendResult { messageId? | error }`. Disabled when `META_WHATSAPP_ENABLED` is not `"true"`.
 
+**Timetable system** (`src/modules/timetable/`): Two-layer design.
+- `TimetablePeriodsConfig` — per campus+grade config (total periods, duration, break after which period). Upserted via `POST /timetable/period-config`. Unique on `(campusId, gradeId)`.
+- `TimetableSlot` — individual slot rows with `(sectionId, dayOfWeek, slotNumber, academicYear)` as unique key. `SlotType` is `THEORY | PRACTICAL | BREAK`; `DayOfWeek` is `MON–SAT`. `subjectId` and `staffId` are nullable (BREAK slots have neither). Slots can be created one-at-a-time or via `POST /timetable/slots/bulk`.
+- Conflict detection (`GET /timetable/conflict-check`) catches a teacher assigned to two sections at the same day+slot.
+- `GET /timetable/section/:sectionId` is accessible by all roles; `GET /timetable/teacher/:staffId` by ADMIN+ and TEACHER; `DELETE /timetable/section/:sectionId/clear` is SUPER_ADMIN only.
+- **Note**: `timetable.service.ts` currently instantiates its own `new PrismaClient()` instead of using the shared singleton from `src/config/database.ts` — this violates the project convention and should be fixed when touching that file.
+
 **Google Drive backup** (in `src/modules/system/`): OAuth2 flow; OTP-verified before connecting. Endpoints under `/api/v1/system/google/` (`auth-url`, `callback`, `send-otp`, `verify-otp`, `status`, `disconnect`) plus backup CRUD. Requires `GOOGLE_*` env vars.
 
 **Active backend modules**: admin-management, announcements, app-version, attendance, auth, campus, chat, dashboard, exams, fees, grades, import, leave, notifications, parents, programs, promotion, reports, results, section-assignment, sections, staff, staff-attendance, student-attendance, students, subjects, system, timetable.
@@ -277,6 +284,10 @@ types/       # TypeScript types
 **Forms**: `react-hook-form` + `@hookform/resolvers` with Zod schemas.
 
 **Socket.io client** (`src/lib/socket.ts`): singleton connecting to `NEXT_PUBLIC_API_URL`. User joins their personal room (`join_room` event) on login.
+
+**Frontend WhatsApp utility** (`src/lib/whatsapp.ts`): client-side helper that formats a message and opens `https://wa.me/<number>?text=<encoded>` in a new tab — this is **not** the backend Meta API. Four exported functions: `sendFeesPaidWhatsApp`, `sendFeeReminderWhatsApp`, `sendAbsentWhatsApp`, `sendParentChatWhatsApp`. Phone numbers are normalised from Pakistani format (03xx → 923xx). Use this for any new "send WhatsApp" button on the frontend; use the backend `metaClient.ts` only for automated/server-triggered messages.
+
+**Absence alerts** (`src/features/absence-alerts/`): frontend-only feature that surfaces a dismissible alert panel (`AbsenceAlertPanel`) when teachers have been marked absent. Consumed in the principal/admin dashboard to prompt action. No backend-specific endpoint — reads from staff attendance data.
 
 **Filter UI pattern** — the site uses **pill-chip buttons**, not `<Select>` dropdowns, for all filtering (sections, subjects, campuses, exam types, etc.). Pattern from `src/app/(admin)/admin/sections/page.tsx`:
 ```tsx

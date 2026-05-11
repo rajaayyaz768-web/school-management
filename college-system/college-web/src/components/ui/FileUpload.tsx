@@ -71,8 +71,8 @@ export function FileUpload({
         onClick={() => !disabled && inputRef.current?.click()}
         className={cn(
           'relative border-2 border-dashed rounded-[var(--radius-md)] p-8',
-          'flex flex-col items-center justify-center gap-3 text-center',
-          'transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)]',
+          'flex flex-col items-center justify-center gap-[var(--space-3)] text-center',
+          'transition-all duration-[var(--dur-base)] ease-[cubic-bezier(0.4,0,0.2,1)]',
           'cursor-pointer',
           isDragging
             ? 'border-[var(--primary)] bg-[var(--primary)]/5 scale-[1.01]'
@@ -94,7 +94,7 @@ export function FileUpload({
         />
         <div className={cn(
           'w-12 h-12 rounded-full flex items-center justify-center',
-          'transition-colors duration-[180ms]',
+          'transition-colors duration-[var(--dur-base)]',
           isDragging ? 'bg-[var(--primary)]/10' : 'bg-[var(--bg-secondary)]'
         )}>
           <Upload className={cn(
@@ -119,7 +119,7 @@ export function FileUpload({
           {files.map((file, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 bg-[var(--surface-alt)] rounded-[var(--radius-sm)] px-3 py-2 border border-[var(--border)]"
+              className="flex items-center gap-[var(--space-3)] bg-[var(--surface-alt)] rounded-[var(--radius-sm)] px-3 py-2 border border-[var(--border)]"
             >
               <FileText className="w-4 h-4 text-[var(--primary)] shrink-0" />
               <span className="font-body text-sm text-[var(--text)] truncate flex-1">

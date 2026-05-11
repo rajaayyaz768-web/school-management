@@ -38,7 +38,7 @@ function PeriodRow({ slot }: { slot: TeacherScheduleSlot }) {
 
   if (isBreak) {
     return (
-      <div className="flex items-center gap-3 px-4 py-3 bg-[var(--border)]/20 rounded-lg">
+      <div className="flex items-center gap-[var(--space-3)] px-[var(--space-4)] py-[var(--space-3)] bg-[var(--border)]/20 rounded-lg">
         <Coffee className="w-4 h-4 text-[var(--text-muted)]" />
         <span className="text-sm text-[var(--text-muted)] font-medium">Break</span>
         <span className="ml-auto text-xs text-[var(--text-muted)]">{slot.startTime}–{slot.endTime}</span>
@@ -53,15 +53,15 @@ function PeriodRow({ slot }: { slot: TeacherScheduleSlot }) {
       state === 'past' && 'opacity-50',
     )}>
       {/* Time column */}
-      <div className="w-16 flex flex-col items-center justify-center py-3 px-2 bg-[var(--bg)] border-r border-[var(--border)] shrink-0">
+      <div className="w-16 flex flex-col items-center justify-center py-[var(--space-3)] px-2 bg-[var(--bg)] border-r border-[var(--border)] shrink-0">
         <span className={cn('text-sm font-bold leading-tight', state === 'current' ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]')}>
           {slot.startTime}
         </span>
-        <span className="text-[10px] text-[var(--text-muted)] mt-0.5">{slot.endTime}</span>
+        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5">{slot.endTime}</span>
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-3 min-w-0">
+      <div className="flex-1 p-[var(--space-3)] min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h3 className="font-semibold text-sm text-[var(--text)] leading-tight truncate">
@@ -75,11 +75,11 @@ function PeriodRow({ slot }: { slot: TeacherScheduleSlot }) {
             )}
           </div>
           <div className="flex flex-col items-end gap-1 shrink-0">
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--surface-hover)] text-[var(--text-muted)]">
+            <span className="text-[var(--font-size-xs)] font-medium px-2 py-0.5 rounded bg-[var(--surface-hover)] text-[var(--text-muted)]">
               P{slot.slotNumber}
             </span>
             {state === 'current' && (
-              <span className="text-[10px] font-bold text-[var(--primary)] flex items-center gap-1">
+              <span className="text-[var(--font-size-xs)] font-bold text-[var(--primary)] flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse" />
                 NOW
               </span>
@@ -107,7 +107,7 @@ export default function TeacherTimetablePage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center justify-between">
         <h1 className="font-bold text-lg text-[var(--text)]">My Timetable</h1>
         <input
           type="text"
@@ -118,7 +118,7 @@ export default function TeacherTimetablePage() {
       </header>
 
       {/* Day tabs */}
-      <div className="flex overflow-x-auto gap-2 px-4 py-3 border-b border-[var(--border)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex overflow-x-auto gap-2 px-[var(--space-4)] py-[var(--space-3)] border-b border-[var(--border)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {DAYS.map(day => {
           const hasSlots = slotsByDay(day.key).length > 0
           const isActive = activeDay === day.key
@@ -128,7 +128,7 @@ export default function TeacherTimetablePage() {
               onClick={() => setActiveDay(day.key)}
               disabled={!hasSlots && !isLoading}
               className={cn(
-                'shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150',
+                'shrink-0 px-[var(--space-4)] py-2 rounded-full text-sm font-semibold transition-all duration-150',
                 isActive
                   ? 'bg-[var(--primary)] text-white'
                   : hasSlots

@@ -31,7 +31,7 @@ export function ClassTestForm({ sectionId, subjectId, subjectName, onSuccess, on
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="rounded-lg bg-[var(--surface-container-lowest)] border border-[var(--border)] px-4 py-2">
+      <div className="rounded-lg bg-[var(--surface-container-lowest)] border border-[var(--border)] px-[var(--space-4)] py-2">
         <p className="text-xs text-[var(--text-muted)]">Subject</p>
         <p className="font-medium text-sm text-[var(--text)]">{subjectName}</p>
       </div>
@@ -78,7 +78,7 @@ export function ClassTestForm({ sectionId, subjectId, subjectName, onSuccess, on
         placeholder="e.g. Room 4"
       />
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)]">
+      <div className="flex justify-end gap-[var(--space-3)] pt-4 border-t border-[var(--border)]">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={mutation.isPending}>
           Cancel
         </Button>

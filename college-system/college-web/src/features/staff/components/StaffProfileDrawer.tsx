@@ -57,7 +57,7 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
       ) : staff ? (
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-[var(--space-4)] mb-6">
             <Avatar name={`${staff.firstName} ${staff.lastName}`} src={staff.photoUrl || undefined} size="lg" />
             <div>
               <h2 className="text-xl font-bold text-[var(--text)]">
@@ -138,7 +138,7 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
                       ].map((stat) => (
                         <div key={stat.label} className="flex flex-col items-center justify-center bg-[var(--surface-container-low)] rounded-lg py-2.5 px-1">
                           <span className={`text-xl font-bold ${stat.color}`}>{stat.value}</span>
-                          <span className="text-[10px] text-[var(--text-muted)] mt-0.5 font-medium">{stat.label}</span>
+                          <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5 font-medium">{stat.label}</span>
                         </div>
                       ))}
                     </div>
@@ -150,7 +150,7 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
             </TabPanel>
 
             <TabPanel tabId="account" activeTab={activeTab}>
-              <div className="space-y-4 bg-[var(--surface-container-low)] p-4 rounded-lg">
+              <div className="space-y-4 bg-[var(--surface-container-low)] p-[var(--space-4)] rounded-lg">
                 <div>
                   <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Login Email</label>
                   <p className="text-sm text-[var(--text)] font-medium mt-1 break-all">
@@ -228,7 +228,7 @@ export function StaffProfileDrawer({ staffId, isOpen, onClose, onEdit }: StaffPr
             </TabPanel>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 mt-auto border-t border-[var(--border)]">
+          <div className="flex justify-end gap-[var(--space-3)] pt-4 mt-auto border-t border-[var(--border)]">
             <Button variant="secondary" onClick={onClose}>Close</Button>
             <Button variant="primary" onClick={() => onEdit(staff)}>Edit Profile</Button>
           </div>

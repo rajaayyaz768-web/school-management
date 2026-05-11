@@ -1,7 +1,15 @@
+const accessSecret = process.env.JWT_SECRET;
+const refreshSecret = process.env.JWT_REFRESH_SECRET;
+
+if (!accessSecret || !refreshSecret) {
+  throw new Error(
+    "FATAL: JWT_SECRET and JWT_REFRESH_SECRET environment variables must be set"
+  );
+}
+
 export const jwtConfig = {
-  accessSecret: process.env.JWT_SECRET || "fallback-access-secret-change-in-prod",
-  refreshSecret:
-    process.env.JWT_REFRESH_SECRET || "fallback-refresh-secret-change-in-prod",
+  accessSecret,
+  refreshSecret,
   accessExpires: process.env.JWT_ACCESS_EXPIRES || "15m",
   refreshExpires: process.env.JWT_REFRESH_EXPIRES || "7d",
   cookieName: "refreshToken",

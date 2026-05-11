@@ -11,20 +11,20 @@ interface Props {
   onClose: () => void
 }
 
-function fmt(n: number) {
+export function fmt(n: number) {
   return `PKR ${n.toLocaleString('en-PK', { maximumFractionDigits: 0 })}`
 }
 
-function feeMonth(dueDate: string) {
+export function feeMonth(dueDate: string) {
   return new Date(dueDate).toLocaleDateString('en-PK', { month: 'long', year: 'numeric' })
 }
 
-function fmtDate(d: string) {
+export function fmtDate(d: string) {
   return new Date(d).toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 // ── Single Challan Stub ───────────────────────────────────────────────────────
-function ChalanStub({ data, copyLabel }: { data: FeeChalanData; copyLabel: string }) {
+export function ChalanStub({ data, copyLabel }: { data: FeeChalanData; copyLabel: string }) {
   const studentName = `${data.student.firstName} ${data.student.lastName}`
   const classFull   = [data.program?.name, data.grade?.name].filter(Boolean).join(' / ')
   const sectionName = data.section?.name ?? '—'
@@ -502,20 +502,20 @@ export function ChalanModal({ recordId, onClose }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+            className="fixed inset-0 z-50 flex items-center justify-center p-[var(--space-4)] pointer-events-none"
           >
             <div
               className="pointer-events-auto w-full max-w-5xl bg-[var(--surface)] rounded-[var(--radius-card-lg)] shadow-[var(--shadow-card-lg)] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+              <div className="flex items-center justify-between px-[var(--space-6)] py-[var(--space-4)] border-b border-[var(--border)]">
                 <h2 className="font-display text-base font-semibold text-[var(--text)]">Fee Challan</h2>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleDownloadPDF}
                     disabled={isLoading || !data}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+                    className="flex items-center gap-2 px-[var(--space-4)] py-2 rounded-lg bg-[var(--primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
                   >
                     <Printer className="w-4 h-4" />
                     Download PDF

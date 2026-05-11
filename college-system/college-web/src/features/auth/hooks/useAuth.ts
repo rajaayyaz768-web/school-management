@@ -72,14 +72,14 @@ export function useLogout() {
 }
 
 export function useUpdateProfile() {
-  const { user, setAuth, accessToken, refreshToken } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const toast = useToast();
 
   return useMutation({
     mutationFn: updateProfileApi,
     onSuccess: (data) => {
-      if (user && accessToken && refreshToken != null) {
-        setAuth({ ...user, fullName: data.fullName }, accessToken, refreshToken);
+      if (user) {
+        setUser({ ...user, fullName: data.fullName });
       }
       toast.success("Name updated successfully");
     },

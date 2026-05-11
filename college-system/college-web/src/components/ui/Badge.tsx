@@ -3,10 +3,6 @@
 import { type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-/**
- * Badge component for status indicators
- * Refined status chips with soft backgrounds, micro-borders, and pulsing dot variants
- */
 export interface BadgeProps {
   variant?:
     | 'present' | 'absent' | 'late' | 'leave'
@@ -19,82 +15,63 @@ export interface BadgeProps {
   className?: string
 }
 
-// Soft backgrounds at 10% opacity + matching text + micro-border
+// Scholaris: soft semantic pill — low-sat background + matching text
 const variantStyles: Record<string, string> = {
-  // Attendance
-  present: 'bg-[#10B981]/10 text-[#059669] border border-[#10B981]/25',
-  absent: 'bg-[#EF4444]/10 text-[#DC2626] border border-[#EF4444]/25',
-  late: 'bg-[#F59E0B]/10 text-[#D97706] border border-[#F59E0B]/25',
-  leave: 'bg-[#3B82F6]/10 text-[#2563EB] border border-[#3B82F6]/25',
-  // Fee
-  paid: 'bg-[#10B981]/10 text-[#059669] border border-[#10B981]/25',
-  pending: 'bg-[#F59E0B]/10 text-[#D97706] border border-[#F59E0B]/25',
-  overdue: 'bg-[#EF4444]/10 text-[#DC2626] border border-[#EF4444]/25',
-  partial: 'bg-[#8B5CF6]/10 text-[#7C3AED] border border-[#8B5CF6]/25',
-  waived: 'bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/25',
-  // Grades
-  aplus: 'bg-[var(--gold)]/12 text-[var(--gold-dark)] border border-[var(--gold)]/30',
-  pass: 'bg-[#10B981]/10 text-[#059669] border border-[#10B981]/25',
-  fail: 'bg-[#EF4444]/10 text-[#DC2626] border border-[#EF4444]/25',
-  // General
-  success: 'bg-[#10B981]/10 text-[#059669] border border-[#10B981]/25',
-  warning: 'bg-[#F59E0B]/10 text-[#D97706] border border-[#F59E0B]/25',
-  danger: 'bg-[#EF4444]/10 text-[#DC2626] border border-[#EF4444]/25',
-  info: 'bg-[#3B82F6]/10 text-[#2563EB] border border-[#3B82F6]/25',
-  neutral: 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border)]',
+  present: 'bg-[var(--green-50)]  text-[var(--green-700)]  border border-[var(--green-50)]',
+  absent:  'bg-[var(--red-50)]    text-[var(--red-700)]    border border-[var(--red-50)]',
+  late:    'bg-[var(--amber-50)]  text-[var(--amber-700)]  border border-[var(--amber-50)]',
+  leave:   'bg-[var(--bg-tint)]   text-[var(--primary-dark)]   border border-[var(--surface-alt)]',
+  paid:    'bg-[var(--green-50)]  text-[var(--green-700)]  border border-[var(--green-50)]',
+  pending: 'bg-[var(--amber-50)]  text-[var(--amber-700)]  border border-[var(--amber-50)]',
+  overdue: 'bg-[var(--red-50)]    text-[var(--red-700)]    border border-[var(--red-50)]',
+  partial: 'bg-[var(--violet-50)] text-[var(--violet-500)] border border-[var(--violet-50)]',
+  waived:  'bg-[var(--bg-tint)]   text-[var(--primary-dark)]   border border-[var(--surface-alt)]',
+  aplus:   'bg-[var(--amber-50)]  text-[var(--amber-700)]  border border-[var(--amber-50)]',
+  pass:    'bg-[var(--green-50)]  text-[var(--green-700)]  border border-[var(--green-50)]',
+  fail:    'bg-[var(--red-50)]    text-[var(--red-700)]    border border-[var(--red-50)]',
+  success: 'bg-[var(--green-50)]  text-[var(--green-700)]  border border-[var(--green-50)]',
+  warning: 'bg-[var(--amber-50)]  text-[var(--amber-700)]  border border-[var(--amber-50)]',
+  danger:  'bg-[var(--red-50)]    text-[var(--red-700)]    border border-[var(--red-50)]',
+  info:    'bg-[var(--bg-tint)]   text-[var(--primary-dark)]   border border-[var(--surface-alt)]',
+  neutral: 'bg-[var(--slate-100)] text-[var(--slate-700)]  border border-[var(--slate-100)]',
 }
 
 const dotColors: Record<string, string> = {
-  present: 'bg-[#10B981]',
-  absent: 'bg-[#EF4444]',
-  late: 'bg-[#F59E0B]',
-  leave: 'bg-[#3B82F6]',
-  paid: 'bg-[#10B981]',
-  pending: 'bg-[#F59E0B]',
-  overdue: 'bg-[#EF4444]',
-  partial: 'bg-[#8B5CF6]',
-  waived: 'bg-[var(--primary)]',
-  aplus: 'bg-[var(--gold)]',
-  pass: 'bg-[#10B981]',
-  fail: 'bg-[#EF4444]',
-  success: 'bg-[#10B981]',
-  warning: 'bg-[#F59E0B]',
-  danger: 'bg-[#EF4444]',
-  info: 'bg-[#3B82F6]',
-  neutral: 'bg-[var(--text-muted)]',
+  present: 'bg-[var(--green-500)]',  absent:  'bg-[var(--red-500)]',
+  late:    'bg-[var(--amber-500)]',  leave:   'bg-[var(--primary)]',
+  paid:    'bg-[var(--green-500)]',  pending: 'bg-[var(--amber-500)]',
+  overdue: 'bg-[var(--red-500)]',    partial: 'bg-[var(--violet-500)]',
+  waived:  'bg-[var(--primary)]',   aplus:   'bg-[var(--amber-500)]',
+  pass:    'bg-[var(--green-500)]',  fail:    'bg-[var(--red-500)]',
+  success: 'bg-[var(--green-500)]',  warning: 'bg-[var(--amber-500)]',
+  danger:  'bg-[var(--red-500)]',    info:    'bg-[var(--primary)]',
+  neutral: 'bg-[var(--slate-400)]',
 }
 
 const sizeStyles = {
-  sm: 'px-2 py-0.5 text-[10px]',
-  md: 'px-2.5 py-0.5 text-[11px]',
+  sm: 'px-[7px] py-[2px] text-[var(--font-size-xs)]',
+  md: 'px-[9px] py-[3px] text-[var(--font-size-sm)]',
 }
 
 export function Badge({
-  variant = 'neutral',
-  size = 'md',
-  dot = false,
-  children,
-  className,
+  variant = 'neutral', size = 'md', dot = false, children, className,
 }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full font-semibold font-body',
-        'uppercase tracking-[0.04em] leading-tight',
-        'transition-colors duration-[var(--transition-base)]',
+        'inline-flex items-center gap-[5px] rounded-full font-body font-700',
+        'letter-spacing-[0.005em] leading-tight',
         variantStyles[variant],
         sizeStyles[size],
         className
       )}
     >
       {dot && (
-        <span
-          className={cn(
-            'w-1.5 h-1.5 rounded-full shrink-0',
-            dotColors[variant],
-            'animate-pulse-dot'
-          )}
-        />
+        <span className={cn(
+          'w-1.5 h-1.5 rounded-full shrink-0',
+          dotColors[variant],
+          'animate-[pulseDot_2s_ease-in-out_infinite]'
+        )} />
       )}
       {children}
     </span>

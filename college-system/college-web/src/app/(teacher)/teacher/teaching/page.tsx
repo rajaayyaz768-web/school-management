@@ -47,7 +47,7 @@ export default function TeacherTeachingPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center">
         <div>
           <h1 className="font-bold text-lg text-[var(--text)]">My Teaching</h1>
           {!isLoading && (
@@ -81,7 +81,7 @@ export default function TeacherTeachingPage() {
               className="bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden"
             >
               {/* Section header */}
-              <div className="bg-[var(--primary)]/10 border-b border-[var(--border)] px-4 py-3 flex items-start justify-between gap-3">
+              <div className="bg-[var(--primary)]/10 border-b border-[var(--border)] px-[var(--space-4)] py-[var(--space-3)] flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/20 border border-[var(--primary)]/30 flex items-center justify-center shrink-0">
                     <GraduationCap className="w-4 h-4 text-[var(--primary)]" />
@@ -92,10 +92,10 @@ export default function TeacherTeachingPage() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--primary)]/15 text-[var(--primary)]">
+                  <span className="text-[var(--font-size-xs)] font-bold px-2 py-0.5 rounded-full bg-[var(--primary)]/15 text-[var(--primary)]">
                     {sec.programCode}
                   </span>
-                  <span className="text-[10px] text-[var(--text-muted)] flex items-center gap-1">
+                  <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] flex items-center gap-1">
                     <Building2 className="w-3 h-3" />{sec.campusName}
                   </span>
                 </div>
@@ -104,11 +104,11 @@ export default function TeacherTeachingPage() {
               {/* Subject rows */}
               <div className="divide-y divide-[var(--border)]">
                 {sec.subjects.map(a => (
-                  <div key={a.id} className="flex items-center justify-between px-4 py-3 gap-3">
+                  <div key={a.id} className="flex items-center justify-between px-[var(--space-4)] py-[var(--space-3)] gap-3">
                     <div className="flex items-center gap-2 min-w-0">
                       <BookOpen className="w-3.5 h-3.5 text-[var(--primary)] shrink-0" />
                       <span className="text-sm font-medium text-[var(--text)] truncate">{a.subject?.name}</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-hover)] text-[var(--text-muted)] shrink-0">
+                      <span className="text-[var(--font-size-xs)] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-hover)] text-[var(--text-muted)] shrink-0">
                         {a.subject?.code}
                       </span>
                     </div>

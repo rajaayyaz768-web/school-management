@@ -105,7 +105,7 @@ export function ProgramsPage({ campusId, groupByCampus = false, navigation }: Pr
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       {/* Mobile header */}
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center justify-between md:hidden">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center justify-between md:hidden">
         <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Programs</h1>
         {isAdminOrSuper && (
           <button onClick={() => setIsAddModalOpen(true)} className="p-2 rounded-full bg-[var(--primary)] text-white active:opacity-80 transition-opacity">
@@ -115,7 +115,7 @@ export function ProgramsPage({ campusId, groupByCampus = false, navigation }: Pr
       </header>
 
       {/* Desktop header */}
-      <div className="hidden md:block max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="hidden md:block max-w-7xl mx-auto py-8 px-[var(--space-4)] sm:px-6 lg:px-8">
         <PageHeader
           title="Programs Management"
           breadcrumb={[

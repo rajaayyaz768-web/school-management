@@ -46,7 +46,7 @@ function PeriodCard({ slot, index }: { slot: TimetableSlot; index: number }) {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.04, duration: 0.3 }}
-        className="flex items-center gap-3 px-4 py-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]"
+        className="flex items-center gap-[var(--space-3)] px-[var(--space-4)] py-[var(--space-3)] bg-[var(--surface)] rounded-xl border border-[var(--border)]"
       >
         <Coffee className="w-4 h-4 text-[var(--text-muted)]" />
         <span className="text-sm text-[var(--text-muted)] font-medium flex-1">Break</span>
@@ -70,7 +70,7 @@ function PeriodCard({ slot, index }: { slot: TimetableSlot; index: number }) {
     >
       {/* Time column */}
       <div className={cn(
-        'w-16 flex flex-col items-center justify-center py-3 px-2 border-r shrink-0',
+        'w-16 flex flex-col items-center justify-center py-[var(--space-3)] px-2 border-r shrink-0',
         state === 'current'
           ? 'bg-[var(--primary)]/10 border-[var(--primary)]/20'
           : 'bg-[var(--bg)] border-[var(--border)]'
@@ -81,11 +81,11 @@ function PeriodCard({ slot, index }: { slot: TimetableSlot; index: number }) {
         )}>
           {slot.startTime}
         </span>
-        <span className="text-[10px] text-[var(--text-muted)]">{slot.endTime}</span>
+        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)]">{slot.endTime}</span>
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-3 min-w-0 flex items-center justify-between gap-2">
+      <div className="flex-1 p-[var(--space-3)] min-w-0 flex items-center justify-between gap-2">
         <div className="min-w-0">
           <h3 className="font-semibold text-sm text-[var(--text)] truncate">
             {slot.subject?.name ?? 'Free Period'}
@@ -97,11 +97,11 @@ function PeriodCard({ slot, index }: { slot: TimetableSlot; index: number }) {
           )}
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--border)]/50 text-[var(--text-muted)]">
+          <span className="text-[var(--font-size-xs)] font-medium px-2 py-0.5 rounded bg-[var(--border)]/50 text-[var(--text-muted)]">
             P{slot.slotNumber}
           </span>
           {state === 'current' && (
-            <span className="text-[10px] font-bold text-[var(--primary)] flex items-center gap-1">
+            <span className="text-[var(--font-size-xs)] font-bold text-[var(--primary)] flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse" />NOW
             </span>
           )}
@@ -131,7 +131,7 @@ export default function LiveViewPage() {
   if (step === 'campus') {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
-        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center gap-[var(--space-3)] md:hidden">
           <Radio className="w-5 h-5 text-[var(--primary)]" />
           <h1 className="font-bold text-lg text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>Live Timetable</h1>
         </header>
@@ -153,7 +153,7 @@ export default function LiveViewPage() {
   if (step === 'section') {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
-        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center gap-[var(--space-3)] md:hidden">
           <button onClick={() => setStep('campus')} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors active:scale-95">
             <ArrowLeft className="w-5 h-5 text-[var(--text)]" />
           </button>
@@ -177,13 +177,13 @@ export default function LiveViewPage() {
   // ── STEP 3 — Timetable view ───────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-14 flex items-center gap-3 md:hidden">
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-14 flex items-center gap-[var(--space-3)] md:hidden">
         <button onClick={() => { setStep('section'); setSelectedSection(null) }} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors shrink-0 active:scale-95">
           <ArrowLeft className="w-5 h-5 text-[var(--text)]" />
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="font-bold text-sm text-[var(--text)] truncate">Section {selectedSection?.name}</h1>
-          <p className="text-[11px] text-[var(--text-muted)] truncate">{selectedCampus?.name} · {selectedSection?.programCode} · {selectedSection?.gradeName}</p>
+          <p className="text-[var(--font-size-sm)] text-[var(--text-muted)] truncate">{selectedCampus?.name} · {selectedSection?.programCode} · {selectedSection?.gradeName}</p>
         </div>
         <input
           type="text"
@@ -194,7 +194,7 @@ export default function LiveViewPage() {
       </header>
 
       {/* Day tabs — horizontal scroll */}
-      <div className="flex overflow-x-auto gap-2 px-4 py-3 border-b border-[var(--border)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex overflow-x-auto gap-2 px-[var(--space-4)] py-[var(--space-3)] border-b border-[var(--border)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {DAYS.map(day => {
           const hasSlots = slotsByDay(day.key).length > 0
           const isActive = activeDay === day.key

@@ -221,7 +221,7 @@ export default function SectionAssignmentPage() {
                   setStep('assign')
                 }}
                 className={cn(
-                  'px-5 py-3 rounded-xl border-2 text-sm font-semibold transition-all',
+                  'px-5 py-[var(--space-3)] rounded-xl border-2 text-sm font-semibold transition-all',
                   'bg-[var(--surface)] hover:border-[var(--primary)] hover:bg-[var(--surface-hover)]',
                   selectedGradeId === g.id
                     ? 'border-[var(--primary)] bg-[var(--surface-hover)]'
@@ -241,7 +241,7 @@ export default function SectionAssignmentPage() {
     <div className="space-y-6">
       <PageHeader title="Section Assignment Tool" breadcrumb={breadcrumb} />
 
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-[var(--space-3)] flex-wrap">
         <Button variant="ghost" size="sm" onClick={() => { setStep('grade'); setSelectedGradeId(''); handleClearAssignments() }}>
           ← Change Grade
         </Button>
@@ -278,7 +278,7 @@ export default function SectionAssignmentPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-6 border-b border-[var(--border)]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--space-6)] pb-6 border-b border-[var(--border)]">
             <div className="lg:col-span-8 h-[600px]">
               <StudentRankingList
                 students={assignmentData.unassignedStudents}
@@ -337,13 +337,13 @@ export default function SectionAssignmentPage() {
         size="lg"
       >
         <div className="space-y-6">
-          <div className="text-center bg-[var(--surface-container-low)] p-6 rounded-xl border border-[var(--border)]">
+          <div className="text-center bg-[var(--surface-container-low)] p-[var(--space-6)] rounded-xl border border-[var(--border)]">
             <p className="text-sm font-semibold uppercase text-[var(--success)] tracking-wider">Total Assignments Executed</p>
             <p className="text-5xl font-black text-[var(--text)] mt-2">{assignmentResult?.totalAssigned || 0}</p>
           </div>
 
           {assignmentResult?.skipped && assignmentResult.skipped.length > 0 && (
-            <div className="bg-[var(--danger-tint)] border border-[var(--danger)] text-[var(--danger)] p-4 rounded-lg text-sm">
+            <div className="bg-[var(--danger-tint)] border border-[var(--danger)] text-[var(--danger)] p-[var(--space-4)] rounded-lg text-sm">
               <strong>Attention:</strong> {assignmentResult.skipped.length} records were skipped (already ACTIVE or missing).
             </div>
           )}

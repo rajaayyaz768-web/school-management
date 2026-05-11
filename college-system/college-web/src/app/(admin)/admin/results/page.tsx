@@ -148,7 +148,7 @@ export default function AdminResultsPage() {
   // Step 1: Section
   if (!selectedSection) {
     return (
-      <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-[var(--space-4)] sm:gap-6 p-[var(--space-4)] sm:p-6 lg:p-8">
         <PageHeader title="Result Cards" subtitle="Select a section to generate exam report cards" />
         <SectionSelectorCards onSelect={handleSectionSelect} selectedId={null} />
       </div>
@@ -156,7 +156,7 @@ export default function AdminResultsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
+    <div className="flex flex-col gap-[var(--space-4)] sm:gap-6 p-[var(--space-4)] sm:p-6 lg:p-8 pb-24 md:pb-8">
       <PageHeader
         title="Result Cards"
         subtitle={selectedSection.name}
@@ -213,7 +213,7 @@ export default function AdminResultsPage() {
                 <button
                   key={s.id}
                   onClick={() => handleStudentSelect(s.id)}
-                  className={`text-left rounded-[var(--radius-card-sm)] border p-3 transition-all ${
+                  className={`text-left rounded-[var(--radius-card-sm)] border p-[var(--space-3)] transition-all ${
                     selectedStudentId === s.id
                       ? 'border-[var(--primary)] bg-[var(--primary)]/5'
                       : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)]'
@@ -251,14 +251,14 @@ export default function AdminResultsPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 12 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+              className="fixed inset-0 z-50 flex items-center justify-center p-[var(--space-4)] pointer-events-none"
             >
               <div
                 className="pointer-events-auto w-full max-w-4xl bg-white rounded-[var(--radius-card-lg)] shadow-[var(--shadow-card-lg)] overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal toolbar */}
-                <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-[var(--surface)]">
+                <div className="flex items-center justify-between px-[var(--space-6)] py-[var(--space-3)] border-b border-gray-200 bg-[var(--surface)]">
                   <h2 className="font-semibold text-sm text-[var(--text)]">
                     {examTypes.find(t => t.id === selectedExamTypeId)?.name} — Result Card
                   </h2>
@@ -266,7 +266,7 @@ export default function AdminResultsPage() {
                     <button
                       onClick={handlePrintReportCard}
                       disabled={cardLoading || !reportCard}
-                      className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[var(--primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+                      className="flex items-center gap-2 px-[var(--space-4)] py-1.5 rounded-lg bg-[var(--primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
                     >
                       <Printer className="w-3.5 h-3.5" />
                       Download PDF

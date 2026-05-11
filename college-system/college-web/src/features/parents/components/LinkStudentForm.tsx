@@ -106,7 +106,7 @@ export function LinkStudentForm({ parentId, onSuccess, onCancel }: LinkStudentFo
                       <button
                         key={student.id}
                         type="button"
-                        className="w-full text-left px-4 py-2 hover:bg-[var(--surface-hover)] text-sm focus:outline-none transition-colors"
+                        className="w-full text-left px-[var(--space-4)] py-2 hover:bg-[var(--surface-hover)] text-sm focus:outline-none transition-colors"
                         onClick={() => {
                           setSelectedStudent(student);
                           setSearchQuery('');
@@ -129,7 +129,7 @@ export function LinkStudentForm({ parentId, onSuccess, onCancel }: LinkStudentFo
             )}
           </div>
         ) : (
-          <div className="flex items-center justify-between p-3 border border-[var(--border)] rounded-xl bg-[var(--surface-container-low)]">
+          <div className="flex items-center justify-between p-[var(--space-3)] border border-[var(--border)] rounded-xl bg-[var(--surface-container-low)]">
             <div>
               <div className="font-semibold text-[var(--text)] text-sm">
                 {selectedStudent.firstName} {selectedStudent.lastName}
@@ -171,7 +171,7 @@ export function LinkStudentForm({ parentId, onSuccess, onCancel }: LinkStudentFo
       </div>
 
       {/* Footer */}
-      <div className="flex justify-end gap-3 pt-6 border-t border-[var(--border)] mt-6">
+      <div className="flex justify-end gap-[var(--space-3)] pt-6 border-t border-[var(--border)] mt-6">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>

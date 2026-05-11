@@ -106,8 +106,8 @@ const Tooltip = ({
   const tooltipPortal = isVisible && typeof document !== 'undefined' ? createPortal(
     <div
       className={cn(
-        "absolute z-[9999] pointer-events-none w-max max-w-[200px] rounded-[var(--radius-sm)] bg-[var(--text)]/90 px-2.5 py-1.5 font-[var(--font-body)] text-[12px] font-normal text-[var(--bg)] shadow-[var(--shadow-md)]",
-        "animate-in fade-in duration-[140ms] ease-[var(--transition-base)]",
+        "absolute z-[9999] pointer-events-none w-max max-w-[200px] rounded-[var(--radius-sm)] bg-[var(--text)]/90 px-2.5 py-1.5 font-[var(--font-body)] text-[var(--font-size-sm)] font-normal text-[var(--bg)] shadow-[var(--shadow-md)]",
+        "animate-in fade-in duration-[var(--dur-fast)] ease-[var(--transition-base)]",
         actualPosition === 'top' && "slide-in-from-bottom-1 -translate-x-1/2 -translate-y-full",
         actualPosition === 'bottom' && "slide-in-from-top-1 -translate-x-1/2",
         actualPosition === 'left' && "slide-in-from-right-1 -translate-y-1/2 -translate-x-full",

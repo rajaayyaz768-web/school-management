@@ -180,7 +180,7 @@ export default function SubjectsPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
+    <div className="max-w-7xl mx-auto py-8 px-[var(--space-4)] sm:px-6 lg:px-8 animate-fade-in">
       <PageHeader
         title="Subjects Management"
         breadcrumb={[
@@ -339,7 +339,7 @@ export default function SubjectsPage() {
             />
           ) : (
             <>
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-[var(--space-3)] mb-6">
                 <Button variant="ghost" size="sm" onClick={() => setSelectedSection(null)}>← Change Section</Button>
                 <Badge variant="info">{selectedSection.name}</Badge>
                 {selectedSection.programCode && <span className="text-sm text-[var(--text-muted)]">{selectedSection.programCode}</span>}
@@ -471,7 +471,7 @@ export default function SubjectsPage() {
               return (
                 <label
                   key={s.id}
-                  className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition-colors ${
+                  className={`flex items-center gap-[var(--space-3)] rounded-lg border px-3 py-2.5 cursor-pointer transition-colors ${
                     checked
                       ? 'border-[var(--primary)] bg-[var(--surface-hover)]'
                       : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)]/50'

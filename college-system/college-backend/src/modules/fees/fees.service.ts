@@ -10,7 +10,7 @@ import {
   FeeDefaulter
 } from './fees.types'
 import { requireOwnCampus, assertSectionCampus, assertStudentCampus } from '../../utils/campusGuard'
-import { sendFeePaidWhatsApp } from '../notifications/notifications.service'
+import { getWhatsappQueue } from '../../queues'
 import { logger } from '../../utils/logger'
 
 interface RequestUser { id: string; role: Role; campusId: string | null }
@@ -427,9 +427,10 @@ export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: R
         hour: '2-digit', minute: '2-digit', hour12: true,
       })
 
-      await sendFeePaidWhatsApp(
-        phone,
-        {
+      await getWhatsappQueue()?.add('fee_paid', {
+        type: 'fee_paid',
+        toPhone: phone,
+        params: {
           parentName: parentLink?.parent.firstName ?? 'Parent',
           studentName: `${studentProfile?.firstName} ${studentProfile?.lastName}`,
           className: classWithCampus,
@@ -438,8 +439,8 @@ export const markFeeAsPaid = async (id: string, data: MarkFeeAsPaidDto, user?: R
           date: dateTime,
           receiptNumber: receiptNo,
         },
-        process.env.META_WHATSAPP_TEMPLATE_NAME ?? 'fee_paid_confirmation'
-      )
+        templateName: process.env.META_WHATSAPP_TEMPLATE_NAME ?? 'fee_paid_confirmation',
+      })
     } catch (err) {
       logger.error('[WhatsApp] Fee notification failed', { error: err instanceof Error ? err.message : String(err) })
     }

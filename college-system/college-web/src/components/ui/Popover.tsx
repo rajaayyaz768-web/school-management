@@ -233,7 +233,7 @@ export const PopoverDivider = ({ className }: { className?: string }) => (
 );
 
 export const PopoverHeader = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-  <div className={cn("px-3 py-2 text-[11px] uppercase tracking-[0.07em] font-medium text-[var(--text-muted)] font-[var(--font-body)]", className)}>
+  <div className={cn("px-3 py-2 text-[var(--font-size-sm)] uppercase tracking-[0.07em] font-medium text-[var(--text-muted)] font-[var(--font-body)]", className)}>
     {children}
   </div>
 );

@@ -28,6 +28,7 @@ interface AuthState {
 
   // Actions
   setAuth: (user: AuthUser, accessToken: string, refreshToken: string) => void;
+  setUser: (user: AuthUser) => void;
   setTokens: (accessToken: string, refreshToken: string | null) => void;
   logout: () => void;
 }
@@ -43,8 +44,12 @@ export const useAuthStore = create<AuthState>()(
       setAuth: (user, accessToken, refreshToken) => {
         Cookies.set("access-token", accessToken, { expires: 1 });
         Cookies.set("user-role", user.role, { expires: 1 });
-        connectSocket(user.id);
+        connectSocket(user.id, accessToken);
         set({ user, accessToken, refreshToken, isAuthenticated: true });
+      },
+
+      setUser: (user) => {
+        set({ user });
       },
 
       setTokens: (accessToken, refreshToken) => {

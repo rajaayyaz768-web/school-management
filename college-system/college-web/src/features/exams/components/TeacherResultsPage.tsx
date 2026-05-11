@@ -68,7 +68,7 @@ export function TeacherResultsPage() {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
         {/* Sticky header */}
-        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center gap-3 shrink-0">
+        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center gap-[var(--space-3)] shrink-0">
           <button
             onClick={() => setSelectedExam(null)}
             className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface)] transition-colors shrink-0"
@@ -99,7 +99,7 @@ export function TeacherResultsPage() {
   if (!selectedSectionId) {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
-        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center">
+        <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center">
           <h1 className="font-bold text-lg text-[var(--text)]">Enter Results</h1>
         </header>
         <div className="p-4">
@@ -117,7 +117,7 @@ export function TeacherResultsPage() {
   // ── STEP 2+ — Subject + Exam ──────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 h-16 flex items-center gap-3">
+      <header className="sticky top-0 z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--border)] px-[var(--space-4)] h-16 flex items-center gap-3">
         <button
           onClick={handleBack}
           className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface)] transition-colors shrink-0"
@@ -155,7 +155,7 @@ export function TeacherResultsPage() {
                 key={t}
                 onClick={() => handleTabChange(t)}
                 className={cn(
-                  'h-9 px-4 rounded-full text-sm font-medium transition-colors',
+                  'h-9 px-[var(--space-4)] rounded-full text-sm font-medium transition-colors',
                   tab === t
                     ? 'bg-[var(--primary)] text-white'
                     : 'bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--primary)]'
@@ -174,7 +174,7 @@ export function TeacherResultsPage() {
                   key={a.subjectId}
                   onClick={() => handleSubjectSelect(a.subjectId)}
                   className={cn(
-                    'shrink-0 h-9 px-4 rounded-full text-sm font-medium transition-colors',
+                    'shrink-0 h-9 px-[var(--space-4)] rounded-full text-sm font-medium transition-colors',
                     selectedSubjectId === a.subjectId
                       ? 'bg-[var(--primary)] text-white'
                       : 'bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--primary)]'
@@ -214,8 +214,8 @@ export function TeacherResultsPage() {
                         onClick={() => setSelectedExam(exam)}
                         className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl flex overflow-hidden transition-all active:scale-[0.99] hover:border-[var(--primary)]/50"
                       >
-                        <div className="w-14 bg-[var(--primary)] flex flex-col items-center justify-center py-3 shrink-0">
-                          <span className="text-[10px] font-semibold text-white/70 uppercase">
+                        <div className="w-14 bg-[var(--primary)] flex flex-col items-center justify-center py-[var(--space-3)] shrink-0">
+                          <span className="text-[var(--font-size-xs)] font-semibold text-white/70 uppercase">
                             {date.toLocaleDateString('en-PK', { month: 'short' })}
                           </span>
                           <span className="text-xl font-bold text-white leading-tight">
@@ -227,7 +227,7 @@ export function TeacherResultsPage() {
                             <p className="font-semibold text-sm text-[var(--text)] truncate">
                               {exam.examType?.name}
                             </p>
-                            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0', style.bg, style.text)}>
+                            <span className={cn('text-[var(--font-size-xs)] font-bold px-2 py-0.5 rounded-full shrink-0', style.bg, style.text)}>
                               {exam.status}
                             </span>
                           </div>

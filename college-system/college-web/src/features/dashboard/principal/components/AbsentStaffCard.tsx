@@ -54,7 +54,7 @@ export function AbsentStaffCard({ absentStaff, isLoading }: Props) {
               return (
                 <li
                   key={staff.id}
-                  className="flex items-center gap-3 py-2.5 px-3 rounded-[var(--radius)] bg-[var(--background)] border border-[var(--border)] hover:border-red-500/30 transition-colors"
+                  className="flex items-center gap-[var(--space-3)] py-2.5 px-3 rounded-[var(--radius)] bg-[var(--background)] border border-[var(--border)] hover:border-red-500/30 transition-colors"
                 >
                   {/* Avatar */}
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${colorCls}`}>
@@ -65,10 +65,10 @@ export function AbsentStaffCard({ absentStaff, isLoading }: Props) {
                       {staff.firstName} {staff.lastName}
                     </p>
                     {staff.designation && (
-                      <p className="text-[10px] text-[var(--text-muted)] mt-0.5 truncate">{staff.designation}</p>
+                      <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] mt-0.5 truncate">{staff.designation}</p>
                     )}
                   </div>
-                  <span className="text-[10px] text-[var(--text-muted)] font-mono bg-white/5 px-2 py-0.5 rounded flex-shrink-0">
+                  <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] font-mono bg-white/5 px-2 py-0.5 rounded flex-shrink-0">
                     {staff.staffCode}
                   </span>
                 </li>

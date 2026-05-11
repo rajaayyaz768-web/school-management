@@ -104,7 +104,7 @@ export default function TimetablePage() {
 
   if (step === 'section' && campusId) {
     return (
-      <div className="flex flex-col gap-6 p-8">
+      <div className="flex flex-col gap-[var(--space-6)] p-8">
         <PageHeader
           title="Timetable Builder"
           subtitle="Select a section to view or build its timetable"
@@ -145,7 +145,7 @@ export default function TimetablePage() {
         }
       />
 
-      <div className="flex items-center gap-3 -mt-4">
+      <div className="flex items-center gap-[var(--space-3)] -mt-4">
         <Button variant="ghost" size="sm" onClick={() => { setSelectedSection(null); setStep('section') }}>
           ← Change Section
         </Button>

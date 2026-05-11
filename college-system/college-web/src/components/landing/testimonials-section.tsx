@@ -1,164 +1,133 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef } from "react";
+import { motion, useInView } from "motion/react";
 
-const testimonials = [
+const TESTIMONIALS = [
   {
-    quote: "Falcon College transformed my academic journey. The portal keeps me on top of every deadline and grade effortlessly.",
-    author: "Aisha Malik",
-    role: "F.Sc Pre-Medical Student",
-    company: "Batch 2024",
-    metric: "Top 3 in her class",
+    quote: "The principal dashboard gives me a real-time overview of both campuses — attendance, fees, and results at a glance. I can focus on leadership instead of chasing reports.",
+    name: "Dr. Imran Siddiqui",
+    role: "Principal",
+    tag: "Administration",
+    color: "#0D3B2A",
+    light: "rgba(13,59,42,0.12)",
   },
   {
-    quote: "As a parent, being able to check my son's attendance and grades in real-time gives me total peace of mind.",
-    author: "Tariq Hussain",
+    quote: "Marking attendance used to take 15 minutes of paperwork. Now it takes 30 seconds on my phone. Parents get the WhatsApp alert before I even put my phone down.",
+    name: "Zara Ahmed",
+    role: "Class Teacher, Grade 11",
+    tag: "Teaching Staff",
+    color: "#C8963A",
+    light: "rgba(200,150,58,0.12)",
+  },
+  {
+    quote: "I used to call the school office every week to check my son's progress. Now I open the portal and see his attendance, marks, and fee status — all in real time.",
+    name: "Muhammad Tariq",
     role: "Parent",
-    company: "Class XI Parent",
-    metric: "Always informed",
-  },
-  {
-    quote: "The teacher portal makes managing attendance, assignments, and grades incredibly smooth. I save hours every week.",
-    author: "Prof. Sadia Iqbal",
-    role: "Senior Lecturer",
-    company: "Physics Dept.",
-    metric: "50% time saved",
-  },
-  {
-    quote: "Falcon College's platform is the best I've seen in any institution. Our admin work is now centralized and efficient.",
-    author: "Muhammad Asif",
-    role: "College Administrator",
-    company: "Admin Office",
-    metric: "Zero paperwork",
+    tag: "Parent Portal",
+    color: "#1A3A5C",
+    light: "rgba(26,58,92,0.12)",
   },
 ];
 
-export function TestimonialsSection() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setActiveIndex((prev) => (prev + 1) % testimonials.length);
-        setIsAnimating(false);
-      }, 300);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const activeTestimonial = testimonials[activeIndex];
+function TestimonialCard({ t, index }: { t: typeof TESTIMONIALS[0]; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -60px 0px" });
 
   return (
-    <section className="relative py-32 lg:py-40 border-t border-foreground/10 lg:pb-14">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        {/* Section Label */}
-        <div className="flex items-center gap-4 mb-16">
-          <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-            What our community says
-          </span>
-          <div className="flex-1 h-px bg-foreground/10" />
-          <span className="font-mono text-xs text-muted-foreground">
-            {String(activeIndex + 1).padStart(2, "0")} / {String(testimonials.length).padStart(2, "0")}
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 32 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.65, delay: index * 0.12, ease: [0.16, 1, 0.3, 1] }}
+      style={{
+        background: "#fff",
+        border: "1px solid rgba(0,0,0,0.07)",
+        borderRadius: 20,
+        padding: "36px 32px",
+        display: "flex", flexDirection: "column", gap: 24,
+        position: "relative", overflow: "hidden",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.05)",
+      }}
+    >
+      <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 3, background: `linear-gradient(90deg, ${t.color}, transparent)` }} />
+
+      <span style={{
+        display: "inline-flex", alignSelf: "flex-start",
+        padding: "4px 12px", borderRadius: 100,
+        background: t.light,
+        fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700,
+        letterSpacing: "0.1em", textTransform: "uppercase" as const,
+        color: t.color,
+      }}>{t.tag}</span>
+
+      <div style={{ fontFamily: "Georgia, serif", fontSize: 72, color: t.color, lineHeight: 0.8, opacity: 0.15, userSelect: "none" as const }}>&ldquo;</div>
+
+      <blockquote style={{
+        fontFamily: "var(--font-body)", fontSize: 16, lineHeight: 1.7,
+        color: "#353D4D", margin: 0, fontStyle: "italic", flex: 1,
+      }}>
+        {t.quote}
+      </blockquote>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: "50%",
+          background: `linear-gradient(135deg, ${t.color}, ${t.color}99)`,
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 15, color: "#fff" }}>
+            {t.name.split(" ").map(w => w[0]).join("").slice(0, 2)}
           </span>
         </div>
-
-        {/* Main Quote */}
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-20">
-          <div className="lg:col-span-8">
-            <blockquote
-              className={`transition-all duration-300 ${
-                isAnimating ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
-              }`}
-            >
-              <p className="font-display text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-foreground">
-                &ldquo;{activeTestimonial.quote}&rdquo;
-              </p>
-            </blockquote>
-
-            {/* Author */}
-            <div
-              className={`mt-12 flex items-center gap-6 transition-all duration-300 delay-100 ${
-                isAnimating ? "opacity-0" : "opacity-100"
-              }`}
-            >
-              <div className="w-16 h-16 rounded-full bg-foreground/5 border border-foreground/10 flex items-center justify-center">
-                <span className="font-display text-2xl text-foreground">
-                  {activeTestimonial.author.charAt(0)}
-                </span>
-              </div>
-              <div>
-                <p className="text-lg font-medium text-foreground">{activeTestimonial.author}</p>
-                <p className="text-muted-foreground">
-                  {activeTestimonial.role}, {activeTestimonial.company}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Metric Highlight */}
-          <div className="lg:col-span-4 flex flex-col justify-center">
-            <div
-              className={`p-8 border border-foreground/10 transition-all duration-300 ${
-                isAnimating ? "opacity-0 scale-95" : "opacity-100 scale-100"
-              }`}
-            >
-              <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase block mb-4">
-                Key Outcome
-              </span>
-              <p className="font-display text-3xl md:text-4xl text-foreground">
-                {activeTestimonial.metric}
-              </p>
-            </div>
-
-            {/* Navigation Dots */}
-            <div className="flex gap-2 mt-8">
-              {testimonials.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setIsAnimating(true);
-                    setTimeout(() => {
-                      setActiveIndex(idx);
-                      setIsAnimating(false);
-                    }, 300);
-                  }}
-                  className={`h-2 transition-all duration-300 ${
-                    idx === activeIndex
-                      ? "w-8 bg-foreground"
-                      : "w-2 bg-foreground/20 hover:bg-foreground/40"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Affiliates Marquee Label */}
-        <div className="mt-24 pt-12 border-t border-foreground/10">
-          <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase mb-8 text-center">
-            Trusted by students, parents, and educators
-          </p>
+        <div>
+          <p style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 15, color: "#0D1B0B", margin: 0 }}>{t.name}</p>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#8B98A8", margin: 0, marginTop: 1 }}>{t.role}</p>
         </div>
       </div>
+    </motion.div>
+  );
+}
 
-      {/* Full-width marquee outside container */}
-      <div className="w-full">
-        <div className="flex gap-16 items-center marquee">
-          {[...Array(2)].map((_, setIdx) => (
-            <div key={setIdx} className="flex gap-16 items-center shrink-0">
-              {["BISE Lahore", "HEC Pakistan", "Punjab Board", "Federal Board", "IBCC", "Aga Khan Board", "Cambridge", "Oxford Examinations"].map(
-                (board) => (
-                  <span
-                    key={`${setIdx}-${board}`}
-                    className="font-display text-xl md:text-2xl text-foreground/30 whitespace-nowrap hover:text-foreground transition-colors duration-300"
-                  >
-                    {board}
-                  </span>
-                )
-              )}
-            </div>
+export function TestimonialsSection() {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(headerRef, { once: true });
+
+  return (
+    <section style={{ background: "#FAFAF7", paddingTop: 96, paddingBottom: 96 }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+        <div ref={headerRef} style={{ marginBottom: 56 }}>
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5 }}
+            style={{
+              display: "inline-block",
+              fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 700,
+              letterSpacing: "0.16em", textTransform: "uppercase" as const,
+              color: "#C8963A", marginBottom: 16,
+            }}
+          >
+            Community Voice
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.65, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              fontFamily: "var(--font-display)", fontWeight: 800,
+              fontSize: "clamp(2rem,4.5vw,3.2rem)",
+              lineHeight: 1.1, letterSpacing: "-0.025em",
+              color: "#0D3B2A", maxWidth: 560, margin: 0,
+            }}
+          >
+            Trusted by every member of our school community.
+          </motion.h2>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 }}>
+          {TESTIMONIALS.map((t, i) => (
+            <TestimonialCard key={t.name} t={t} index={i} />
           ))}
         </div>
       </div>

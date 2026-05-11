@@ -67,7 +67,7 @@ export function ConfirmDialog({
 
         {children && <div className="mb-6 text-left">{children}</div>}
 
-        <div className="flex gap-3 justify-center">
+        <div className="flex gap-[var(--space-3)] justify-center">
           <Button variant="secondary" onClick={onClose} disabled={loading}>
             Cancel
           </Button>

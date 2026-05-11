@@ -139,7 +139,7 @@ export default function StudentAttendancePage() {
     <div className="flex flex-col gap-6">
       <PageHeader title="Student Attendance" breadcrumb={breadcrumb} />
 
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-[var(--space-3)] flex-wrap">
         <Button
           variant="ghost"
           size="sm"
